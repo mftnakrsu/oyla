@@ -16,7 +16,7 @@
     "build": "npm run build -w @oyla/web && npm run build -w @oyla/server",
     "start": "node packages/server/dist/index.js",
     "test": "vitest run",
-    "typecheck": "npm run typecheck --workspaces",
+    "typecheck": "npm run typecheck --workspaces && tsc -p e2e",
     "lint": "biome check .",
     "format": "biome format --write .",
     "e2e": "playwright test -c e2e/playwright.config.ts"
