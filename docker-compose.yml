@@ -1,0 +1,18 @@
+# Example: docker compose up -d   →   http://localhost:3000
+services:
+  oyla:
+    build: .
+    image: oyla
+    ports:
+      - "3000:3000"
+    volumes:
+      - oyla-data:/data
+    environment:
+      # Behind a reverse proxy (Caddy, nginx, Traefik…) set the number of proxies in front of Oyla.
+      OYLA_TRUST_PROXY: "false"
+      # Uncomment to require a password for creating presentations.
+      # OYLA_CREATE_PASSWORD: change-me
+    restart: unless-stopped
+
+volumes:
+  oyla-data:

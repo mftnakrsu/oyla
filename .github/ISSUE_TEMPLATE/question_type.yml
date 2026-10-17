@@ -1,0 +1,38 @@
+name: New question type
+description: Propose a new kind of question (quiz, Q&A, ranking…)
+labels: [enhancement, question-type]
+body:
+  - type: input
+    id: name
+    attributes:
+      label: Name
+      placeholder: Ranking
+    validations:
+      required: true
+  - type: textarea
+    id: presenter
+    attributes:
+      label: What the presenter sets up
+      description: The settings for one question (this becomes the config schema).
+    validations:
+      required: true
+  - type: textarea
+    id: participant
+    attributes:
+      label: What a participant does on their phone
+      description: The answer they send and how many answers each person may give.
+    validations:
+      required: true
+  - type: textarea
+    id: results
+    attributes:
+      label: What the big screen shows
+      description: How answers are summarised and drawn.
+    validations:
+      required: true
+  - type: checkboxes
+    id: help
+    attributes:
+      label: Contributing
+      options:
+        - label: I'd like to build it (see "Adding a question type" in the docs)

@@ -1,0 +1,30 @@
+name: Bug report
+description: Something doesn't work as it should
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Create a presentation with a word cloud question
+        2. Join from a phone and send two words
+        3. …
+    validations:
+      required: true
+  - type: input
+    id: where
+    attributes:
+      label: Where does it happen?
+      description: Browser and device, and whether it's oyla.mefby.com or your own server (Docker, Railway, from source…).
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit

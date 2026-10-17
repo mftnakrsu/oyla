@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Documentation
+    url: https://mftnakrsu.github.io/oyla/
+    about: Guides for presenting, self-hosting and contributing.
+  - name: Report a security problem
+    url: https://github.com/mftnakrsu/oyla/security/advisories/new
+    about: Please report vulnerabilities privately.
