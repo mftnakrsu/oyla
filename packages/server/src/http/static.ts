@@ -5,7 +5,10 @@ import type { FastifyInstance } from 'fastify';
 import { notFound } from './errors';
 
 /** Serves the built web app, falling back to index.html so client-side routes work on reload. */
-export async function registerWebApp(app: FastifyInstance, webDistPath: string | null) {
+export async function registerWebApp(
+  app: FastifyInstance,
+  webDistPath: string | null,
+): Promise<boolean> {
   const hasWebApp = webDistPath !== null && existsSync(join(webDistPath, 'index.html'));
   if (hasWebApp) {
     await app.register(fastifyStatic, {
@@ -36,4 +39,5 @@ export async function registerWebApp(app: FastifyInstance, webDistPath: string |
     }
     return notFound(reply);
   });
+  return hasWebApp;
 }

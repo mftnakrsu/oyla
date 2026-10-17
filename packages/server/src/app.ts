@@ -9,12 +9,15 @@ import { apiRoutes } from './http/routes';
 import { registerWebApp } from './http/static';
 import { attachLive } from './live/hub';
 import type { OylaServer } from './live/types';
+import { startRetentionJob } from './retention';
 import { createPresentationService, type PresentationService } from './service';
 import { createStore, type Store } from './store';
 
 export interface BuiltApp {
   app: FastifyInstance;
   io: OylaServer;
+  /** False when no built web app was found (API-only mode). */
+  hasWebApp: boolean;
   service: PresentationService;
   store: Store;
   close(): Promise<void>;
@@ -25,7 +28,7 @@ export interface BuildOptions {
   startRetention?: boolean;
 }
 
-export async function buildApp(config: AppConfig, _options: BuildOptions = {}): Promise<BuiltApp> {
+export async function buildApp(config: AppConfig, options: BuildOptions = {}): Promise<BuiltApp> {
   const database = openDatabase(config.dbPath);
   const store = createStore(database);
   const events = createLiveEvents();
@@ -61,15 +64,20 @@ export async function buildApp(config: AppConfig, _options: BuildOptions = {}): 
   await app.register(rateLimit, { global: false });
   app.setErrorHandler(errorHandler);
   await app.register(apiRoutes, { prefix: '/api', service, config });
-  await registerWebApp(app, config.webDistPath);
+  const hasWebApp = await registerWebApp(app, config.webDistPath);
   const live = attachLive(app, { service, events, config });
+  const stopRetention = options.startRetention
+    ? startRetentionJob({ store, events, retentionDays: config.retentionDays, log: app.log })
+    : () => {};
 
   return {
     app,
     io: live.io,
+    hasWebApp,
     service,
     store,
     async close() {
+      stopRetention();
       live.close();
       await app.close();
       database.sqlite.close();
