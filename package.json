@@ -1,0 +1,31 @@
+{
+  "name": "oyla",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Open-source live polls, word clouds and Q&A for talks, classes and meetings.",
+  "license": "MIT",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n server,web -c blue,magenta \"npm:dev -w @oyla/server\" \"npm:dev -w @oyla/web\"",
+    "build": "npm run build -w @oyla/web && npm run build -w @oyla/server",
+    "start": "node packages/server/dist/index.js",
+    "test": "vitest run",
+    "typecheck": "npm run typecheck --workspaces",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "e2e": "playwright test -c e2e/playwright.config.ts"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.15",
+    "@types/node": "^24.19.2",
+    "concurrently": "^10.0.6",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5"
+  }
+}
