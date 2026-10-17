@@ -223,6 +223,22 @@ describe('presentations', () => {
   });
 });
 
+describe('behind a reverse proxy', () => {
+  test('rate limits use the address the trusted proxy appended, not the spoofable first entry', async () => {
+    const app = await start({ trustProxy: 1, rateLimits: { apiPerMinute: 600, createPerHour: 1 } });
+    const create = (forwardedFor: string) =>
+      app.inject({
+        method: 'POST',
+        url: '/api/presentations',
+        headers: { 'x-forwarded-for': forwardedFor },
+        payload: { title: 'x' },
+      });
+    expect((await create('1.1.1.1, 203.0.113.7')).statusCode).toBe(201);
+    expect((await create('9.9.9.9, 203.0.113.7')).statusCode).toBe(429);
+    expect((await create('198.51.100.4')).statusCode).toBe(201);
+  });
+});
+
 describe('web app', () => {
   function webDist() {
     const dir = mkdtempSync(join(tmpdir(), 'oyla-web-'));

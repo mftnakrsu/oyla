@@ -9,8 +9,11 @@ export interface AppConfig {
   createPassword: string | null;
   /** Presentations idle for this many days are deleted; 0 keeps them forever. */
   retentionDays: number;
-  /** Trust X-Forwarded-For from a reverse proxy (Railway, Fly.io, nginx, Caddy…). */
-  trustProxy: boolean;
+  /**
+   * Number of reverse proxies in front of Oyla (Railway, Fly.io, nginx, Caddy…) whose
+   * X-Forwarded-For entries are trusted; 0 uses the socket address.
+   */
+  trustProxy: number;
   /** Built web app to serve, or null to run the API only. */
   webDistPath: string | null;
   logLevel: string;
@@ -25,10 +28,12 @@ const integer = (fallback: number, min: number, max = Number.MAX_SAFE_INTEGER) =
     .pipe(z.number().int().min(min).max(max))
     .default(fallback);
 
-const boolean = z
-  .enum(['true', 'false', '1', '0', 'yes', 'no'])
-  .transform((value) => ['true', '1', 'yes'].includes(value))
-  .default(false);
+/** "false" → 0 hops, "true" → 1 hop, or an explicit hop count such as "2". */
+const proxyHops = z
+  .string()
+  .regex(/^(true|false|\d)$/, 'must be true, false or a number of proxies (0-9)')
+  .transform((value) => (value === 'true' ? 1 : value === 'false' ? 0 : Number(value)))
+  .default(0);
 
 const envSchema = z.object({
   PORT: integer(3000, 0, 65535),
@@ -36,7 +41,7 @@ const envSchema = z.object({
   OYLA_DB_PATH: z.string().min(1).default('./data/oyla.db'),
   OYLA_CREATE_PASSWORD: z.string().optional(),
   OYLA_RETENTION_DAYS: integer(30, 0),
-  OYLA_TRUST_PROXY: boolean,
+  OYLA_TRUST_PROXY: proxyHops,
   OYLA_WEB_DIST: z.string().min(1).optional(),
   OYLA_LOG_LEVEL: z
     .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])

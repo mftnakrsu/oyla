@@ -7,11 +7,14 @@ import { createLiveEvents } from './events';
 import { errorHandler } from './http/errors';
 import { apiRoutes } from './http/routes';
 import { registerWebApp } from './http/static';
+import { attachLive } from './live/hub';
+import type { OylaServer } from './live/types';
 import { createPresentationService, type PresentationService } from './service';
 import { createStore, type Store } from './store';
 
 export interface BuiltApp {
   app: FastifyInstance;
+  io: OylaServer;
   service: PresentationService;
   store: Store;
   close(): Promise<void>;
@@ -31,7 +34,10 @@ export async function buildApp(config: AppConfig, _options: BuildOptions = {}): 
   const app = Fastify({
     logger: { level: config.logLevel, redact: ['req.headers.authorization'] },
     bodyLimit: 64 * 1024,
-    trustProxy: config.trustProxy,
+    // Trusting only the first N hops makes Fastify read the client IP from the right end of
+    // X-Forwarded-For, where the trusted proxy wrote it, instead of the spoofable left end.
+    trustProxy:
+      config.trustProxy > 0 ? (_address: string, hop: number) => hop < config.trustProxy : false,
   });
 
   await app.register(helmet, {
@@ -56,12 +62,15 @@ export async function buildApp(config: AppConfig, _options: BuildOptions = {}): 
   app.setErrorHandler(errorHandler);
   await app.register(apiRoutes, { prefix: '/api', service, config });
   await registerWebApp(app, config.webDistPath);
+  const live = attachLive(app, { service, events, config });
 
   return {
     app,
+    io: live.io,
     service,
     store,
     async close() {
+      live.close();
       await app.close();
       database.sqlite.close();
     },

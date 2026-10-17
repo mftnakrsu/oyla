@@ -258,6 +258,10 @@ export function createPresentationService({ store, events, config, now = Date.no
       events.emit('state-changed', presentationId);
     },
 
+    activeQuestionId(presentationId: string): string | null {
+      return requirePresentation(presentationId).activeQuestionId;
+    },
+
     joinByCode(joinCode: string): PresentationRow {
       const row = store.presentations.getByJoinCode(joinCode);
       if (!row) {

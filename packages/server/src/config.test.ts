@@ -10,7 +10,7 @@ describe('loadConfig', () => {
       dbPath: './data/oyla.db',
       createPassword: null,
       retentionDays: 30,
-      trustProxy: false,
+      trustProxy: 0,
       logLevel: 'info',
       rateLimits: { apiPerMinute: 600, createPerHour: 30 },
     });
@@ -36,11 +36,17 @@ describe('loadConfig', () => {
       dbPath: '/data/oyla.db',
       createPassword: 'secret',
       retentionDays: 0,
-      trustProxy: true,
+      trustProxy: 1,
       webDistPath: '/srv/web',
       logLevel: 'warn',
       rateLimits: { apiPerMinute: 100, createPerHour: 5 },
     });
+  });
+
+  test('trust proxy accepts false, true and a hop count', () => {
+    expect(loadConfig({ OYLA_TRUST_PROXY: 'false' }).trustProxy).toBe(0);
+    expect(loadConfig({ OYLA_TRUST_PROXY: 'true' }).trustProxy).toBe(1);
+    expect(loadConfig({ OYLA_TRUST_PROXY: '2' }).trustProxy).toBe(2);
   });
 
   test('treats an empty create password as unset', () => {
