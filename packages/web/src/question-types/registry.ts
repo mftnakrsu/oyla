@@ -1,18 +1,21 @@
 import type { QuestionTypeKey } from '@oyla/shared';
+import { type ComponentType, lazy } from 'react';
 import { BarsIcon, CloudIcon, NoteIcon, ScaleIcon } from './icons';
-import { MultipleChoiceEditor } from './multiple-choice/Editor';
 import { MultipleChoiceRespond } from './multiple-choice/Respond';
-import { MultipleChoiceResults } from './multiple-choice/Results';
-import { OpenEndedEditor } from './open-ended/Editor';
 import { OpenEndedRespond } from './open-ended/Respond';
-import { OpenEndedResults } from './open-ended/Results';
-import { ScaleEditor } from './scale/Editor';
 import { ScaleRespond } from './scale/Respond';
-import { ScaleResults } from './scale/Results';
 import type { AnyQuestionTypeUi, QuestionTypeUi } from './types';
-import { WordCloudEditor } from './word-cloud/Editor';
 import { WordCloudRespond } from './word-cloud/Respond';
-import { WordCloudResults } from './word-cloud/Results';
+
+/** Lazy-loads one named export, so phones never download editors or results charts. */
+function lazyNamed<P>(
+  load: () => Promise<Record<string, unknown>>,
+  name: string,
+): ComponentType<P> {
+  return lazy(async () => ({
+    default: (await load())[name] as ComponentType<P>,
+  })) as unknown as ComponentType<P>;
+}
 
 /**
  * The UI half of every question type; the other half lives in packages/shared. The mapped type
@@ -23,33 +26,33 @@ export const questionTypeUis: { [K in QuestionTypeKey]: QuestionTypeUi<K> } = {
     labelKey: 'type.multiple-choice.label',
     descriptionKey: 'type.multiple-choice.description',
     Icon: BarsIcon,
-    Editor: MultipleChoiceEditor,
+    Editor: lazyNamed(() => import('./multiple-choice/Editor'), 'MultipleChoiceEditor'),
     Respond: MultipleChoiceRespond,
-    Results: MultipleChoiceResults,
+    Results: lazyNamed(() => import('./multiple-choice/Results'), 'MultipleChoiceResults'),
   },
   'word-cloud': {
     labelKey: 'type.word-cloud.label',
     descriptionKey: 'type.word-cloud.description',
     Icon: CloudIcon,
-    Editor: WordCloudEditor,
+    Editor: lazyNamed(() => import('./word-cloud/Editor'), 'WordCloudEditor'),
     Respond: WordCloudRespond,
-    Results: WordCloudResults,
+    Results: lazyNamed(() => import('./word-cloud/Results'), 'WordCloudResults'),
   },
   'open-ended': {
     labelKey: 'type.open-ended.label',
     descriptionKey: 'type.open-ended.description',
     Icon: NoteIcon,
-    Editor: OpenEndedEditor,
+    Editor: lazyNamed(() => import('./open-ended/Editor'), 'OpenEndedEditor'),
     Respond: OpenEndedRespond,
-    Results: OpenEndedResults,
+    Results: lazyNamed(() => import('./open-ended/Results'), 'OpenEndedResults'),
   },
   scale: {
     labelKey: 'type.scale.label',
     descriptionKey: 'type.scale.description',
     Icon: ScaleIcon,
-    Editor: ScaleEditor,
+    Editor: lazyNamed(() => import('./scale/Editor'), 'ScaleEditor'),
     Respond: ScaleRespond,
-    Results: ScaleResults,
+    Results: lazyNamed(() => import('./scale/Results'), 'ScaleResults'),
   },
 };
 

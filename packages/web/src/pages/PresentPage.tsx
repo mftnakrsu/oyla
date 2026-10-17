@@ -1,5 +1,5 @@
 import { getQuestionType, type PresentationDto, type QuestionDto } from '@oyla/shared';
-import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import { type ReactNode, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { api, errorCodeOf } from '../api/client';
 import { buttonClass } from '../components/Button';
@@ -55,7 +55,7 @@ function Invite({ code, onClose }: { code: string; onClose(): void }) {
       role="dialog"
       aria-modal="true"
       aria-label={t('present.invite')}
-      className="fixed inset-0 z-20 grid place-items-center bg-page/95 p-[2em]"
+      className="fixed inset-0 z-20 grid place-items-center bg-page p-[2em]"
     >
       <div className="flex flex-col items-center gap-[1.5em] text-center">
         <p className="text-[2em] font-bold text-muted">
@@ -89,7 +89,9 @@ function ActiveQuestion({ question, results }: { question: QuestionDto; results:
         {question.title || t('editor.question.untitled')}
       </h1>
       <div className="min-h-0 flex-1 overflow-y-auto">
-        <ui.Results config={question.config} results={results} />
+        <Suspense fallback={null}>
+          <ui.Results config={question.config} results={results} />
+        </Suspense>
       </div>
     </>
   );

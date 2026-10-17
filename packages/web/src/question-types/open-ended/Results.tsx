@@ -13,7 +13,7 @@ export function OpenEndedResults({ results }: ResultsProps<'open-ended'>) {
         {results.entries.map((entry) => (
           <li
             key={entry.key}
-            className="slip-in mb-[0.75em] break-inside-avoid whitespace-pre-line break-words rounded-md border-2 border-line bg-paper px-[0.9em] py-[0.7em] text-[1.25em] leading-snug"
+            className="slip-in mb-[0.75em] break-inside-avoid whitespace-pre-line break-words rounded-md border-2 border-line bg-paper px-[0.9em] py-[0.7em] text-[1.4em] leading-snug"
           >
             {entry.text}
           </li>

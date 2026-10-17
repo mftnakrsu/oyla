@@ -26,7 +26,7 @@ export function Stamp({ size = 40, label, press = false, className = '' }: Stamp
         {/* Uneven ink: a little noise knocked out of the strokes. */}
         <filter id={grain}>
           <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3" />
-          <feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.4 1.1" />
+          <feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -0.6 1.15" />
           <feComposite in="SourceGraphic" operator="in" />
         </filter>
         <path id={ring} d="M60 60 m-41 0 a41 41 0 1 1 82 0 a41 41 0 1 1 -82 0" />

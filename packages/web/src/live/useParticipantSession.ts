@@ -70,6 +70,14 @@ export function useParticipantSession(joinCode: string): ParticipantSession {
         socket
           .timeout(ACK_TIMEOUT_MS)
           .emit('response:submit', { questionId, response }, (error, ack) => {
+            if (!error && ack.ok) {
+              // The ack carries the new allowance; no state broadcast follows for one participant.
+              setState((current) =>
+                current?.activeQuestion?.id === questionId
+                  ? { ...current, remaining: ack.remaining }
+                  : current,
+              );
+            }
             resolve(error ? { ok: false, error: { code: 'INTERNAL' } } : ack);
           });
       }),

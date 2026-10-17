@@ -7,6 +7,7 @@ import {
 } from '@oyla/shared';
 import {
   forwardRef,
+  Suspense,
   useCallback,
   useEffect,
   useId,
@@ -133,7 +134,9 @@ export const QuestionPanel = forwardRef<QuestionPanelHandle, QuestionPanelProps>
           />
         </div>
 
-        <ui.Editor config={config} onChange={setConfig} />
+        <Suspense fallback={<p className="text-muted">{t('common.loading')}</p>}>
+          <ui.Editor config={config} onChange={setConfig} />
+        </Suspense>
 
         <div className="flex flex-wrap items-center gap-2 border-t-2 border-line pt-5">
           <p className="mr-auto text-muted">
