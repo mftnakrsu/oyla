@@ -1,0 +1,129 @@
+@import "tailwindcss";
+
+/*
+ * Oyla tokens. Ink on paper, a red rubber stamp as the only flourish, and the Okabe–Ito
+ * palette for answer options so they stay distinguishable for colour-blind viewers.
+ */
+:root {
+  --page: #eef0f4;
+  --paper: #ffffff;
+  --ink: #1a1c24;
+  --muted: #5d6272;
+  --line: #d5d9e2;
+  --stamp: #d92d3a;
+  --stamp-soft: #fbe7e9;
+  --focus: #1f6feb;
+  /* Results: one series hue (labels carry identity), and frequency tiers for word clouds. */
+  --series: #0072b2;
+  --cloud-1: #0b5a8c;
+  --cloud-2: #0072b2;
+  --cloud-3: #3d8bc2;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #12131a;
+    --paper: #1c1e27;
+    --ink: #eceef4;
+    --muted: #a3a8b8;
+    --line: #343846;
+    --stamp: #ff5a64;
+    --stamp-soft: #3a1e24;
+    --focus: #6ea8ff;
+    --series: #56b4e9;
+    --cloud-1: #8fd0f5;
+    --cloud-2: #56b4e9;
+    --cloud-3: #3d8bc2;
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --font-sans: "Atkinson Hyperlegible Next Variable", ui-sans-serif, system-ui, sans-serif;
+  --color-page: var(--page);
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-stamp: var(--stamp);
+  --color-stamp-soft: var(--stamp-soft);
+  --color-focus: var(--focus);
+  --color-series: var(--series);
+  --color-cloud-1: var(--cloud-1);
+  --color-cloud-2: var(--cloud-2);
+  --color-cloud-3: var(--cloud-3);
+}
+
+@layer base {
+  html {
+    background: var(--page);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 100%;
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+    font-variant-numeric: tabular-nums;
+  }
+
+  body {
+    min-height: 100dvh;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: var(--stamp-soft);
+  }
+}
+
+@keyframes slip-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+.slip-in {
+  animation: slip-in 320ms ease-out both;
+}
+
+@keyframes stamp-press {
+  0% {
+    opacity: 0;
+    transform: scale(1.6) rotate(-2deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(0.94) rotate(-9deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(-8deg);
+  }
+}
+
+.stamp-press {
+  animation: stamp-press 260ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stamp-press {
+    animation: none;
+    transform: rotate(-8deg);
+  }
+
+  .slip-in {
+    animation: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    /* biome-ignore lint/complexity/noImportantStyles: reduced motion must win over utilities */
+    transition-duration: 0.01ms !important;
+  }
+}
