@@ -3,11 +3,13 @@ import { useEffect, useRef, useState } from 'react';
 import { useI18n } from '../../i18n/I18nProvider';
 import { EmptyResults } from '../shared';
 import type { ResultsProps } from '../types';
+import { type Orientation, orientationOf, sizeOf, type Tier, tierOf } from './layout';
 
 interface CloudWord extends cloud.Word {
   text: string;
   size: number;
-  tier: 1 | 2 | 3;
+  tier: Tier;
+  orientation: Orientation;
 }
 
 interface PlacedWord {
@@ -15,25 +17,14 @@ interface PlacedWord {
   size: number;
   x: number;
   y: number;
-  tier: 1 | 2 | 3;
+  tier: Tier;
+  orientation: Orientation;
 }
 
 const FONT = '"Atkinson Hyperlegible Next Variable", system-ui, sans-serif';
-const MAX_LAYOUT_ATTEMPTS = 4;
+const MAX_LAYOUT_ATTEMPTS = 6;
 const tierClass = { 1: 'fill-cloud-1', 2: 'fill-cloud-2', 3: 'fill-cloud-3' } as const;
 const tierTextClass = { 1: 'text-cloud-1', 2: 'text-cloud-2', 3: 'text-cloud-3' } as const;
-
-/** Colour tier from how common a word is relative to the most common one. */
-function tierOf(count: number, max: number): 1 | 2 | 3 {
-  const share = count / max;
-  return share >= 0.66 ? 1 : share >= 0.33 ? 2 : 3;
-}
-
-/** Font size between `smallest` and `largest`; when every count is equal all words are mid-sized. */
-function sizeOf(count: number, max: number, smallest: number, largest: number): number {
-  const t = max <= 1 ? 0.5 : (count - 1) / (max - 1);
-  return smallest + Math.sqrt(t) * (largest - smallest);
-}
 
 function useSize<T extends HTMLElement>() {
   const ref = useRef<T>(null);
@@ -50,7 +41,10 @@ function useSize<T extends HTMLElement>() {
   return [ref, size] as const;
 }
 
-/** Word size and colour tier both follow how many people gave the word. */
+/**
+ * Word size and colour tier both follow how many people gave the word; some words read
+ * vertically, like a classic word cloud (see layout.ts).
+ */
 export function WordCloudResults({ results }: ResultsProps<'word-cloud'>) {
   const { tn } = useI18n();
   const [ref, { width, height }] = useSize<HTMLDivElement>();
@@ -68,18 +62,19 @@ export function WordCloudResults({ results }: ResultsProps<'word-cloud'>) {
 
     // d3-cloud silently drops words that do not fit, so shrink and retry until all of them do.
     const run = (attempt: number) => {
-      const largest = Math.min(height / 3.6, width / 7) * 0.82 ** attempt;
-      const smallest = Math.max(20, largest / 3.5);
-      const words: CloudWord[] = results.words.map((word) => ({
+      const largest = Math.min(height / 3.2, width / 6) * 0.85 ** attempt;
+      const smallest = Math.max(14, largest / 6);
+      const words: CloudWord[] = results.words.map((word, rank) => ({
         text: word.text,
         size: sizeOf(word.count, top, smallest, largest),
         tier: tierOf(word.count, top),
+        orientation: orientationOf(word.text, rank),
       }));
       layout = cloud<CloudWord>()
         .size([width, height])
         .words(words)
-        .padding(Math.max(4, smallest / 4))
-        .rotate(0)
+        .padding(Math.max(3, smallest / 5))
+        .rotate((d) => d.orientation)
         .font(FONT)
         .fontWeight(800)
         .fontSize((d) => d.size)
@@ -98,6 +93,7 @@ export function WordCloudResults({ results }: ResultsProps<'word-cloud'>) {
               x: w.x ?? 0,
               y: w.y ?? 0,
               tier: w.tier,
+              orientation: w.orientation,
             })),
           );
         });
@@ -153,7 +149,7 @@ export function WordCloudResults({ results }: ResultsProps<'word-cloud'>) {
                 fontFamily: FONT,
                 fontWeight: 800,
                 fontSize: word.size,
-                transform: `translate(${word.x}px, ${word.y}px)`,
+                transform: `translate(${word.x}px, ${word.y}px) rotate(${word.orientation}deg)`,
               }}
             >
               {word.text}
