@@ -142,7 +142,8 @@ of the same name in the editor does it for the selected question. Phones that ha
 form back and can answer again. Use it after a test run.
 
 :::caution
-Reset results takes effect at the first click and cannot be undone.
+Reset results asks you to click again within a few seconds, then deletes the answers for good.
+It cannot be undone.
 :::
 
 ## Change questions during a session

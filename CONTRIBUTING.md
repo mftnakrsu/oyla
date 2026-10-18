@@ -54,13 +54,18 @@ This is the best first contribution. A question type has two halves:
 
 1. **`packages/shared/src/question-types/<type>.ts`:** a `defineQuestionType({...})` with the
    config schema, default config, response schema, answers per person and an `aggregate`
-   function that turns answers into results. Register it in `registry.ts`.
+   function that turns answers into results. Use `textField()` from `shared/src/text.ts` for any
+   text people type. Register it in `registry.ts` and export it from `packages/shared/src/index.ts`.
 2. **`packages/web/src/question-types/<type>/`:** `Editor.tsx` (the presenter's settings),
-   `Respond.tsx` (the phone form) and `Results.tsx` (the presenter screen). Register them in the
-   web `registry.ts`. TypeScript reports an error until both registries list the type.
+   `Respond.tsx` (the phone form) and `Results.tsx` (the presenter screen). Add an icon to
+   `icons.tsx` and an entry to the web `registry.ts` (Editor and Results are loaded lazily, as the
+   other entries show). TypeScript reports an error until both registries list the type.
+3. **Labels:** `type.<type>.label` and `type.<type>.description`, plus any strings your
+   components use, in both `packages/web/src/i18n/en.ts` and `tr.ts`.
+4. **Tests:** schemas and `aggregate` in `packages/shared/src/question-types/<type>.test.ts`, and
+   your `Respond` form in `packages/web/src/question-types/respond.test.tsx`.
 
-Then add tests for the schemas and `aggregate` in shared, a `Respond` test in web, and the labels
-in both dictionaries. The step-by-step guide with code is in the docs:
+The step-by-step guide with code is in the docs:
 [Adding a question type](https://mftnakrsu.github.io/oyla/development/adding-a-question-type/).
 
 ## Reporting bugs and ideas

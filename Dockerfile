@@ -28,10 +28,12 @@ COPY --from=build /app/packages/server/package.json ./packages/server/
 COPY --from=build /app/packages/server/dist ./packages/server/dist
 COPY --from=build /app/packages/server/drizzle ./packages/server/drizzle
 COPY --from=build /app/packages/web/dist ./packages/web/dist
+COPY docker-entrypoint.sh /usr/local/bin/oyla-entrypoint.sh
 RUN mkdir -p /data && chown node:node /data
-USER node
 VOLUME ["/data"]
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||3000)+'/api/health').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"
+# The entrypoint drops from root to the "node" user before starting the server.
+ENTRYPOINT ["/usr/local/bin/oyla-entrypoint.sh"]
 CMD ["node", "packages/server/dist/index.js"]

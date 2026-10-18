@@ -26,7 +26,8 @@ or `--env-file`, in Compose, or in your host's settings.
 | [`OYLA_WEB_DIST`](#oyla_web_dist) | `packages/web/dist` | Built web app to serve |
 | [`OYLA_LOG_LEVEL`](#oyla_log_level) | `info` | Log level |
 | [`OYLA_RATE_LIMIT_API_PER_MINUTE`](#oyla_rate_limit_api_per_minute) | `600` | API requests per minute per client IP |
-| [`OYLA_RATE_LIMIT_CREATE_PER_HOUR`](#oyla_rate_limit_create_per_hour) | `30` | New presentations per hour per client IP |
+| [`OYLA_RATE_LIMIT_CREATE_PER_HOUR`](#oyla_rate_limit_create_per_hour) | `10` | New presentations per hour per client IP |
+| [`OYLA_MAX_DB_MB`](#oyla_max_db_mb) | `1024` | Largest database file in MB; `0` means no limit |
 
 ## `PORT`
 
@@ -112,8 +113,15 @@ gets HTTP 429 and the web app shows **Too many requests. Wait a moment and try a
 
 ## `OYLA_RATE_LIMIT_CREATE_PER_HOUR`
 
-New presentations per hour per client IP. Default `30`. Lower it on a public instance if you see
+New presentations per hour per client IP. Default `10`. Lower it on a public instance if you see
 abuse, or set `OYLA_CREATE_PASSWORD`.
+
+## `OYLA_MAX_DB_MB`
+
+The largest size the SQLite file may grow to, in megabytes. Default `1024`; `0` removes the limit.
+When the database is full, new presentations and answers are refused with **The server is out of
+storage. Tell whoever runs it.** instead of filling the disk. Keep it below the size of your
+volume.
 
 ## Built-in limits
 

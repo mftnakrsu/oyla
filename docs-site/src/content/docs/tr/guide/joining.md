@@ -66,7 +66,7 @@ teşekkür ekranında **Bir cevap daha ekle (2 hak kaldı)** gibi bir düğme bu
 
 | Mesaj | Anlamı |
 |---|---|
-| **Sunucu başka bir soruya geçti.** | Cevabınızı, sunum yapan kişi soruyu değiştirdikten hemen sonra gönderdiniz. Yeni soru artık ekranınızda. |
+| **Sunum yapan kişi başka bir soruya geçti.** | Cevabınızı, sunum yapan kişi soruyu değiştirdikten hemen sonra gönderdiniz. Yeni soru artık ekranınızda. |
 | **Bu soruyu zaten cevapladınız.** | Bu sorunun izin verdiği bütün cevap haklarını kullandınız. |
 | **Bu soru artık cevap kabul etmiyor.** | Soru, soru başına sınır olan 2.000 cevaba ulaştı. |
 | **Çok fazla istek gönderildi. Biraz bekleyip tekrar deneyin.** | Telefonunuzdan çok hızlı cevap ya da katılma denemesi geldi. |

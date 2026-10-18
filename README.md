@@ -78,7 +78,8 @@ npm start            # http://localhost:3000
 | `OYLA_TRUST_PROXY` | `false` | Behind a reverse proxy: `true` (one proxy) or the number of proxies |
 | `OYLA_LOG_LEVEL` | `info` | `fatal`, `error`, `warn`, `info`, `debug`, `trace` or `silent` |
 | `OYLA_RATE_LIMIT_API_PER_MINUTE` | `600` | API requests per minute per IP |
-| `OYLA_RATE_LIMIT_CREATE_PER_HOUR` | `30` | New presentations per hour per IP |
+| `OYLA_RATE_LIMIT_CREATE_PER_HOUR` | `10` | New presentations per hour per IP |
+| `OYLA_MAX_DB_MB` | `1024` | Largest database file in MB; `0` means no limit |
 
 More in the [configuration docs](https://mftnakrsu.github.io/oyla/self-hosting/configuration/).
 

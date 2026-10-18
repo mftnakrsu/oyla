@@ -38,7 +38,7 @@ kopyala**'yı seçin, linki güvenli bir yere kaydedin ve ardından **Kaydettim*
 
 - Sunuma geri dönmenin tek yolu bu link. Linke sahip olan herkes sunumu düzenleyebilir, sunabilir
   ve silebilir; bu yüzden yalnızca birlikte sunum yaptığınız kişilerle paylaşın.
-- Tarayıcınız sunumu ana sayfadaki **Sunumlarınız** listesinde **Aç** ve **Sun** düğmeleriyle
+- Tarayıcınız sunumu ana sayfadaki **Sunumlarınız** listesinde **Aç** ve **Sunumu başlat** düğmeleriyle
   hatırlar. Bu liste yalnızca o tarayıcıda durur.
 - Linki istediğiniz zaman düzenleyicinin altındaki **Yönetici linkini kopyala** düğmesiyle yeniden
   kopyalayabilirsiniz.
@@ -87,7 +87,7 @@ Bir sunumda en fazla 50 soru olabilir.
 
 ## Sunun
 
-Düzenleyicinin üst çubuğundaki **Sun** düğmesini seçin (sunumda en az bir soru olduğunda
+Düzenleyicinin üst çubuğundaki **Sunumu başlat** düğmesini seçin (sunumda en az bir soru olduğunda
 kullanılabilir). Sunum ekranı açılır ve henüz etkin bir soru yoksa ilk soruyla başlar. Bu pencereyi
 projeksiyona yansıtın.
 
@@ -103,7 +103,7 @@ projeksiyona yansıtın.
 - Üst çubukta her zaman **_adres_ adresine gidin ve _kod_ kodunu girin** yazısı ve bir QR kod
   bulunur; geç gelenler istedikleri an katılabilir.
 - Ortada etkin soru ve sonuçları yer alır. Sonuçlar cevaplar geldikçe güncellenir.
-- Alt çubukta kaç kişinin bağlı olduğu (örneğin "25 kişi katıldı") ve kaçıncı soruda olduğunuz
+- Alt çubukta kaç kişinin bağlı olduğu (örneğin "25 kişi bağlı") ve kaçıncı soruda olduğunuz
   ("1 / 4") görünür.
 
 Sağ alttaki düğmeler sırasıyla **Önceki soru**, **Sonraki soru**, **Sonuçları sıfırla**,
@@ -144,7 +144,7 @@ aynı adlı düğme ise bunu seçili soru için yapar. Daha önce cevap vermiş 
 açılır ve tekrar cevap verilebilir. Bir deneme turundan sonra işinize yarar.
 
 :::caution
-Sonuçları sıfırla ilk tıklamada çalışır ve geri alınamaz.
+Sonuçları sıfırla, birkaç saniye içinde tekrar tıklamanızı ister; ardından cevapları kalıcı olarak siler. Bu işlem geri alınamaz.
 :::
 
 ## Oturum sırasında soruları değiştirin
@@ -163,7 +163,7 @@ Sunum ekranını kapatmak oturumu bitirmez. Etkin soru etkin kalır ve telefonla
 devam eder; böylece slaytlarınıza geçip sonra geri dönebilirsiniz. Etkin soru sunucuda saklandığı
 için sunucu yeniden başlasa bile oturum kaldığı yerden devam eder.
 
-Başka bir bilgisayardan sunmak için yönetici linkini o bilgisayarda açın ve **Sun**'u seçin.
+Başka bir bilgisayardan sunmak için yönetici linkini o bilgisayarda açın ve **Sunumu başlat**'ı seçin.
 
 ## Sunumu silin
 

@@ -58,7 +58,9 @@ answer the active question, but not see results or change anything.
 - Every REST body and every socket message is parsed with a zod schema before it is used. Request
   bodies are limited to 64 KB and socket messages to 16 KB.
 - Text fields have length limits, for example 280 characters for an open answer and 200 for a
-  question.
+  question. Invisible and direction-changing characters, broken characters and piles of stacked
+  accents are removed from user text before it is stored, so nothing hidden or garbled reaches the
+  projector.
 - Answering is checked on the server: the question must be active, the answer must match the
   question's settings, and the participant must have answers left. The check and the insert run in
   one database transaction.
@@ -66,9 +68,16 @@ answer the active question, but not see results or change anything.
 ### Rate limits
 
 - The REST API allows `OYLA_RATE_LIMIT_API_PER_MINUTE` requests per minute per client IP
-  (default 600) and `OYLA_RATE_LIMIT_CREATE_PER_HOUR` new presentations per hour (default 30).
+  (default 600, shared by all API routes) and `OYLA_RATE_LIMIT_CREATE_PER_HOUR` new presentations
+  per hour (default 10).
 - Each Socket.IO connection has token buckets for join attempts, answers and presenter commands.
-- One IP address can hold at most 500 live connections, enough for a classroom behind one router.
+- Per client IP, across all its connections: at most 500 live connections and a limited rate of
+  new ones (enough for a classroom behind one router), a limited number of wrong join codes, so
+  codes can't be guessed by scanning, and at most 600 answers to any one question. IPv6 addresses
+  are grouped by their /64 prefix.
+- A question takes at most 2,000 answers and a presentation 20,000, and `OYLA_MAX_DB_MB` caps the
+  database file, so a public instance can't be filled up.
+- Socket connections from pages on other sites are refused (the `Origin` must match the host).
 
 Behind a reverse proxy, these limits only work per visitor when
 [`OYLA_TRUST_PROXY`](/oyla/self-hosting/configuration/#oyla_trust_proxy) is set correctly.

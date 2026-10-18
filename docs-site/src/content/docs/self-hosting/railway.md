@@ -41,10 +41,12 @@ In the service's **Variables** tab, add:
 | Variable | Value | Why |
 |---|---|---|
 | `OYLA_TRUST_PROXY` | `true` | Railway's proxy sits in front of Oyla. This makes rate limits use each visitor's address instead of the proxy's. |
-| `RAILWAY_RUN_UID` | `0` | Railway mounts volumes as root, while the image runs as a non-root user that could not write to `/data`. This setting runs the container as root so the database can be created. |
 | `OYLA_CREATE_PASSWORD` | a long password | Optional. Only people who know it can create presentations. Joining stays open. |
 
 Variable changes take effect with the next deploy; deploy the changes when Railway offers it.
+
+You don't need `RAILWAY_RUN_UID`. Railway mounts volumes owned by root; the image's entrypoint
+hands `/data` to its unprivileged `node` user at start and runs the server as that user.
 
 ## 4. Add your domain
 

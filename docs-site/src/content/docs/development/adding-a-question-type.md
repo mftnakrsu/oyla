@@ -313,7 +313,8 @@ export function HashIcon({ className = '' }: { className?: string }) {
 ## 3. Register the components
 
 Add an entry to `questionTypeUis` in `packages/web/src/question-types/registry.ts`. Import
-`Respond` directly; load `Editor` and `Results` with `lazyNamed`, so phones never download them.
+`Respond` directly; load `Editor` and `Results` with `lazy()`, so phones never download them.
+TypeScript checks the export names inside `then(...)`, so a typo is a compile error.
 
 ```tsx title="packages/web/src/question-types/registry.ts" ins={1,3,9-16}
 import { BarsIcon, CloudIcon, HashIcon, NoteIcon, ScaleIcon } from './icons';
@@ -328,9 +329,9 @@ export const questionTypeUis: { [K in QuestionTypeKey]: QuestionTypeUi<K> } = {
     labelKey: 'type.number.label',
     descriptionKey: 'type.number.description',
     Icon: HashIcon,
-    Editor: lazyNamed(() => import('./number/Editor'), 'NumberEditor'),
+    Editor: lazy(() => import('./number/Editor').then((m) => ({ default: m.NumberEditor }))),
     Respond: NumberRespond,
-    Results: lazyNamed(() => import('./number/Results'), 'NumberResults'),
+    Results: lazy(() => import('./number/Results').then((m) => ({ default: m.NumberResults }))),
   },
 };
 ```

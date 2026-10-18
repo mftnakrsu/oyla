@@ -42,11 +42,14 @@ Servisin **Variables** sekmesine şunları ekleyin:
 | Değişken | Değer | Neden |
 |---|---|---|
 | `OYLA_TRUST_PROXY` | `true` | Oyla'nın önünde Railway'in proxy'si var. Bu ayar sayesinde hız sınırları proxy'nin değil, her ziyaretçinin kendi adresine göre uygulanır. |
-| `RAILWAY_RUN_UID` | `0` | Railway volume'ları root kullanıcısıyla bağlar; imaj ise `/data`'ya yazamayan, root olmayan bir kullanıcıyla çalışır. Bu ayar konteyneri root olarak çalıştırır ve veritabanı oluşturulabilir. |
 | `OYLA_CREATE_PASSWORD` | uzun bir şifre | İsteğe bağlı. Yalnızca şifreyi bilenler sunum oluşturabilir; katılım herkese açık kalır. |
 
 Değişken değişiklikleri bir sonraki dağıtımda (deploy) geçerli olur; Railway önerdiğinde
 değişiklikleri dağıtın.
+
+`RAILWAY_RUN_UID` ayarına gerek yok. Railway volume'ları root kullanıcısına ait olarak bağlar;
+imajın giriş betiği açılışta `/data` klasörünü yetkisiz `node` kullanıcısına devreder ve sunucuyu
+bu kullanıcıyla çalıştırır.
 
 ## 4. Alan adınızı ekleyin
 

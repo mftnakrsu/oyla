@@ -40,7 +40,10 @@ test('a participant votes and the presenter sees it live', async ({ page, browse
   await expect(page.getByText('1 vote', { exact: true })).toBeVisible();
 
   // Resetting gives the participant their vote back.
+  // Resetting deletes answers, so it asks for a second click.
   await page.getByRole('button', { name: 'Reset results' }).click();
+  await expect(page.getByText('1 vote', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Click again to reset' }).click();
   await expect(page.getByText('0 votes')).toBeVisible();
   await expect(phone.getByRole('button', { name: 'Send vote' })).toBeVisible();
 
