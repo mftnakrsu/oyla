@@ -270,6 +270,11 @@ export function NumberRespond({ config, onSubmit }: RespondProps<'number'>) {
 The presenter screen scales its font size with the window, so size things in `em` and they grow
 on a projector. Don't rely on colour alone to carry meaning.
 
+Take colours from the theme tokens through Tailwind classes such as `bg-series`, `text-muted` or
+`border-line`, never from hard-coded values, so your type looks right in every presentation theme
+and in dark mode. The [architecture page](/development/architecture/#themes-and-colour-tokens)
+lists the tokens.
+
 ```tsx title="packages/web/src/question-types/number/Results.tsx"
 import { useI18n } from '../../i18n/I18nProvider';
 import { EmptyResults } from '../shared';
@@ -449,7 +454,7 @@ npm run dev
 
 In the browser, create a presentation, add a **Number** question, select **Present**, and answer
 from a second window at `http://localhost:5173/join/<code>`. Check the editor, the phone form and
-the presenter screen in both languages and in dark mode.
+the presenter screen in both languages, in dark mode and with more than one theme.
 
 ## Checklist
 
@@ -459,6 +464,7 @@ the presenter screen in both languages and in dark mode.
 - [ ] `Editor.tsx`, `Respond.tsx` and `Results.tsx` in `packages/web/src/question-types/<type>/`
 - [ ] An icon in `icons.tsx` and an entry in `packages/web/src/question-types/registry.ts`
 - [ ] Strings in `en.ts` and `tr.ts`
+- [ ] Colours only from the theme tokens, no hard-coded values
 - [ ] `<type>.test.ts` in shared, the registry key list updated, a `Respond` test in web
 - [ ] `npm run typecheck`, `npm test` and `npm run lint` pass
 

@@ -22,7 +22,7 @@ The repository is an npm workspace with three packages.
 
 | Path | Contents |
 |---|---|
-| `packages/shared` | The contract between both sides: zod schemas for REST bodies, the typed Socket.IO protocol, error codes, limits and the question type definitions |
+| `packages/shared` | The contract between both sides: zod schemas for REST bodies, the typed Socket.IO protocol, error codes, limits, the presentation themes and the question type definitions |
 | `packages/server` | Fastify REST API, Socket.IO live layer, SQLite through Drizzle ORM, retention job |
 | `packages/web` | React app (React Router, Vite, Tailwind CSS): pages, question type components, i18n |
 | `e2e` | One Playwright test of the whole live flow |
@@ -52,6 +52,7 @@ presentations
   id                  TEXT PK      random 12-character id
   join_code           TEXT UNIQUE  6 digits, shown as "123 456"
   title               TEXT         1 to 120 characters
+  theme               TEXT         colour theme key, default 'emerald'
   admin_token_hash    TEXT         SHA-256 of the admin token, hex
   active_question_id  TEXT NULL    the question the audience sees
   created_at, updated_at, last_activity_at   INTEGER (Unix ms)
@@ -75,6 +76,10 @@ responses
 ```
 
 - `active_question_id` is stored, so a restart resumes the presentation where it was.
+- `theme` is one of the keys of `THEMES` in `packages/shared/src/themes.ts`, which also exports
+  the `ThemeKey` type and `DEFAULT_THEME`: `emerald` (the default), `indigo`, `navy` and `blue`.
+  The column is `TEXT NOT NULL DEFAULT 'emerald'` and was added by a Drizzle migration, so older
+  presentations get the default theme.
 - Editing a question never deletes responses. Results are computed from the stored answers and the
   current config each time, which is why votes for removed options or out-of-range ratings simply
   stop counting.
@@ -91,8 +96,8 @@ JSON over HTTP under `/api`, defined in `packages/server/src/http/routes.ts`. Ro
 | `GET /api/health` | none | Liveness: `{ "status": "ok" }` |
 | `GET /api/config` | none | `{ createPasswordRequired, retentionDays }` |
 | `POST /api/presentations` | create password, if set | Body `{ title, password? }`. Returns `201` with `{ id, joinCode, adminToken }` |
-| `GET /api/presentations/:id` | admin | The presentation with its questions and answer counts |
-| `PATCH /api/presentations/:id` | admin | Rename: `{ title }` |
+| `GET /api/presentations/:id` | admin | The presentation (`PresentationDto`, including its `theme`) with its questions and answer counts |
+| `PATCH /api/presentations/:id` | admin | Rename or change the theme: `{ title?, theme? }`, at least one. Live clients receive `presentation` |
 | `DELETE /api/presentations/:id` | admin | Delete. Live clients receive `presentation:ended`. Returns `204` |
 | `POST /api/presentations/:id/questions` | admin | Add a question: `{ type, title?, config? }`. Returns `201` |
 | `PUT /api/presentations/:id/questions/order` | admin | Reorder: `{ ids }`, the full new order |
@@ -112,8 +117,9 @@ The codes live in `packages/shared/src/errors.ts`: `VALIDATION_FAILED`, `NOT_FOU
 `QUESTION_FULL` and `INTERNAL`. The web app shows a translated message for each code, so the
 `message` text is only for developers.
 
-REST changes that affect what the audience sees, such as editing or deleting the active question
-or reordering, notify the live layer, which pushes a fresh state to the phones.
+REST changes that affect what the audience sees, such as editing or deleting the active question,
+reordering, renaming the presentation or changing its theme, notify the live layer, which pushes
+the change to the connected clients.
 
 ## Socket.IO protocol
 
@@ -127,9 +133,9 @@ Every event takes an acknowledgement callback that receives either `{ ok: true, 
 
 | Event | Payload | Acknowledgement |
 |---|---|---|
-| `participant:join` | `{ joinCode, participantId }` | `{ presentationId, title, state }` |
+| `participant:join` | `{ joinCode, participantId }` | `{ presentationId, title, theme, state }` |
 | `response:submit` | `{ questionId, response }` | `{ remaining }` |
-| `presenter:join` | `{ presentationId, adminToken }` | `{ title, activeQuestionId, participants, results }` |
+| `presenter:join` | `{ presentationId, adminToken }` | `{ title, theme, activeQuestionId, participants, results }` |
 | `presenter:activate` | `{ questionId }`; `null` means no active question | `{}` |
 | `presenter:reset` | `{ questionId }` | `{}` |
 
@@ -141,6 +147,7 @@ Every event takes an acknowledgement callback that receives either `{ ok: true, 
 | `presenter:state` | presenters | `{ activeQuestionId }` |
 | `results` | presenters | `{ questionId, results, total }`, at most once every 250 ms per question |
 | `presence` | presenters | `{ participants }`: distinct participant ids currently connected |
+| `presentation` | everyone | `{ title, theme }`, whenever the title or the theme changes |
 | `presentation:ended` | everyone | The presentation was deleted |
 
 `activeQuestion` contains the id, type, title, `index` and `total` (for "Question 2 of 5") and the
@@ -169,14 +176,14 @@ Each presentation has two rooms, `p:<id>:participants` and `p:<id>:presenters`. 
 distinct participant ids, not sockets, so a phone with two tabs counts once. Presence and the
 throttling timers are kept in memory, which is the main reason Oyla runs as a single instance.
 Scaling out would need the Socket.IO Redis adapter and shared presence; see the
-[roadmap](/oyla/roadmap/).
+[roadmap](/roadmap/).
 
 ## Question types
 
 A question type is defined once in `packages/shared/src/question-types/` and rendered by three
 components in `packages/web/src/question-types/<type>/`. The server has no code for individual
 types: it validates and aggregates through the shared registry. The
-[step-by-step guide](/oyla/development/adding-a-question-type/) explains the interfaces.
+[step-by-step guide](/development/adding-a-question-type/) explains the interfaces.
 
 ## Web app
 
@@ -196,6 +203,20 @@ types: it validates and aggregates through the shared registry. The
   key is a type error. The language follows the browser and can be switched.
 - `localStorage` access is wrapped in try/catch, so the app works when storage is blocked.
 
+### Themes and colour tokens
+
+On the pages of a presentation, the web app sets `data-palette="<theme>"` on `<html>`, using the
+theme from the join acknowledgement and from later `presentation` events. That is how a theme
+change reaches every phone at once. Other pages, such as the home page, use the default theme.
+Light and dark mode follow `prefers-color-scheme` on each device.
+
+`packages/web/src/index.css` defines the colour tokens for every theme, in light and dark. The
+semantic tokens are `--brand`, `--on-brand`, `--brand-soft`, `--stamp`, `--danger`, `--on-danger`,
+`--danger-soft`, `--series`, `--cloud-1` to `--cloud-3`, `--ink`, `--muted`, `--line`, `--paper`,
+`--page` and `--focus`. Components use them through Tailwind classes such as `bg-brand`,
+`text-series` or `border-line`, never hard-coded colours, so every component works in every theme
+and in dark mode.
+
 ## Background jobs
 
 One job: the retention sweep in `packages/server/src/retention.ts` runs at startup and every hour
@@ -204,4 +225,4 @@ and deletes presentations whose `last_activity_at` is older than `OYLA_RETENTION
 ## Security
 
 Admin tokens, rate limits, the Content Security Policy and the other measures are described on the
-[security page](/oyla/security/).
+[security page](/security/).

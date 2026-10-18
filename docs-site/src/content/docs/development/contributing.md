@@ -80,16 +80,16 @@ CI runs the same checks.
 | Database schema | `packages/server/src/db/schema.ts`, then `npm run db:generate -w @oyla/server` for a migration |
 | Environment variables | `packages/server/src/config.ts` |
 
-The [architecture page](/oyla/development/architecture/) explains how the parts fit together.
+The [architecture page](/development/architecture/) explains how the parts fit together.
 
 ## Good first contributions
 
 - **A new interface language.** Add a dictionary next to `packages/web/src/i18n/en.ts` and
   register it in `I18nProvider.tsx`.
-- **A new question type.** Follow [Adding a question type](/oyla/development/adding-a-question-type/).
+- **A new question type.** Follow [Adding a question type](/development/adding-a-question-type/).
 - **Accessibility fixes** you notice while using Oyla with a keyboard or a screen reader.
 
-Bigger features are listed on the [roadmap](/oyla/roadmap/). Comment on an issue, or open one,
+Bigger features are listed on the [roadmap](/roadmap/). Comment on an issue, or open one,
 before you start on something large, so work isn't duplicated.
 
 ## Documentation
@@ -99,17 +99,18 @@ This site lives in `docs-site/` and is a separate npm project:
 ```bash
 cd docs-site
 npm install
-npm run dev      # http://localhost:4321/oyla/
+npm run dev      # http://localhost:4321/
 npm run build
 ```
 
 Pages are Markdown files in `docs-site/src/content/docs/`; Turkish translations sit under `tr/`.
-Every page has an **Edit page** link at the bottom.
+Every page has an **Edit page** link at the bottom. Changes to `docs-site/` that reach the `main`
+branch are published to <https://oyla.mefby.com> by the `Docs` workflow.
 
 ## Reporting bugs and security problems
 
 Open an issue for bugs and ideas. For security problems, don't open a public issue; follow the
-[security policy](/oyla/security/#report-a-vulnerability).
+[security policy](/security/#report-a-vulnerability).
 
 By contributing you agree that your work is released under the
 [MIT License](https://github.com/mftnakrsu/oyla/blob/main/LICENSE) and that you follow the

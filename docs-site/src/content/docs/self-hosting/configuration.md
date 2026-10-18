@@ -113,8 +113,8 @@ gets HTTP 429 and the web app shows **Too many requests. Wait a moment and try a
 
 ## `OYLA_RATE_LIMIT_CREATE_PER_HOUR`
 
-New presentations per hour per client IP. Default `10`. Lower it on a public instance if you see
-abuse, or set `OYLA_CREATE_PASSWORD`.
+New presentations per hour per client IP. Default `10`. Lower it on an instance open to the
+internet if you see abuse, or set `OYLA_CREATE_PASSWORD`.
 
 ## `OYLA_MAX_DB_MB`
 
@@ -138,4 +138,4 @@ These limits are part of the code and not configurable.
 | Results updates sent to the presenter | at most one every 250 ms per question |
 
 Content limits such as 50 questions per presentation and 2,000 answers per question are listed on
-the [question types page](/oyla/guide/question-types/#limits-for-every-type).
+the [question types page](/guide/question-types/#limits-for-every-type).

@@ -10,16 +10,16 @@ account and no name to enter.
 
 Use one of these:
 
-- **Type the code.** Open the address shown on the screen (for example `oyla.mefby.com`), type the
-  6-digit code under **Enter the code on the screen** and tap **Join**.
+- **Type the code.** Open the address shown on the screen (for example `oyla.example.com`),
+  type the 6-digit code under **Enter the code on the screen** and tap **Join**.
 - **Scan the QR code** on the presenter screen. It opens the presentation directly.
 - **Open a join link.** The presenter can share a link such as
-  `https://oyla.mefby.com/join/859847` with **Copy join link** in the editor.
+  `https://oyla.example.com/join/859847` with **Copy join link** in the editor.
 
 <div class="screens">
   <img
     class="shot phone"
-    src="/oyla/screenshots/phone-home-en-light.png"
+    src="/screenshots/phone-home-en-light.png"
     alt="A phone on the Oyla start page with the code 859 847 typed into the join field and a Join button"
     width="1170"
     height="1992"
@@ -27,7 +27,7 @@ Use one of these:
   />
   <img
     class="shot phone"
-    src="/oyla/screenshots/phone-mc-en-light.png"
+    src="/screenshots/phone-mc-en-light.png"
     alt="A phone showing 'Question 1 of 4', the question and four options with a Send vote button"
     width="1170"
     height="1992"
@@ -35,8 +35,8 @@ Use one of these:
   />
   <img
     class="shot phone"
-    src="/oyla/screenshots/phone-thanks-en-light.png"
-    alt="A phone showing a red Voted stamp and the heading Answer sent"
+    src="/screenshots/phone-thanks-en-light.png"
+    alt="A phone showing a Voted stamp and the heading Answer sent"
     width="1170"
     height="1992"
     loading="lazy"
@@ -80,9 +80,12 @@ connection comes back with its answers intact: you won't be asked the same quest
 
 Answers are anonymous: Oyla never asks for a name or an email address. Someone who clears
 their browser storage gets a new id and can answer again. That is a deliberate trade-off of having
-no accounts; see [Security](/oyla/security/#anonymous-participants).
+no accounts; see [Security](/security/#anonymous-participants).
 
-## Language
+## Language and colours
 
 The interface follows your browser language (English or Turkish). The **EN / TR** switch at the
 top of the page changes it, and the browser remembers your choice.
+
+The colours come from the theme the presenter picked for the presentation and change with it.
+Light or dark mode follows your phone's setting.

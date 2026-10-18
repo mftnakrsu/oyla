@@ -66,7 +66,7 @@ This is the best first contribution. A question type has two halves:
    your `Respond` form in `packages/web/src/question-types/respond.test.tsx`.
 
 The step-by-step guide with code is in the docs:
-[Adding a question type](https://mftnakrsu.github.io/oyla/development/adding-a-question-type/).
+[Adding a question type](https://oyla.mefby.com/development/adding-a-question-type/).
 
 ## Reporting bugs and ideas
 

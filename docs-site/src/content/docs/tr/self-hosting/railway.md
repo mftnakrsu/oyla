@@ -4,9 +4,9 @@ description: Oyla'yı kalıcı bir disk ve kendi alan adınızla Railway'de yay�
 ---
 
 [Railway](https://railway.com), Dockerfile'ı doğrudan GitHub'dan derler; HTTPS ve WebSocket
-desteği hazır gelir ve servise kalıcı bir disk (volume) bağlayabilirsiniz. `oyla.mefby.com`
-adresindeki herkese açık kurulum da bu şekilde çalışıyor. Railway'in Hobby planında aylık
-yaklaşık 5 dolar ödemeyi bekleyin.
+desteği hazır gelir ve servise kalıcı bir disk (volume) bağlayabilirsiniz. Bu rehber, kendi Oyla
+kurulumunuzu kendi alan adınızla Railway'de yayına almayı anlatıyor. Railway'in Hobby planında
+aylık yaklaşık 5 dolar ödemeyi bekleyin.
 
 ## Başlamadan önce
 
@@ -54,7 +54,7 @@ bu kullanıcıyla çalıştırır.
 ## 4. Alan adınızı ekleyin
 
 Railway, ilk deneme için kullanışlı olan bir `*.up.railway.app` adresi üretebilir. Kendi alan
-adınız için, örneğin `oyla.mefby.com`:
+adınız için, örneğin `oyla.example.com`:
 
 1. Servisin **Settings** bölümünü açın ve **Networking** kısmına gidin.
 2. Özel alan adı (custom domain) ekleyin ve adresi girin.
@@ -89,6 +89,6 @@ Railway seçeneklerden yalnızca biri. Oyla şu koşulları sağlayan her ortamd
 
 Fly.io, Render, Docker kurulu küçük bir VPS ya da ters proxy arkasındaki bir ev sunucusu bu
 koşulları karşılar. Hangisini seçerseniz seçin tek bir kopya çalıştırın, HTTPS kullanın ve
-[`OYLA_TRUST_PROXY`](/oyla/tr/self-hosting/configuration/#oyla_trust_proxy) değerini önündeki
+[`OYLA_TRUST_PROXY`](/tr/self-hosting/configuration/#oyla_trust_proxy) değerini önündeki
 proxy sayısına göre ayarlayın. Ters proxy örneklerini İngilizce
-[Docker sayfasında](/oyla/tr/self-hosting/docker/) bulabilirsiniz.
+[Docker sayfasında](/tr/self-hosting/docker/) bulabilirsiniz.

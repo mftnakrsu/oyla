@@ -1,21 +1,18 @@
 ---
 title: Oyla
-description: Oyla is an open-source, self-hostable app for live polls, word clouds, open questions and scales. The audience joins from their phones with a 6-digit code.
+description: Oyla is an open-source app for live polls, word clouds, open questions and scales that you host yourself. Your audience joins from their phones with a 6-digit code.
 template: splash
 hero:
-  tagline: Open-source live polls for talks, classes and meetings. Phones join with a 6-digit code and the results update live on your screen.
+  title: Live polls for talks, classes and meetings
+  tagline: "Oyla is an open-source app you host yourself: your audience joins from their phones with a 6-digit code, and the answers appear live on your screen."
   actions:
     - text: Get started
-      link: /oyla/guide/presenting/
+      link: /self-hosting/docker/
       icon: right-arrow
-    - text: Self-host
-      link: /oyla/self-hosting/docker/
-      icon: server
-      variant: secondary
-    - text: GitHub
+    - text: View on GitHub
       link: https://github.com/mftnakrsu/oyla
       icon: github
-      variant: minimal
+      variant: secondary
 ---
 
 import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
@@ -24,26 +21,71 @@ import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
   class="demo-video"
   controls
   muted
+  loop
   playsinline
+  autoplay
   preload="metadata"
-  poster="/oyla/media/oyla-demo-poster.png"
-  src="/oyla/media/oyla-demo.mp4"
+  poster="/media/oyla-demo-en-poster.png"
+  src="/media/oyla-demo-en.mp4"
+  aria-label="Oyla demo: phones join a presentation with a code and answer the questions, and the results update live on the presenter screen"
 >
-  Your browser can't play this video. <a href="/oyla/media/oyla-demo.mp4">Download the demo video</a>.
+  Your browser can't play this video. <a href="/media/oyla-demo-en.mp4">Download the demo video</a> (MP4).
 </video>
+
+## What Oyla does
+
+"Oyla" means "vote!" in Turkish. You ask a question, everyone in the room answers from their
+phone, and the results build up on the big screen. It covers what you would use Mentimeter or Slido
+for, without accounts, an app to install or a subscription.
+
+<CardGrid>
+  <Card title="Four question types" icon="list-format">
+    Multiple choice, word cloud, open question and scale. Each one has its own editor, phone form
+    and live results view. See [Question types](/guide/question-types/).
+  </Card>
+  <Card title="Join with a code or a QR code" icon="phone">
+    Participants type the 6-digit code from the screen or scan the QR code. There is no app to
+    install, no sign-up and no name to enter.
+  </Card>
+  <Card title="Live results for projectors" icon="laptop">
+    Results update as answers arrive. Large type, high contrast, keyboard shortcuts and full screen;
+    presentation clickers work too.
+  </Card>
+  <Card title="Presentation themes" icon="star">
+    Give each presentation one of four colour themes: Emerald, Indigo, Navy & orange or Classic
+    blue. The presenter screen and every phone use it. See
+    [Choose a theme](/guide/presenting/#choose-a-theme).
+  </Card>
+  <Card title="No accounts" icon="padlock">
+    Creating a presentation gives you a private admin link. If you like, your server can require a
+    password for creating presentations.
+  </Card>
+  <Card title="English and Turkish, light and dark" icon="translate">
+    The interface follows the browser language and the device's light or dark setting. Every page
+    has a language switch.
+  </Card>
+  <Card title="One container, one file" icon="server">
+    One Node.js process and one SQLite file, packaged as a Docker image. No database server and no
+    third-party services.
+  </Card>
+  <Card title="Easy to extend" icon="puzzle">
+    A question type is one shared definition plus three React components, and TypeScript tells you
+    when a piece is missing.
+  </Card>
+</CardGrid>
 
 <div class="screens">
   <img
     class="shot"
-    src="/oyla/screenshots/present-mc-en-light.png"
-    alt="Presenter screen: the question 'Which feature should we build next?' with four horizontal bars, 24 votes, and the join code 859 847 at the top"
+    src="/screenshots/present-mc-en-light.png"
+    alt="Presenter screen: a multiple-choice question with four horizontal bars, the vote count, and the join address and code at the top"
     width="2160"
     height="1350"
     loading="lazy"
   />
   <img
     class="shot phone"
-    src="/oyla/screenshots/phone-mc-en-light.png"
+    src="/screenshots/phone-mc-en-light.png"
     alt="A phone showing the same question with four options and a Send vote button"
     width="1170"
     height="1992"
@@ -51,58 +93,54 @@ import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
   />
 </div>
 
-"Oyla" means "vote!" in Turkish. It covers what you would use Mentimeter or Slido for in a small
-room: no accounts, no app to install, no subscription. One Node.js process and one SQLite file run
-the whole thing, so you can host it yourself with a single Docker container.
+## Run it yourself
 
-## What you get
+Oyla is software you run on your own computer or server. There is no hosted Oyla service to sign
+up for: your presentations and your audience's answers stay on a machine you control.
+
+With Docker, clone the repository, build the image and start a container:
+
+```bash
+git clone https://github.com/mftnakrsu/oyla.git
+cd oyla
+docker build -t oyla .
+docker run -d --name oyla -p 3000:3000 -v oyla-data:/data oyla
+```
+
+Open [http://localhost:3000](http://localhost:3000) and create your first presentation.
+Everything is stored in the `oyla-data` volume. For phones to join, they need to reach the server,
+either on the same network or over the internet with HTTPS.
 
 <CardGrid>
-  <Card title="Four question types" icon="list-format">
-    Multiple choice, word cloud, open question and scale. Each one has its own editor, phone form
-    and live results view.
-  </Card>
-  <Card title="Join with a code" icon="phone">
-    Participants open the site and type a 6-digit code, or scan the QR code on the screen. No
-    sign-up, no names.
-  </Card>
-  <Card title="Built for projectors" icon="laptop">
-    Large type, high contrast, keyboard navigation and full screen. Light and dark mode follow the
-    system setting.
-  </Card>
-  <Card title="No accounts" icon="padlock">
-    Creating a presentation gives you a private admin link. Server owners can require a password
-    for creating presentations.
-  </Card>
-  <Card title="English and Turkish" icon="translate">
-    The interface follows the browser language and has a switch on every page.
-  </Card>
-  <Card title="Easy to extend" icon="puzzle">
-    A question type is one shared definition plus three React components. MIT licensed.
-  </Card>
+  <LinkCard
+    title="Docker"
+    description="Build and run the image, keep the data on a volume and put Oyla behind HTTPS."
+    href="/self-hosting/docker/"
+  />
+  <LinkCard
+    title="Railway"
+    description="Deploy your own instance with a persistent volume and your own domain."
+    href="/self-hosting/railway/"
+  />
 </CardGrid>
 
-## Where to start
+Once it runs, [Presenting](/guide/presenting/) walks you through your first session.
+
+## Built in the open
+
+Oyla is free software under the MIT License. The code, the issues and the plans are on
+[GitHub](https://github.com/mftnakrsu/oyla). Contributions are welcome, from typo fixes and
+translations to new question types.
 
 <CardGrid>
   <LinkCard
-    title="Run a presentation"
-    description="Create a presentation, add questions and present them."
-    href="/oyla/guide/presenting/"
+    title="Contributing"
+    description="Set up the project, run the checks and open a pull request."
+    href="/development/contributing/"
   />
   <LinkCard
-    title="Join from a phone"
-    description="What participants see and how answering works."
-    href="/oyla/guide/joining/"
-  />
-  <LinkCard
-    title="Host it with Docker"
-    description="Build the image and run it with a persistent volume."
-    href="/oyla/self-hosting/docker/"
-  />
-  <LinkCard
-    title="Add a question type"
-    description="The step-by-step guide for contributors."
-    href="/oyla/development/adding-a-question-type/"
+    title="Roadmap"
+    description="Features that are open for help, such as quizzes and audience Q&A."
+    href="/roadmap/"
   />
 </CardGrid>

@@ -18,10 +18,22 @@ ihtiyacınız olursa soruyu silip yenisini ekleyin.
 
 Herkes bir seçenek seçer.
 
+<video
+  class="clip"
+  autoplay
+  controls
+  muted
+  loop
+  playsinline
+  preload="metadata"
+  poster="/media/clips/multiple-choice-tr.png"
+  src="/media/clips/multiple-choice-tr.mp4"
+  aria-label="Çoktan seçmeli soru: oylar geldikçe sunum ekranındaki çubuklar uzuyor"></video>
+
 <div class="screens">
   <img
     class="shot"
-    src="/oyla/screenshots/present-mc-tr-light.png"
+    src="/screenshots/present-mc-tr-light.png"
     alt="Çoktan seçmeli sonuçlar: Çevrimdışı mod, Karanlık mod, CSV dışa aktarma ve Takım alanları için dört yatay çubuk"
     width="2160"
     height="1350"
@@ -29,7 +41,7 @@ Herkes bir seçenek seçer.
   />
   <img
     class="shot phone"
-    src="/oyla/screenshots/phone-mc-tr-light.png"
+    src="/screenshots/phone-mc-tr-light.png"
     alt="Telefon formu: seçilebilecek dört seçenek ve Oyu gönder düğmesi"
     width="1170"
     height="1992"
@@ -52,18 +64,30 @@ seçenek eklemek verilmiş oyları korur; kaldırılan bir seçeneğin oyları i
 
 Katılımcılar kısa cevaplar gönderir. Aynı cevabı ne kadar çok kişi verirse o kelime o kadar büyür.
 
+<video
+  class="clip"
+  autoplay
+  controls
+  muted
+  loop
+  playsinline
+  preload="metadata"
+  poster="/media/clips/word-cloud-tr.png"
+  src="/media/clips/word-cloud-tr.mp4"
+  aria-label="Kelime bulutu: cevaplar geldikçe sık yazılan kelimeler büyüyor, bazı kelimeler dikey duruyor"></video>
+
 <div class="screens">
   <img
     class="shot"
-    src="/oyla/screenshots/present-cloud-tr-light.png"
-    alt="Kelime bulutu: en büyük yazıyla ivme ve büyüme, çevrelerinde yoğun, öğretici ve heyecanlı gibi daha küçük kelimeler"
+    src="/screenshots/present-cloud-tr-light.png"
+    alt="Kelime bulutu: en sık verilen cevaplar ortada en büyük yazıyla, çevrelerinde bazıları dikey duran daha küçük kelimeler"
     width="2160"
     height="1350"
     loading="lazy"
   />
   <img
     class="shot phone"
-    src="/oyla/screenshots/phone-cloud-tr-light.png"
+    src="/screenshots/phone-cloud-tr-light.png"
     alt="Telefon formu: içinde ivme yazan bir metin alanı ve Gönder düğmesi"
     width="1170"
     height="1992"
@@ -79,14 +103,31 @@ boşluklar teke indirilir.
 **Sonuçlar:** en sık verilen 100 cevap. Büyük-küçük harf ayrımı yapılmadan gruplanır; yani
 "Pizza" ile "pizza" tek kelime sayılır ve ekranda ilk gelen yazım gösterilir.
 
+Her kelimenin boyutu, onu kaç kişinin yazdığına göre belirlenir; böylece çok verilen cevaplar
+diğerlerinden açıkça ayrılır. Bazı kelimeler saat yönünde ya da tersine 90° döndürülerek dikey
+yazılır; en sık verilen kelime ise yatay kalır ve ortaya yakın durur. Bir kelimenin yönü kelimenin
+kendisinden hesaplandığı için yeni cevaplar geldikçe hiçbir kelime yön değiştirmez.
+
 ## Açık uçlu soru
 
 Katılımcılar serbest metin yazar, cevaplar ekranda not kâğıtları olarak belirir.
 
+<video
+  class="clip"
+  autoplay
+  controls
+  muted
+  loop
+  playsinline
+  preload="metadata"
+  poster="/media/clips/open-ended-tr.png"
+  src="/media/clips/open-ended-tr.mp4"
+  aria-label="Açık uçlu soru: cevaplar sunum ekranında birer birer not kâğıdı olarak beliriyor"></video>
+
 <div class="screens">
   <img
     class="shot"
-    src="/oyla/screenshots/present-open-tr-light.png"
+    src="/screenshots/present-open-tr-light.png"
     alt="Not kâğıdı görünümünde açık uçlu cevaplar; örneğin 'Her cuma demo' ve 'Kısa toplantılar'"
     width="2160"
     height="1350"
@@ -94,7 +135,7 @@ Katılımcılar serbest metin yazar, cevaplar ekranda not kâğıtları olarak b
   />
   <img
     class="shot phone"
-    src="/oyla/screenshots/phone-open-tr-light.png"
+    src="/screenshots/phone-open-tr-light.png"
     alt="Telefon formu: içinde bir cevap yazan metin alanı, kalan karakter sayacı ve Gönder düğmesi"
     width="1170"
     height="1992"
@@ -114,10 +155,22 @@ karşısında bunu aklınızda tutun.
 
 Katılımcılar bir ifadeyi düşükten yükseğe puanlar.
 
+<video
+  class="clip"
+  autoplay
+  controls
+  muted
+  loop
+  playsinline
+  preload="metadata"
+  poster="/media/clips/scale-tr.png"
+  src="/media/clips/scale-tr.mp4"
+  aria-label="Ölçek: puanlar geldikçe ortalama ve sütunlar güncelleniyor"></video>
+
 <div class="screens">
   <img
     class="shot"
-    src="/oyla/screenshots/present-scale-tr-light.png"
+    src="/screenshots/present-scale-tr-light.png"
     alt="Ölçek sonuçları: büyük yazıyla ortalama ve 1'den 5'e kadar her puan için bir sütun, uçlarda Hiç hazır değil ve Tamamen hazır etiketleri"
     width="2160"
     height="1350"
@@ -125,7 +178,7 @@ Katılımcılar bir ifadeyi düşükten yükseğe puanlar.
   />
   <img
     class="shot phone"
-    src="/oyla/screenshots/phone-scale-tr-light.png"
+    src="/screenshots/phone-scale-tr-light.png"
     alt="Telefon formu: 4'ün seçili olduğu 1'den 5'e sayı düğmeleri, uç etiketleri ve Puanı gönder düğmesi"
     width="1170"
     height="1992"
@@ -156,5 +209,5 @@ puanlar artık sayılmaz.
 ## Aradığınız tip yok mu?
 
 Bilgi yarışması (quiz), oylanabilen soru-cevap ve çok ifadeli ölçekler
-[yol haritasında](/oyla/tr/roadmap/). Birini kendiniz geliştirmek isterseniz
-[Soru tipi eklemek](/oyla/tr/development/adding-a-question-type/) rehberiyle başlayın (İngilizce).
+[yol haritasında](/tr/roadmap/). Birini kendiniz geliştirmek isterseniz
+[Soru tipi eklemek](/tr/development/adding-a-question-type/) rehberiyle başlayın (İngilizce).

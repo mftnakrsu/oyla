@@ -1,29 +1,89 @@
-/* Oyla's stamp red as the accent, matching the app. */
+/*
+ * Colours follow Oyla's default theme, Emerald: an emerald accent on zinc greys.
+ * Starlight sets data-theme="dark" or "light" on <html>; :root holds the dark values.
+ * Text contrast stays at 4.5:1 or more on the page, sidebar and inline code backgrounds.
+ */
 :root {
-  --sl-color-accent-low: #3a1e24;
-  --sl-color-accent: #ff5a64;
-  --sl-color-accent-high: #ffd3d6;
+  --sl-color-accent-low: #064e3b;
+  --sl-color-accent: #34d399;
+  --sl-color-accent-high: #d1fae5;
+
+  --sl-color-white: #ffffff;
+  --sl-color-gray-1: #f4f4f5;
+  --sl-color-gray-2: #d4d4d8;
+  --sl-color-gray-3: #a1a1aa;
+  --sl-color-gray-4: #52525b;
+  --sl-color-gray-5: #3f3f46;
+  --sl-color-gray-6: #27272a;
+  --sl-color-black: #18181b;
 }
 
 :root[data-theme='light'] {
-  --sl-color-accent-low: #fbe7e9;
-  --sl-color-accent: #d92d3a;
-  --sl-color-accent-high: #8c1621;
+  --sl-color-accent-low: #ecfdf5;
+  --sl-color-accent: #047857;
+  --sl-color-accent-high: #064e3b;
+
+  /* Ink and muted text match the app: zinc 900 and zinc 600. */
+  --sl-color-white: #18181b;
+  --sl-color-gray-1: #27272a;
+  --sl-color-gray-2: #3f3f46;
+  --sl-color-gray-3: #52525b;
+  --sl-color-gray-4: #a1a1aa;
+  --sl-color-gray-5: #d4d4d8;
+  --sl-color-gray-6: #f4f4f5;
+  --sl-color-gray-7: #fafafa;
+  --sl-color-black: #ffffff;
 }
 
-/* Screenshots and the demo video. */
+/* Card icons use the accent instead of Starlight's rotating rainbow. */
+.card {
+  --sl-card-border: var(--sl-color-accent);
+  --sl-card-bg: var(--sl-color-accent-low);
+}
+
+/* A hero without an image (the home and 404 pages) is centred in one column. */
+@media (min-width: 50rem) {
+  .hero:not(:has(> img, > .hero-html)) {
+    grid-template-columns: 100%;
+    padding-block: clamp(2.5rem, calc(1rem + 8vmin), 6rem) 2rem;
+  }
+
+  .hero:not(:has(> img, > .hero-html)) .stack {
+    text-align: center;
+  }
+
+  .hero:not(:has(> img, > .hero-html)) .copy {
+    align-items: center;
+  }
+
+  .hero:not(:has(> img, > .hero-html)) .actions {
+    justify-content: center;
+  }
+}
+
+/* Screenshots, the demo video and the question type clips. */
 .sl-markdown-content .shot,
-.sl-markdown-content .demo-video {
+.sl-markdown-content .demo-video,
+.sl-markdown-content .clip {
   display: block;
   width: 100%;
+  max-width: 100%;
   height: auto;
   border: 1px solid var(--sl-color-gray-5);
   border-radius: 0.75rem;
 }
 
-.sl-markdown-content .demo-video {
-  aspect-ratio: 16 / 10;
+/* The demo and the clips are rendered at 1920 × 1080 (see video/src/Root.tsx). */
+.sl-markdown-content .demo-video,
+.sl-markdown-content .clip {
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
   background: var(--sl-color-gray-6);
+}
+
+.sl-markdown-content .demo-video {
+  border-radius: 1rem;
+  box-shadow: var(--sl-shadow-md);
 }
 
 .sl-markdown-content .shot.phone {

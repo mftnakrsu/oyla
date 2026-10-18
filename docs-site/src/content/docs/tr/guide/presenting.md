@@ -9,7 +9,8 @@ ilerlersiniz.
 
 ## Sunum oluşturun
 
-1. Oyla'nın ana sayfasını açın; örneğin `https://oyla.mefby.com` ya da kendi kurulumunuz.
+1. Oyla sunucunuzu tarayıcıda açın; örneğin `http://localhost:3000` ya da kendi alan adınız.
+   Henüz bir sunucunuz yoksa [Docker](/tr/self-hosting/docker/) sayfasına bakın.
 2. **Oturum başlatın** bölümünde **Sunum oluştur**'u seçin.
 3. Bir ad girin (en fazla 120 karakter) ve **Sunum oluştur**'u seçin.
 
@@ -18,7 +19,7 @@ cevap vermek için hiçbir zaman şifre gerekmez; şifre yalnızca sunum oluştu
 
 <img
   class="shot"
-  src="/oyla/screenshots/home-tr-light.png"
+  src="/screenshots/home-tr-light.png"
   alt="Ana sayfa: solda büyük bir katılım kodu alanı, sağda Sunum oluştur düğmesinin bulunduğu Oturum başlatın paneli"
   width="2160"
   height="1350"
@@ -52,7 +53,7 @@ gizli kısmının yalnızca özetini (hash) saklar.
 
 <img
   class="shot"
-  src="/oyla/screenshots/editor-tr-light.png"
+  src="/screenshots/editor-tr-light.png"
   alt="Düzenleyici: solda dört soruluk liste, sağda seçili çoktan seçmeli soru ve dört seçeneği"
   width="2160"
   height="1350"
@@ -61,7 +62,7 @@ gizli kısmının yalnızca özetini (hash) saklar.
 
 1. **Soru ekle**'yi seçin ve **Bir soru tipi seçin** ekranından bir tip belirleyin: çoktan
    seçmeli, kelime bulutu, açık uçlu soru ya da ölçek. Her birinin ne yaptığını
-   [Soru tipleri](/oyla/tr/guide/question-types/) sayfasında bulabilirsiniz.
+   [Soru tipleri](/tr/guide/question-types/) sayfasında bulabilirsiniz.
 2. Sorunuzu **Soru** alanına yazın (en fazla 200 karakter).
 3. Çoktan seçmeli bir sorunun seçenekleri gibi, o tipe özgü ayarları doldurun.
 
@@ -78,12 +79,22 @@ Bir sunumda en fazla 50 soru olabilir.
 
 <img
   class="shot"
-  src="/oyla/screenshots/editor-types-tr-light.png"
+  src="/screenshots/editor-types-tr-light.png"
   alt="Soru tipi seçimi: Çoktan seçmeli, Kelime bulutu, Açık uçlu soru ve Ölçek kartları"
   width="2160"
   height="1350"
   loading="lazy"
 />
+
+## Tema seçin
+
+Her sunumun bir renk teması vardır. Düzenleyicideki **Tema** bölümünde dört renk örneği bulunur:
+**Zümrüt** (varsayılan), **İndigo**, **Lacivert ve turuncu**, **Klasik mavi**. Kullanmak
+istediğiniz temayı seçmeniz yeterli.
+
+Sunum ekranı da katılımcıların telefonları da sunumun temasını kullanır. Oturum sırasında temayı
+değiştirirseniz bağlı telefonlar yeni renklere hemen geçer. Açık ya da koyu mod yine her cihazın
+kendi ayarını izler; ana sayfa gibi bir sunuma ait olmayan sayfalar varsayılan temayla açılır.
 
 ## Sunun
 
@@ -93,7 +104,7 @@ projeksiyona yansıtın.
 
 <img
   class="shot"
-  src="/oyla/screenshots/present-mc-tr-light.png"
+  src="/screenshots/present-mc-tr-light.png"
   alt="Sunum ekranı: üstte katılım adresi ve kodu ile bir QR kod, ortada çubuk grafik halinde sonuçlar, altta kontroller"
   width="2160"
   height="1350"
@@ -101,7 +112,9 @@ projeksiyona yansıtın.
 />
 
 - Üst çubukta her zaman **_adres_ adresine gidin ve _kod_ kodunu girin** yazısı ve bir QR kod
-  bulunur; geç gelenler istedikleri an katılabilir.
+  bulunur; geç gelenler istedikleri an katılabilir. Buradaki adres, sunum ekranını açtığınız
+  adrestir. Bu adres `localhost` ise Oyla'yı telefonların erişebileceği bir adresle açın;
+  örneğin alan adınızla ya da bilgisayarınızın yerel ağdaki adresiyle.
 - Ortada etkin soru ve sonuçları yer alır. Sonuçlar cevaplar geldikçe güncellenir.
 - Alt çubukta kaç kişinin bağlı olduğu (örneğin "25 kişi bağlı") ve kaçıncı soruda olduğunuz
   ("1 / 4") görünür.
@@ -130,8 +143,8 @@ tuşu ekranı kapatır.
 
 <img
   class="shot"
-  src="/oyla/screenshots/present-invite-tr-light.png"
-  alt="Tam ekran katılım bilgileri: oyla.mefby.com adresi, çok büyük rakamlarla katılım kodu ve bir QR kod"
+  src="/screenshots/present-invite-tr-light.png"
+  alt="Tam ekran katılım bilgileri: oyla.example.com adresi, çok büyük rakamlarla katılım kodu ve bir QR kod"
   width="2160"
   height="1350"
   loading="lazy"
@@ -156,6 +169,7 @@ Sunum yaparken düzenleyiciyi başka bir sekmede ya da pencerede açık tutabili
 - Çoktan seçmeli bir sorunun seçeneklerini yeniden adlandırmak ya da yeni seçenek eklemek mevcut
   oyları korur. Kaldırdığınız bir seçeneğe verilen oylar artık sayılmaz.
 - Bir ölçeğin aralığını değiştirirseniz yeni aralığın dışında kalan puanlar artık sayılmaz.
+- Sunumun adını ya da temasını değiştirdiğinizde de bağlı telefonlar bunu hemen görür.
 
 ## Ayrılın, sonra geri dönün
 
@@ -174,4 +188,4 @@ görünür.
 Sunucular bir süredir kullanılmayan sunumları da kendiliğinden siler; varsayılan süre 30 gündür.
 Sunumu açmak, düzenlemek ya da sunmak ve katılımcıların katılması ya da cevap vermesi kullanım
 sayılır. Ayrıntılar için
-[`OYLA_RETENTION_DAYS`](/oyla/tr/self-hosting/configuration/#oyla_retention_days) ayarına bakın.
+[`OYLA_RETENTION_DAYS`](/tr/self-hosting/configuration/#oyla_retention_days) ayarına bakın.

@@ -4,8 +4,8 @@ description: Deploy Oyla on Railway with a persistent volume and your own domain
 ---
 
 [Railway](https://railway.com) builds the Dockerfile straight from GitHub, gives you HTTPS and
-WebSockets out of the box and can attach a persistent volume. The public instance at
-`oyla.mefby.com` runs this way. Expect to pay about $5 per month on Railway's Hobby plan.
+WebSockets out of the box and can attach a persistent volume. This guide sets up your own Oyla
+instance there, with your own domain. Expect to pay about $5 per month on Railway's Hobby plan.
 
 ## Before you start
 
@@ -51,7 +51,7 @@ hands `/data` to its unprivileged `node` user at start and runs the server as th
 ## 4. Add your domain
 
 Railway can generate a `*.up.railway.app` address, which is handy for a first test. For your own
-domain, for example `oyla.mefby.com`:
+domain, for example `oyla.example.com`:
 
 1. Open the service's **Settings** and go to **Networking**.
 2. Add a custom domain and enter the host name.
@@ -86,5 +86,5 @@ Railway is one option. Oyla runs on any host that:
 
 Fly.io, Render, a small VPS with Docker and a home server behind a reverse proxy all fit. Whatever
 you pick, run a single instance, give it HTTPS, and set
-[`OYLA_TRUST_PROXY`](/oyla/self-hosting/configuration/#oyla_trust_proxy) to the number of proxies
-in front of it. The [Docker page](/oyla/self-hosting/docker/) has reverse proxy examples.
+[`OYLA_TRUST_PROXY`](/self-hosting/configuration/#oyla_trust_proxy) to the number of proxies
+in front of it. The [Docker page](/self-hosting/docker/) has reverse proxy examples.

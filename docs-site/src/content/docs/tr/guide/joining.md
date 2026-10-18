@@ -10,16 +10,16 @@ açmak ya da isim yazmak gerekmez.
 
 Şu yollardan birini kullanın:
 
-- **Kodu yazın.** Ekranda gösterilen adresi açın (örneğin `oyla.mefby.com`), **Ekrandaki kodu
+- **Kodu yazın.** Ekranda gösterilen adresi açın (örneğin `oyla.example.com`), **Ekrandaki kodu
   girin** başlığının altına 6 haneli kodu yazın ve **Katıl**'a dokunun.
 - **QR kodu okutun.** Sunum ekranındaki QR kod sizi doğrudan sunuma götürür.
 - **Katılım linkini açın.** Sunum yapan kişi, düzenleyicideki **Katılım linkini kopyala**
-  düğmesiyle `https://oyla.mefby.com/join/859847` gibi bir link paylaşabilir.
+  düğmesiyle `https://oyla.example.com/join/859847` gibi bir link paylaşabilir.
 
 <div class="screens">
   <img
     class="shot phone"
-    src="/oyla/screenshots/phone-home-tr-light.png"
+    src="/screenshots/phone-home-tr-light.png"
     alt="Oyla ana sayfasında, katılım alanına kod yazılmış ve altında Katıl düğmesi bulunan bir telefon"
     width="1170"
     height="1992"
@@ -27,7 +27,7 @@ açmak ya da isim yazmak gerekmez.
   />
   <img
     class="shot phone"
-    src="/oyla/screenshots/phone-mc-tr-light.png"
+    src="/screenshots/phone-mc-tr-light.png"
     alt="'Soru 1 / 4' satırı, soru, dört seçenek ve Oyu gönder düğmesini gösteren bir telefon"
     width="1170"
     height="1992"
@@ -35,8 +35,8 @@ açmak ya da isim yazmak gerekmez.
   />
   <img
     class="shot phone"
-    src="/oyla/screenshots/phone-thanks-tr-light.png"
-    alt="Kırmızı bir Oylandı damgası ve Cevabınız gönderildi başlığını gösteren bir telefon"
+    src="/screenshots/phone-thanks-tr-light.png"
+    alt="Oylandı damgası ve Cevabınız gönderildi başlığını gösteren bir telefon"
     width="1170"
     height="1992"
     loading="lazy"
@@ -82,9 +82,12 @@ size iki kez sorulmaz.
 
 Cevaplar anonimdir: Oyla isim ya da e-posta adresi istemez. Tarayıcı verilerini silen biri yeni bir
 kimlik alır ve yeniden cevap verebilir. Bu, hesapsız çalışmanın bilerek kabul edilmiş bir
-bedelidir; ayrıntılar [Güvenlik](/oyla/tr/security/#anonymous-participants) sayfasında.
+bedelidir; ayrıntılar [Güvenlik](/tr/security/#anonymous-participants) sayfasında.
 
-## Dil
+## Dil ve renkler
 
 Arayüz tarayıcınızın dilini (Türkçe ya da İngilizce) izler. Sayfanın üstündeki **EN / TR**
 düğmesiyle dili değiştirebilirsiniz; tarayıcı seçiminizi hatırlar.
+
+Renkler, sunum yapan kişinin sunum için seçtiği temadan gelir ve tema değişince onlar da değişir.
+Açık ya da koyu mod telefonunuzun ayarını izler.

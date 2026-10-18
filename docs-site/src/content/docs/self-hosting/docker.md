@@ -11,7 +11,8 @@ no third-party account.
 
 - Docker (or any runtime that builds a Dockerfile).
 - A persistent volume for `/data`.
-- For a public instance: HTTPS in front of the container, from your host or a reverse proxy.
+- If people reach it over the internet: HTTPS in front of the container, from your host or a
+  reverse proxy.
 
 One instance handles a hobby-sized audience, around 100 participants at the same time. Run exactly
 one container per database: live presence and rate limits are kept in memory, so several replicas
@@ -39,6 +40,10 @@ Open <http://localhost:3000>. To check that the server is up from the command li
 curl http://localhost:3000/api/health
 # {"status":"ok"}
 ```
+
+To let phones on the same network join, open Oyla by the network address of the machine that runs
+it, for example `http://192.168.1.20:3000`, instead of `localhost`. The presenter screen shows the
+address it was opened on, so that is what participants see and what the QR code points to.
 
 ## Where the data lives
 
@@ -79,7 +84,7 @@ docker run -d --name oyla -p 3000:3000 -v oyla-data:/data \
   oyla
 ```
 
-All variables are listed on the [configuration page](/oyla/self-hosting/configuration/). Oyla
+All variables are listed on the [configuration page](/self-hosting/configuration/). Oyla
 doesn't read a `.env` file itself; use `--env-file` with `docker run` or `env_file` in Compose if
 you prefer a file.
 
@@ -128,14 +133,14 @@ With Compose: `git pull && docker compose up -d --build`.
 ## HTTPS and reverse proxies
 
 Phones on a public network should reach Oyla over HTTPS. Most platforms terminate TLS for you
-(see [Railway](/oyla/self-hosting/railway/)). On your own server, put a reverse proxy in front of
+(see [Railway](/self-hosting/railway/)). On your own server, put a reverse proxy in front of
 the container and keep these points in mind:
 
 - The proxy must pass WebSocket upgrades through; the live connection uses Socket.IO on
   `/socket.io/`.
 - Set `OYLA_TRUST_PROXY` to the number of proxies in front of Oyla, usually `true` (one).
   Otherwise every visitor seems to come from the proxy's address and they all share one rate
-  limit. See [`OYLA_TRUST_PROXY`](/oyla/self-hosting/configuration/#oyla_trust_proxy).
+  limit. See [`OYLA_TRUST_PROXY`](/self-hosting/configuration/#oyla_trust_proxy).
 - Publish the port on localhost only, so nobody can bypass the proxy:
   `-p 127.0.0.1:3000:3000`.
 

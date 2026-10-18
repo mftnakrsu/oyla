@@ -28,5 +28,5 @@ Only the latest release on the `main` branch receives security fixes.
   are capped, and responses carry a strict Content Security Policy.
 - Presentations nobody used for `OYLA_RETENTION_DAYS` (default 30) are deleted automatically.
 
-The documentation has a longer [security page](https://mftnakrsu.github.io/oyla/security/) with
-advice for running a public instance.
+The documentation has a longer [security page](https://oyla.mefby.com/security/) with advice for
+running your own server.

@@ -9,7 +9,8 @@ audience answers.
 
 ## Create a presentation
 
-1. Open the Oyla start page, for example `https://oyla.mefby.com` or your own instance.
+1. Open your Oyla server in a browser, for example `http://localhost:3000` or your own domain.
+   If you don't have one yet, see [Docker](/self-hosting/docker/).
 2. Under **Run a session**, select **Create presentation**.
 3. Enter a name (up to 120 characters) and select **Create presentation**.
 
@@ -18,7 +19,7 @@ and answering never need a password; it only protects creating presentations.
 
 <img
   class="shot"
-  src="/oyla/screenshots/home-en-light.png"
+  src="/screenshots/home-en-light.png"
   alt="The start page with a large join code field on the left and a Run a session panel with a Create presentation button on the right"
   width="2160"
   height="1350"
@@ -51,7 +52,7 @@ stores a hash of the secret part.
 
 <img
   class="shot"
-  src="/oyla/screenshots/editor-en-light.png"
+  src="/screenshots/editor-en-light.png"
   alt="The editor: a list of four questions on the left and the selected multiple-choice question with its four options on the right"
   width="2160"
   height="1350"
@@ -59,7 +60,7 @@ stores a hash of the secret part.
 />
 
 1. Select **Add question** and pick a type under **Choose a question type**: multiple choice,
-   word cloud, open question or scale. See [Question types](/oyla/guide/question-types/) for what
+   word cloud, open question or scale. See [Question types](/guide/question-types/) for what
    each one does.
 2. Type your question in the **Question** field (up to 200 characters).
 3. Fill in the settings of that type, such as the options of a multiple-choice question.
@@ -77,12 +78,22 @@ A presentation can have up to 50 questions.
 
 <img
   class="shot"
-  src="/oyla/screenshots/editor-types-en-light.png"
+  src="/screenshots/editor-types-en-light.png"
   alt="The question type picker with four cards: Multiple choice, Word cloud, Open question and Scale"
   width="2160"
   height="1350"
   loading="lazy"
 />
+
+## Choose a theme
+
+Each presentation has a colour theme. In the editor, the **Theme** section shows four swatches:
+**Emerald** (the default), **Indigo**, **Navy & orange** and **Classic blue**. Select one to use it.
+
+The presenter screen and every participant's phone use the presentation's theme. If you change it
+during a session, connected phones switch to the new colours right away. Light and dark mode still
+follow each device's own setting, and pages outside a presentation, such as the start page, use the
+default theme.
 
 ## Present
 
@@ -92,15 +103,17 @@ window on the projector.
 
 <img
   class="shot"
-  src="/oyla/screenshots/present-mc-en-light.png"
-  alt="The presenter screen with 'Go to oyla.mefby.com and enter 859 847' at the top, a QR code, bar chart results and controls at the bottom"
+  src="/screenshots/present-mc-en-light.png"
+  alt="The presenter screen with 'Go to oyla.example.com and enter 859 847' at the top, a QR code, bar chart results and controls at the bottom"
   width="2160"
   height="1350"
   loading="lazy"
 />
 
 - The top bar always shows **Go to _host_ and enter _code_** and a QR code, so latecomers can
-  join at any point.
+  join at any point. The host is the address you opened the presenter screen on. If that is
+  `localhost`, open Oyla with an address phones can reach instead, such as your domain or your
+  computer's address on the local network.
 - The active question and its results fill the middle. Results update as answers arrive.
 - The bottom bar shows how many people are connected (for example, "25 people here") and where
   you are ("1 of 4").
@@ -128,8 +141,8 @@ while people find their seats. **Hide join instructions** or <kbd>Esc</kbd> clos
 
 <img
   class="shot"
-  src="/oyla/screenshots/present-invite-en-light.png"
-  alt="Full-screen join instructions: 'Go to oyla.mefby.com', the code 859 847 in very large digits and a QR code"
+  src="/screenshots/present-invite-en-light.png"
+  alt="Full-screen join instructions: 'Go to oyla.example.com', the code 859 847 in very large digits and a QR code"
   width="2160"
   height="1350"
   loading="lazy"
@@ -155,6 +168,7 @@ You can keep the editor open in another tab or window while presenting.
 - Renaming or adding multiple-choice options keeps the existing votes. Votes for an option you
   remove no longer count.
 - If you change the range of a scale, ratings outside the new range no longer count.
+- Renaming the presentation or changing its theme reaches connected phones right away too.
 
 ## Leave and come back
 
@@ -172,4 +186,4 @@ has ended**.
 
 Servers also delete presentations nobody has used for a while: 30 days by default. Opening,
 editing or presenting a presentation, and people joining or answering, all count as use. See
-[`OYLA_RETENTION_DAYS`](/oyla/self-hosting/configuration/#oyla_retention_days).
+[`OYLA_RETENTION_DAYS`](/self-hosting/configuration/#oyla_retention_days).

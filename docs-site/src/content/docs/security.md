@@ -1,6 +1,6 @@
 ---
 title: Security
-description: Oyla's security model, how to report a vulnerability, and advice for running a public instance.
+description: Oyla's security model, how to report a vulnerability, and advice for running your own server.
 ---
 
 Oyla is built for quick, low-stakes polls in a room: no accounts, nothing to install, answers in
@@ -76,11 +76,11 @@ answer the active question, but not see results or change anything.
   codes can't be guessed by scanning, and at most 600 answers to any one question. IPv6 addresses
   are grouped by their /64 prefix.
 - A question takes at most 2,000 answers and a presentation 20,000, and `OYLA_MAX_DB_MB` caps the
-  database file, so a public instance can't be filled up.
+  database file, so a server open to the internet can't be filled up.
 - Socket connections from pages on other sites are refused (the `Origin` must match the host).
 
 Behind a reverse proxy, these limits only work per visitor when
-[`OYLA_TRUST_PROXY`](/oyla/self-hosting/configuration/#oyla_trust_proxy) is set correctly.
+[`OYLA_TRUST_PROXY`](/self-hosting/configuration/#oyla_trust_proxy) is set correctly.
 
 ### Browser protections
 
@@ -102,13 +102,13 @@ Behind a reverse proxy, these limits only work per visitor when
   automatically with all their questions and answers. Deleting a presentation by hand does the
   same right away.
 - Open answers and word cloud entries appear on the presenter screen unmoderated. Moderation is on
-  the [roadmap](/oyla/roadmap/).
+  the [roadmap](/roadmap/).
 
 ## Advice for self-hosters
 
 - **Use HTTPS.** Let your host terminate TLS (Railway and similar platforms do this for you) or put
   a reverse proxy such as Caddy or nginx in front of Oyla. See the
-  [Docker page](/oyla/self-hosting/docker/#https-and-reverse-proxies).
+  [Docker page](/self-hosting/docker/#https-and-reverse-proxies).
 - **Set `OYLA_TRUST_PROXY` to the number of proxies in front of Oyla**, and no higher. Too low and
   all visitors share the proxy's rate limit; too high and clients can spoof their address.
 - **Keep the app port private behind a proxy**, for example `-p 127.0.0.1:3000:3000`, so nobody

@@ -1,6 +1,7 @@
 # Roadmap
 
-Oyla v0.1 covers the core: four question types, live results, no accounts, one container.
+Oyla v0.1 covers the core: four question types, live results, presentation themes, no accounts,
+one container.
 The items below are open for contributions. Comment on (or open) an issue before starting
 something big, so work isn't duplicated.
 

@@ -23,7 +23,7 @@ body:
     id: where
     attributes:
       label: Where does it happen?
-      description: Browser and device, and whether it's oyla.mefby.com or your own server (Docker, Railway, from source…).
+      description: Browser and device, and how you run Oyla (Docker, Railway, from source…).
   - type: input
     id: version
     attributes:

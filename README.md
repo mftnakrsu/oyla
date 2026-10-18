@@ -10,8 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://oyla.mefby.com">Live app</a> ·
-  <a href="https://mftnakrsu.github.io/oyla/">Documentation</a> ·
+  <a href="https://oyla.mefby.com">Documentation</a> ·
   <a href="#run-it-yourself">Self-host</a> ·
   <a href="#türkçe">Türkçe</a>
 </p>
@@ -20,8 +19,15 @@
   <img src="docs/media/oyla-teaser.gif" width="820" alt="A presenter screen showing a bar chart that fills up as phones vote">
 </p>
 
+<p align="center">
+  <a href="https://oyla.mefby.com">Watch the demo</a> on the documentation site.
+</p>
+
 "Oyla" means "vote!" in Turkish. It does what you would use Mentimeter or Slido for in a small
-room, without accounts, apps or a subscription, and it runs on any server as one Docker container.
+room, without accounts, apps or a subscription.
+
+Oyla is self-hosted: there is no hosted Oyla service to sign up for. You run it on your own
+computer or server as one Docker container, and your presentations and answers stay there.
 
 ## Features
 
@@ -29,6 +35,9 @@ room, without accounts, apps or a subscription, and it runs on any server as one
 - **Join in seconds:** participants open the site, type the code or scan the QR code. No sign-up.
 - **Live results** on the presenter screen, built for projectors: large type, high contrast,
   keyboard navigation (← →), full screen.
+- **Presentation themes:** give each presentation one of four colour themes (Emerald, Indigo,
+  Navy & orange, Classic blue). The presenter screen and every phone use it, and phones switch
+  right away when you change it during a session.
 - **No accounts:** creating a presentation gives you a private admin link. Optionally, the server
   owner can require a password to create presentations.
 - **English and Turkish** interface, light and dark mode.
@@ -38,7 +47,7 @@ room, without accounts, apps or a subscription, and it runs on any server as one
 | Presenter screen | Phone |
 |---|---|
 | <img src="docs/media/screenshots/present-mc-en-light.png" alt="Multiple-choice results as horizontal bars" width="560"> | <img src="docs/media/screenshots/phone-mc-en-light.png" alt="A phone showing four answer options" width="200"> |
-| <img src="docs/media/screenshots/present-cloud-en-light.png" alt="A word cloud of answers" width="560"> | <img src="docs/media/screenshots/phone-thanks-en-light.png" alt="A red 'voted' stamp after sending an answer" width="200"> |
+| <img src="docs/media/screenshots/present-cloud-en-light.png" alt="A word cloud of answers" width="560"> | <img src="docs/media/screenshots/phone-thanks-en-light.png" alt="A 'voted' stamp after sending an answer" width="200"> |
 
 ## Run it yourself
 
@@ -52,9 +61,10 @@ docker run -d --name oyla -p 3000:3000 -v oyla-data:/data oyla
 Open <http://localhost:3000>. Everything is stored in the `oyla-data` volume
 (`/data/oyla.db`). A [`docker-compose.yml`](docker-compose.yml) example is included.
 
-For a public instance, put it behind HTTPS. The
-[Railway guide](https://mftnakrsu.github.io/oyla/self-hosting/railway/) walks through a
-deployment with a custom domain; any host with WebSockets and a persistent disk works.
+To let people join over the internet, put it behind HTTPS. The
+[Docker guide](https://oyla.mefby.com/self-hosting/docker/) covers reverse proxies, and the
+[Railway guide](https://oyla.mefby.com/self-hosting/railway/) walks through a deployment with a
+custom domain; any host with WebSockets and a persistent disk works.
 
 ### From source
 
@@ -81,7 +91,7 @@ npm start            # http://localhost:3000
 | `OYLA_RATE_LIMIT_CREATE_PER_HOUR` | `10` | New presentations per hour per IP |
 | `OYLA_MAX_DB_MB` | `1024` | Largest database file in MB; `0` means no limit |
 
-More in the [configuration docs](https://mftnakrsu.github.io/oyla/self-hosting/configuration/).
+More in the [configuration docs](https://oyla.mefby.com/self-hosting/configuration/).
 
 ## How it works
 
@@ -97,8 +107,8 @@ More in the [configuration docs](https://mftnakrsu.github.io/oyla/self-hosting/c
   Drizzle ORM.
 - `packages/web`: React app with the home page, editor, presenter view and the participant screen.
 
-The [architecture page](https://mftnakrsu.github.io/oyla/development/architecture/) explains the
-data model and the live protocol.
+The [architecture page](https://oyla.mefby.com/development/architecture/) explains the data model
+and the live protocol.
 
 ## Development
 
@@ -131,10 +141,15 @@ Found a security problem? Please report it privately, see [SECURITY.md](SECURITY
 Katılımcılar telefonlarından 6 haneli bir kodla katılır ve sonuçlar ekranınızda canlı olarak
 güncellenir. Hesap, uygulama ya da abonelik gerekmez.
 
+Oyla'yı kendi sunucunuzda çalıştırırsınız; üye olabileceğiniz hazır bir Oyla servisi yok.
+Sunumlarınız ve cevaplar sizin makinenizde kalır.
+
 - **Dört soru tipi var:** çoktan seçmeli, kelime bulutu, açık uçlu soru ve ölçek.
+- **Sunum temaları:** Her sunuma dört renk temasından birini verebilirsiniz (Zümrüt, İndigo,
+  Lacivert ve turuncu, Klasik mavi). Sunum ekranı da telefonlar da bu temayı kullanır.
 - **Hesap gerekmez:** Sunumu oluşturduğunuzda size özel bir yönetici linki verilir.
 - **Arayüz** Türkçe ve İngilizce, açık ve koyu modla kullanılabilir.
-- **Kendi sunucunuzda çalışır:** Tek bir Docker konteyneri ve tek bir SQLite dosyası yeterli.
+- **Kurulumu kolay:** Tek bir Docker konteyneri ve tek bir SQLite dosyası yeterli.
 
 Hızlı başlangıç:
 
@@ -143,5 +158,5 @@ docker build -t oyla .
 docker run -d --name oyla -p 3000:3000 -v oyla-data:/data oyla
 ```
 
-Ardından <http://localhost:3000> adresini açın. Ayrıntılı Türkçe rehber
-[dokümantasyonda](https://mftnakrsu.github.io/oyla/tr/).
+Ardından <http://localhost:3000> adresini açın. Tanıtım videosu ve ayrıntılı Türkçe rehber
+[dokümantasyon sitesinde](https://oyla.mefby.com/tr/).

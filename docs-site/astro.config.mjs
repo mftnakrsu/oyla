@@ -2,11 +2,11 @@
 import starlight from '@astrojs/starlight';
 import { defineConfig } from 'astro/config';
 
-// Published to GitHub Pages at https://mftnakrsu.github.io/oyla/.
-// Links inside the content include the `/oyla` base, because Markdown links are not rewritten.
+// The product introduction and documentation at https://oyla.mefby.com, published to GitHub Pages
+// with a custom domain (set in the repository's Pages settings, not with a CNAME file, because the
+// site deploys through GitHub Actions). The site lives at the root, so internal links start with `/`.
 export default defineConfig({
-  site: 'https://mftnakrsu.github.io',
-  base: '/oyla',
+  site: 'https://oyla.mefby.com',
   integrations: [
     starlight({
       title: 'Oyla',
@@ -14,6 +14,15 @@ export default defineConfig({
         'Open-source, self-hostable live polls, word clouds, open questions and scales. The audience joins from their phones with a 6-digit code.',
       logo: { src: './src/assets/logo.svg' },
       favicon: '/favicon.svg',
+      head: [
+        {
+          // The demo video and the question type clips autoplay. For people who ask for reduced
+          // motion they stay paused and get controls, so they can still start them.
+          tag: 'script',
+          content:
+            "document.addEventListener('DOMContentLoaded',()=>{if(!matchMedia('(prefers-reduced-motion: reduce)').matches)return;for(const v of document.querySelectorAll('video[autoplay]')){v.autoplay=false;v.pause();v.controls=true;}});",
+        },
+      ],
       social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/mftnakrsu/oyla' }],
       editLink: { baseUrl: 'https://github.com/mftnakrsu/oyla/edit/main/docs-site/' },
       locales: {

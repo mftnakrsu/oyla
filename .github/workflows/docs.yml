@@ -1,6 +1,7 @@
-# Builds the documentation site in docs-site/ and publishes it to GitHub Pages
-# (https://mftnakrsu.github.io/oyla/). In the repository settings, set Pages → Source to
-# "GitHub Actions".
+# Builds the product introduction and documentation site in docs-site/ and publishes it to GitHub
+# Pages at https://oyla.mefby.com. In the repository settings, set Pages → Source to
+# "GitHub Actions" and Pages → Custom domain to oyla.mefby.com (no CNAME file is needed when Pages
+# deploys from Actions).
 name: Docs
 
 on:
