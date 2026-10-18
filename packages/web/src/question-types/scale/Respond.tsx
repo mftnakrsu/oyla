@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { useI18n } from '../../i18n/I18nProvider';
 import { RespondForm } from '../shared';
 import type { RespondProps } from '../types';
@@ -6,6 +6,7 @@ import type { RespondProps } from '../types';
 export function ScaleRespond({ config, onSubmit }: RespondProps<'scale'>) {
   const { t } = useI18n();
   const [value, setValue] = useState<number | null>(null);
+  const id = useId();
   const values = Array.from({ length: config.max - config.min + 1 }, (_, i) => config.min + i);
 
   return (
@@ -36,6 +37,13 @@ export function ScaleRespond({ config, onSubmit }: RespondProps<'scale'>) {
                 name="scale"
                 value={n}
                 checked={value === n}
+                aria-describedby={
+                  n === config.min && config.minLabel
+                    ? `${id}-min`
+                    : n === config.max && config.maxLabel
+                      ? `${id}-max`
+                      : undefined
+                }
                 onChange={() => setValue(n)}
                 className="sr-only"
               />
@@ -45,8 +53,10 @@ export function ScaleRespond({ config, onSubmit }: RespondProps<'scale'>) {
         </div>
         {config.minLabel || config.maxLabel ? (
           <div className="mt-2 flex justify-between gap-4 text-sm text-muted">
-            <span>{config.minLabel}</span>
-            <span className="text-right">{config.maxLabel}</span>
+            <span id={`${id}-min`}>{config.minLabel}</span>
+            <span id={`${id}-max`} className="text-right">
+              {config.maxLabel}
+            </span>
           </div>
         ) : null}
       </fieldset>

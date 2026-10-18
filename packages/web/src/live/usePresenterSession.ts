@@ -2,13 +2,21 @@ import type { Ack, ErrorCode, ResultsMessage } from '@oyla/shared';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createSocket, type OylaSocket } from './socket';
 
-export type PresenterStatus = 'connecting' | 'ready' | 'unauthorized' | 'ended' | 'error';
+export type PresenterStatus =
+  | 'connecting'
+  | 'ready'
+  | 'unauthorized'
+  | 'not-found'
+  | 'ended'
+  | 'error';
 
 export interface PresenterSession {
   status: PresenterStatus;
   errorCode: ErrorCode | null;
   connected: boolean;
   activeQuestionId: string | null;
+  /** Increases on every state broadcast, i.e. whenever questions or the active one changed. */
+  stateVersion: number;
   participants: number;
   /** Latest results per question id. */
   results: Record<string, ResultsMessage>;
@@ -27,6 +35,7 @@ export function usePresenterSession(
   const [errorCode, setErrorCode] = useState<ErrorCode | null>(null);
   const [connected, setConnected] = useState(false);
   const [activeQuestionId, setActiveQuestionId] = useState<string | null>(null);
+  const [stateVersion, setStateVersion] = useState(0);
   const [participants, setParticipants] = useState(0);
   const [results, setResults] = useState<Record<string, ResultsMessage>>({});
 
@@ -47,7 +56,7 @@ export function usePresenterSession(
           setStatus('ready');
         } else if (ack.error.code === 'UNAUTHORIZED' || ack.error.code === 'NOT_FOUND') {
           setErrorCode(ack.error.code);
-          setStatus('unauthorized');
+          setStatus(ack.error.code === 'NOT_FOUND' ? 'not-found' : 'unauthorized');
           socket.disconnect();
         } else {
           setErrorCode(ack.error.code);
@@ -56,7 +65,10 @@ export function usePresenterSession(
       });
     });
     socket.on('disconnect', () => setConnected(false));
-    socket.on('presenter:state', (state) => setActiveQuestionId(state.activeQuestionId));
+    socket.on('presenter:state', (state) => {
+      setActiveQuestionId(state.activeQuestionId);
+      setStateVersion((version) => version + 1);
+    });
     socket.on('results', keep);
     socket.on('presence', (presence) => setParticipants(presence.participants));
     socket.on('presentation:ended', () => {
@@ -98,5 +110,15 @@ export function usePresenterSession(
     [send],
   );
 
-  return { status, errorCode, connected, activeQuestionId, participants, results, activate, reset };
+  return {
+    status,
+    errorCode,
+    connected,
+    activeQuestionId,
+    stateVersion,
+    participants,
+    results,
+    activate,
+    reset,
+  };
 }

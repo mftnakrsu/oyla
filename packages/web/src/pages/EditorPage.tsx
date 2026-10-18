@@ -17,7 +17,7 @@ import { getQuestionTypeUi } from '../question-types/registry';
 import { QuestionPanel, type QuestionPanelHandle } from './editor/QuestionPanel';
 import { TypePicker } from './editor/TypePicker';
 
-type ErrorState = ReturnType<typeof errorCodeOf> | null;
+type ErrorState = ReturnType<typeof errorCodeOf> | 'OUT_OF_DATE' | null;
 
 function TitleField({ value, onSave }: { value: string; onSave(title: string): void }) {
   const { t } = useI18n();
@@ -83,6 +83,11 @@ export function EditorPage() {
 
   useEffect(() => dropHash(), []);
 
+  const [version, setVersion] = useState(0);
+  /** Loads the presentation again, e.g. after it changed in another tab. */
+  const reload = useCallback(() => setVersion((v) => v + 1), []);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `version` is a reload trigger
   useEffect(() => {
     if (!token) return;
     api
@@ -103,7 +108,7 @@ export function EditorPage() {
         }
       })
       .catch((error) => setLoadError(errorCodeOf(error)));
-  }, [id, token]);
+  }, [id, token, version]);
 
   const replaceQuestion = useCallback((question: QuestionDto) => {
     setPresentation((current) =>
@@ -128,7 +133,7 @@ export function EditorPage() {
       </Shell>
     );
   }
-  if (loadError) {
+  if (loadError && loadError !== 'OUT_OF_DATE') {
     return (
       <Shell>
         <ErrorNotice code={loadError} />
@@ -148,7 +153,16 @@ export function EditorPage() {
   const selected = questions[selectedIndex];
   const run = (action: Promise<unknown>) => {
     setActionError(null);
-    action.catch((error) => setActionError(errorCodeOf(error)));
+    action.catch((error) => {
+      const code = errorCodeOf(error);
+      // The question or the order changed somewhere else: show the current state instead.
+      if (code === 'NOT_FOUND' || code === 'VALIDATION_FAILED') {
+        setActionError('OUT_OF_DATE');
+        reload();
+      } else {
+        setActionError(code);
+      }
+    });
   };
 
   const addQuestion = (type: QuestionTypeKey) =>
@@ -175,7 +189,11 @@ export function EditorPage() {
     run(
       api.deleteQuestion(id, token, questionId).then(() => {
         const rest = questions.filter((q) => q.id !== questionId);
-        setPresentation((current) => (current ? { ...current, questions: rest } : current));
+        setPresentation((current) =>
+          current
+            ? { ...current, questions: current.questions.filter((q) => q.id !== questionId) }
+            : current,
+        );
         setSelectedId(rest[Math.min(index, rest.length - 1)]?.id ?? null);
       }),
     );
@@ -264,7 +282,13 @@ export function EditorPage() {
         </aside>
 
         <main className="flex min-w-0 flex-col gap-4">
-          {actionError ? <ErrorNotice code={actionError} /> : null}
+          {actionError === 'OUT_OF_DATE' ? (
+            <p role="status" className="rounded-xl border-2 border-line bg-paper px-4 py-3">
+              {t('editor.outOfDate')}
+            </p>
+          ) : actionError ? (
+            <ErrorNotice code={actionError} />
+          ) : null}
           {picking || questions.length === 0 ? (
             <section aria-labelledby="picker-heading" className="flex flex-col gap-4">
               <h2 id="picker-heading" className="text-2xl font-extrabold">
@@ -289,9 +313,18 @@ export function EditorPage() {
               onDelete={() => deleteQuestion(selected.id, selectedIndex)}
               onReset={() =>
                 run(
-                  api
-                    .resetResults(id, token, selected.id)
-                    .then(() => replaceQuestion({ ...selected, responseCount: 0 })),
+                  api.resetResults(id, token, selected.id).then(() =>
+                    setPresentation((current) =>
+                      current
+                        ? {
+                            ...current,
+                            questions: current.questions.map((q) =>
+                              q.id === selected.id ? { ...q, responseCount: 0 } : q,
+                            ),
+                          }
+                        : current,
+                    ),
+                  ),
                 )
               }
               onError={setActionError}
@@ -306,6 +339,7 @@ export function EditorPage() {
         </Button>
         <ConfirmButton
           label={t('editor.deletePresentation')}
+          confirmLabel={t('common.confirmDelete')}
           onConfirm={() =>
             run(
               api.deletePresentation(id, token).then(() => {

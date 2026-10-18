@@ -23,6 +23,7 @@ function Answer({
   question,
   remaining,
   submit,
+  markAnswered,
 }: {
   question: PublicQuestion;
   remaining: number;
@@ -30,12 +31,19 @@ function Answer({
     questionId: string,
     response: unknown,
   ): Promise<{ ok: true } | { ok: false; error: { code: ErrorCode } }>;
+  markAnswered(questionId: string): void;
 }) {
   const { t, tn } = useI18n();
   const [answering, setAnswering] = useState(remaining > 0);
   const [justAnswered, setJustAnswered] = useState(false);
   const [error, setError] = useState<ErrorCode | null>(null);
   const ui = getQuestionTypeUi(question.type as QuestionTypeKey);
+  const thanks = useRef<HTMLHeadingElement>(null);
+
+  // Move focus to the confirmation so screen readers announce it.
+  useEffect(() => {
+    if (!answering && justAnswered) thanks.current?.focus();
+  }, [answering, justAnswered]);
 
   // Out of answers → thanks screen; answers given back (the presenter reset results) → form again.
   const previous = useRef(remaining);
@@ -49,7 +57,9 @@ function Answer({
     return (
       <Centered>
         <Stamp size={150} label={t('stamp.voted')} press={justAnswered} />
-        <h1 className="mt-4 text-3xl font-extrabold">{t('join.thanks.title')}</h1>
+        <h1 ref={thanks} tabIndex={-1} className="mt-4 text-3xl font-extrabold focus:outline-none">
+          {t('join.thanks.title')}
+        </h1>
         <p className="max-w-xs text-lg text-muted">{t('join.thanks.body')}</p>
         {remaining > 0 ? (
           <button
@@ -89,6 +99,12 @@ function Answer({
             setAnswering(false);
             return true;
           }
+          if (ack.error.code === 'RESPONSE_LIMIT_REACHED') {
+            // Answered already (another tab, or an earlier attempt whose reply got lost).
+            markAnswered(question.id);
+            setAnswering(false);
+            return false;
+          }
           setError(ack.error.code);
           return false;
         }}
@@ -101,7 +117,7 @@ export function JoinPage() {
   const { code = '' } = useParams();
   const { t } = useI18n();
   const valid = /^\d{6}$/.test(code);
-  const session = useParticipantSession(valid ? code : '000000');
+  const session = useParticipantSession(valid ? code : null);
   const status = valid ? session.status : 'not-found';
   const question = session.state?.activeQuestion ?? null;
 
@@ -175,6 +191,7 @@ export function JoinPage() {
             question={question}
             remaining={session.state.remaining}
             submit={session.submit}
+            markAnswered={session.markAnswered}
           />
         ) : null}
       </main>

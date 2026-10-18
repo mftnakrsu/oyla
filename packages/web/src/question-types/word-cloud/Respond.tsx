@@ -23,6 +23,7 @@ export function WordCloudRespond({ onSubmit }: RespondProps<'word-cloud'>) {
         </label>
         <input
           id={id}
+          aria-describedby={`${id}-count`}
           className={inputClass}
           value={text}
           maxLength={LIMITS.wordCloudEntry}
@@ -31,7 +32,7 @@ export function WordCloudRespond({ onSubmit }: RespondProps<'word-cloud'>) {
           enterKeyHint="send"
           onChange={(event) => setText(event.target.value)}
         />
-        <CharCount value={text} max={LIMITS.wordCloudEntry} />
+        <CharCount id={`${id}-count`} value={text} max={LIMITS.wordCloudEntry} />
       </div>
     </RespondForm>
   );

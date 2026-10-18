@@ -3,6 +3,7 @@ import { type ReactNode, Suspense, useCallback, useEffect, useRef, useState } fr
 import { Link, useNavigate, useParams } from 'react-router';
 import { api, errorCodeOf } from '../api/client';
 import { buttonClass } from '../components/Button';
+import { ErrorBoundary } from '../components/ErrorBoundary';
 import { ErrorNotice } from '../components/ErrorNotice';
 import { QrCode } from '../components/QrCode';
 import { Shell } from '../components/Shell';
@@ -27,11 +28,13 @@ function ControlButton({
   label,
   onClick,
   disabled,
+  armed = false,
   children,
 }: {
   label: string;
   onClick(): void;
   disabled?: boolean;
+  armed?: boolean;
   children: ReactNode;
 }) {
   return (
@@ -41,15 +44,51 @@ function ControlButton({
       title={label}
       onClick={onClick}
       disabled={disabled}
-      className="grid size-[2.6em] place-items-center rounded-xl text-ink hover:bg-ink/5 disabled:opacity-30"
+      className={`grid h-[2.6em] min-w-[2.6em] place-items-center rounded-xl px-[0.5em] disabled:opacity-30 ${
+        armed ? 'bg-stamp text-paper' : 'text-ink hover:bg-ink/5'
+      }`}
     >
       {children}
     </button>
   );
 }
 
+/** Reset needs a second click within a few seconds: it deletes every answer to the question. */
+function ResetButton({ onReset, disabled }: { onReset(): void; disabled: boolean }) {
+  const { t } = useI18n();
+  const [armed, setArmed] = useState(false);
+  useEffect(() => {
+    if (!armed) return;
+    const timer = setTimeout(() => setArmed(false), 4000);
+    return () => clearTimeout(timer);
+  }, [armed]);
+  return (
+    <ControlButton
+      label={armed ? t('common.confirmReset') : t('present.reset')}
+      armed={armed}
+      disabled={disabled}
+      onClick={() => {
+        if (armed) {
+          setArmed(false);
+          onReset();
+        } else {
+          setArmed(true);
+        }
+      }}
+    >
+      {armed ? (
+        <span className="text-[0.85em] font-bold">{t('common.confirmReset')}</span>
+      ) : (
+        <ResetIcon />
+      )}
+    </ControlButton>
+  );
+}
+
 function Invite({ code, onClose }: { code: string; onClose(): void }) {
   const { t, tRich } = useI18n();
+  const close = useRef<HTMLButtonElement>(null);
+  useEffect(() => close.current?.focus(), []);
   return (
     <div
       role="dialog"
@@ -59,20 +98,24 @@ function Invite({ code, onClose }: { code: string; onClose(): void }) {
     >
       <div className="flex flex-col items-center gap-[1.5em] text-center">
         <p className="text-[2em] font-bold text-muted">
-          {tRich('present.join', {
+          {tRich('present.goTo', {
             host: (
               <strong key="host" className="text-ink">
                 {displayHost()}
               </strong>
             ),
-            code: <span key="code">…</span>,
-          }).slice(0, 2)}
+          })}
         </p>
         <p className="text-[7em] font-extrabold leading-none tracking-[0.08em]">
           {formatJoinCode(code)}
         </p>
         <QrCode value={joinUrl(code)} size={300} label={joinUrl(code)} />
-        <button type="button" onClick={onClose} className={buttonClass('secondary', 'lg')}>
+        <button
+          ref={close}
+          type="button"
+          onClick={onClose}
+          className={buttonClass('secondary', 'lg')}
+        >
           {t('present.inviteClose')}
         </button>
       </div>
@@ -83,15 +126,23 @@ function Invite({ code, onClose }: { code: string; onClose(): void }) {
 function ActiveQuestion({ question, results }: { question: QuestionDto; results: unknown }) {
   const { t } = useI18n();
   const ui = getQuestionTypeUi(question.type);
+  const unavailable = <p className="text-[1.3em] text-muted">{t('question.unavailable')}</p>;
+  const readable = getQuestionType(question.type).configSchema.safeParse(question.config).success;
   return (
     <>
-      <h1 className="mb-[0.8em] text-[2.7em] font-extrabold leading-[1.1] tracking-tight text-balance">
+      <h1 className="mb-[0.8em] text-balance text-[2.7em] font-extrabold leading-[1.1] tracking-tight">
         {question.title || t('editor.question.untitled')}
       </h1>
       <div className="min-h-0 flex-1 overflow-y-auto">
-        <Suspense fallback={null}>
-          <ui.Results config={question.config} results={results} />
-        </Suspense>
+        {readable && results !== null ? (
+          <ErrorBoundary key={question.id} fallback={unavailable}>
+            <Suspense fallback={null}>
+              <ui.Results config={question.config} results={results} />
+            </Suspense>
+          </ErrorBoundary>
+        ) : (
+          unavailable
+        )}
       </div>
     </>
   );
@@ -114,12 +165,28 @@ export function PresentPage() {
     if (!token) return;
     api
       .getPresentation(id, token)
-      .then(setPresentation)
-      .catch((error) => setLoadError(errorCodeOf(error)));
+      .then((loaded) => {
+        setPresentation(loaded);
+        setLoadError(null);
+      })
+      .catch((error) => {
+        // A failed refresh keeps the last good data on screen; only a bad link or a deleted
+        // presentation (or having nothing to show yet) replaces the presenter view.
+        const code = errorCodeOf(error);
+        setLoadError((current) =>
+          code === 'UNAUTHORIZED' || code === 'NOT_FOUND' ? code : (current ?? code),
+        );
+      });
   }, [id, token]);
 
+  // Load on open, when the window regains focus, and on every state broadcast: questions edited,
+  // added, removed or reordered in the editor show up here without a reload.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: stateVersion is a reload trigger
   useEffect(() => {
     load();
+  }, [load, session.stateVersion]);
+
+  useEffect(() => {
     window.addEventListener('focus', load);
     return () => window.removeEventListener('focus', load);
   }, [load]);
@@ -127,11 +194,6 @@ export function PresentPage() {
   const questions = presentation?.questions ?? [];
   const index = questions.findIndex((q) => q.id === session.activeQuestionId);
   const active = questions[index];
-
-  // The question list changed in another tab: fetch it again.
-  useEffect(() => {
-    if (presentation && session.activeQuestionId && index === -1) load();
-  }, [presentation, session.activeQuestionId, index, load]);
 
   // Opening the presenter view starts the presentation at the first question.
   useEffect(() => {
@@ -156,9 +218,17 @@ export function PresentPage() {
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.target instanceof HTMLElement && event.target.closest('input, textarea, select'))
-        return;
       if (event.metaKey || event.ctrlKey || event.altKey) return;
+      if (invite) {
+        if (event.key === 'Escape' || event.key === 'i') setInvite(false);
+        return;
+      }
+      // Leave typing and focused controls alone (Space or Enter on a button activates it).
+      if (
+        event.target instanceof HTMLElement &&
+        event.target.closest('input, textarea, select, button, a')
+      )
+        return;
       if (['ArrowRight', 'PageDown', ' '].includes(event.key)) {
         event.preventDefault();
         go(1);
@@ -168,14 +238,12 @@ export function PresentPage() {
       } else if (event.key === 'f') {
         toggleFullscreen();
       } else if (event.key === 'i') {
-        setInvite((open) => !open);
-      } else if (event.key === 'Escape') {
-        setInvite(false);
+        setInvite(true);
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [go, toggleFullscreen]);
+  }, [go, toggleFullscreen, invite]);
 
   if (!token || session.status === 'unauthorized' || loadError === 'UNAUTHORIZED') {
     return (
@@ -185,32 +253,36 @@ export function PresentPage() {
       </Shell>
     );
   }
-  if (session.status === 'ended' || loadError === 'NOT_FOUND') {
+  if (session.status === 'ended' || session.status === 'not-found' || loadError === 'NOT_FOUND') {
     return (
       <Shell>
         <h1 className="text-3xl font-extrabold">{t('error.NOT_FOUND')}</h1>
       </Shell>
     );
   }
-  if (loadError) {
-    return (
-      <Shell>
-        <ErrorNotice code={loadError} />
-      </Shell>
-    );
-  }
   if (!presentation) {
     return (
       <Shell>
-        <p className="text-muted">{t('common.loading')}</p>
+        {loadError ? (
+          <ErrorNotice code={loadError} />
+        ) : (
+          <p className="text-muted">{t('common.loading')}</p>
+        )}
       </Shell>
     );
   }
 
   const code = presentation.joinCode;
   const message = active ? session.results[active.id] : undefined;
+  const readable = active
+    ? getQuestionType(active.type).configSchema.safeParse(active.config).success
+    : false;
   const results = active
-    ? (message?.results ?? getQuestionType(active.type).aggregate(active.config, []))
+    ? message
+      ? message.results
+      : readable
+        ? getQuestionType(active.type).aggregate(active.config, [])
+        : null
     : null;
 
   return (
@@ -247,6 +319,11 @@ export function PresentPage() {
         <p role="status" className="bg-stamp-soft px-[1.5em] py-[0.4em] font-bold">
           {t('present.reconnecting')}
         </p>
+      ) : null}
+      {session.status === 'error' && session.errorCode ? (
+        <div className="px-[1.5em] pt-[0.6em]">
+          <ErrorNotice code={session.errorCode} />
+        </div>
       ) : null}
 
       <main className="flex min-h-0 flex-1 flex-col px-[2em] py-[1.4em]">
@@ -289,13 +366,7 @@ export function PresentPage() {
           >
             <NextIcon />
           </ControlButton>
-          <ControlButton
-            label={t('present.reset')}
-            onClick={() => active && void session.reset(active.id)}
-            disabled={!active}
-          >
-            <ResetIcon />
-          </ControlButton>
+          <ResetButton disabled={!active} onReset={() => active && void session.reset(active.id)} />
           <ControlButton label={t('present.invite')} onClick={() => setInvite(true)}>
             <InviteIcon />
           </ControlButton>

@@ -5,11 +5,11 @@ import { useI18n } from '../i18n/I18nProvider';
 export const inputClass =
   'w-full rounded-xl border-2 border-line bg-paper px-4 py-3 text-lg text-ink placeholder:text-muted/70 focus:border-ink focus:outline-none';
 
-export function CharCount({ value, max }: { value: string; max: number }) {
+export function CharCount({ id, value, max }: { id: string; value: string; max: number }) {
   const { t } = useI18n();
   const left = max - value.length;
   return (
-    <p aria-live="polite" className={`text-sm ${left < 10 ? 'text-stamp' : 'text-muted'}`}>
+    <p id={id} className={`text-sm ${left < 10 ? 'text-stamp' : 'text-muted'}`}>
       {t('common.charsLeft', { count: left })}
     </p>
   );

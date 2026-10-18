@@ -1,4 +1,5 @@
 import {
+  type ErrorCode,
   getQuestionType,
   LIMITS,
   type QuestionDto,
@@ -18,11 +19,14 @@ import {
 import { api, errorCodeOf } from '../../api/client';
 import { Button } from '../../components/Button';
 import { ConfirmButton } from '../../components/ConfirmButton';
+import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { useI18n } from '../../i18n/I18nProvider';
 import { getQuestionTypeUi } from '../../question-types/registry';
 import { inputClass } from '../../question-types/shared';
 
 const SAVE_DELAY_MS = 500;
+const MAX_RETRIES = 5;
+const RETRYABLE = new Set<ErrorCode | 'NETWORK'>(['NETWORK', 'INTERNAL', 'RATE_LIMITED']);
 
 export interface QuestionPanelHandle {
   /** Saves pending edits right away (before presenting). */
@@ -42,7 +46,11 @@ interface QuestionPanelProps {
   onError(code: ReturnType<typeof errorCodeOf>): void;
 }
 
-/** Edits one question and saves it shortly after typing stops. Keyed by question id. */
+/**
+ * Edits one question and saves it shortly after typing stops. Saves run one at a time, so
+ * responses can't arrive out of order, and a failed save is retried instead of being forgotten.
+ * Keyed by question id.
+ */
 export const QuestionPanel = forwardRef<QuestionPanelHandle, QuestionPanelProps>(
   function QuestionPanel(
     { presentationId, token, question, index, total, onSaved, onMove, onDelete, onReset, onError },
@@ -52,41 +60,59 @@ export const QuestionPanel = forwardRef<QuestionPanelHandle, QuestionPanelProps>
     const id = useId();
     const type = question.type as QuestionTypeKey;
     const ui = getQuestionTypeUi(type);
+    const [configReadable] = useState(
+      () => getQuestionType(type).configSchema.safeParse(question.config).success,
+    );
     const [title, setTitle] = useState(question.title);
     const [config, setConfig] = useState<unknown>(question.config);
-    const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved'>('idle');
+    const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'retrying'>('idle');
     const latest = useRef({ title, config });
     latest.current = { title, config };
+    /** What the server has confirmed; only updated after a successful save. */
     const saved = useRef({ title: question.title, config: question.config });
     const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+    const queue = useRef<Promise<void>>(Promise.resolve());
+    const failures = useRef(0);
     const callbacks = useRef({ onSaved, onError });
     callbacks.current = { onSaved, onError };
 
-    const flush = useCallback(async () => {
+    const flush = useCallback((): Promise<void> => {
       clearTimeout(timer.current);
-      const body: UpdateQuestionBody = {};
-      if (latest.current.title !== saved.current.title) body.title = latest.current.title;
-      if (
-        latest.current.config !== saved.current.config &&
-        getQuestionType(type).configSchema.safeParse(latest.current.config).success
-      ) {
-        body.config = latest.current.config;
-      }
-      if (body.title === undefined && body.config === undefined) return;
-      saved.current = {
-        title: body.title ?? saved.current.title,
-        config: body.config ?? saved.current.config,
+      const run = async () => {
+        const body: UpdateQuestionBody = {};
+        if (latest.current.title !== saved.current.title) body.title = latest.current.title;
+        if (
+          latest.current.config !== saved.current.config &&
+          getQuestionType(type).configSchema.safeParse(latest.current.config).success
+        ) {
+          body.config = latest.current.config;
+        }
+        if (body.title === undefined && body.config === undefined) return;
+        const sending = {
+          title: body.title ?? saved.current.title,
+          config: body.config ?? saved.current.config,
+        };
+        setSaveState('saving');
+        try {
+          const updated = await api.updateQuestion(presentationId, token, question.id, body);
+          saved.current = sending;
+          failures.current = 0;
+          callbacks.current.onSaved(updated);
+          setSaveState('saved');
+        } catch (error) {
+          const code = errorCodeOf(error);
+          if (RETRYABLE.has(code) && failures.current < MAX_RETRIES) {
+            failures.current += 1;
+            setSaveState('retrying');
+            timer.current = setTimeout(() => void flush(), 1500 * failures.current);
+          } else {
+            setSaveState('idle');
+            callbacks.current.onError(code);
+          }
+        }
       };
-      setSaveState('saving');
-      try {
-        callbacks.current.onSaved(
-          await api.updateQuestion(presentationId, token, question.id, body),
-        );
-        setSaveState('saved');
-      } catch (error) {
-        callbacks.current.onError(errorCodeOf(error));
-        setSaveState('idle');
-      }
+      queue.current = queue.current.then(run, run);
+      return queue.current;
     }, [presentationId, token, question.id, type]);
 
     useImperativeHandle(ref, () => ({ flush }), [flush]);
@@ -100,6 +126,15 @@ export const QuestionPanel = forwardRef<QuestionPanelHandle, QuestionPanelProps>
     // Switching to another question unmounts this panel: save what was typed.
     useEffect(() => () => void flush(), [flush]);
 
+    const status =
+      saveState === 'saving'
+        ? t('common.saving')
+        : saveState === 'saved'
+          ? t('common.saved')
+          : saveState === 'retrying'
+            ? t('editor.saveRetry')
+            : '';
+
     return (
       <section
         aria-labelledby={`${id}-heading`}
@@ -110,12 +145,11 @@ export const QuestionPanel = forwardRef<QuestionPanelHandle, QuestionPanelProps>
             <ui.Icon className="size-6 text-series" />
             {index + 1}. {t(ui.labelKey)}
           </h2>
-          <p aria-live="polite" className="text-sm text-muted">
-            {saveState === 'saving'
-              ? t('common.saving')
-              : saveState === 'saved'
-                ? t('common.saved')
-                : ''}
+          <p
+            aria-live="polite"
+            className={`text-sm ${saveState === 'retrying' ? 'text-stamp' : 'text-muted'}`}
+          >
+            {status}
           </p>
         </div>
 
@@ -134,18 +168,29 @@ export const QuestionPanel = forwardRef<QuestionPanelHandle, QuestionPanelProps>
           />
         </div>
 
-        <Suspense fallback={<p className="text-muted">{t('common.loading')}</p>}>
-          <ui.Editor config={config} onChange={setConfig} />
-        </Suspense>
+        {configReadable ? (
+          <ErrorBoundary fallback={<p className="text-muted">{t('question.unavailable')}</p>}>
+            <Suspense fallback={<p className="text-muted">{t('common.loading')}</p>}>
+              <ui.Editor config={config} onChange={setConfig} />
+            </Suspense>
+          </ErrorBoundary>
+        ) : (
+          <p className="text-muted">{t('question.unavailable')}</p>
+        )}
 
         <div className="flex flex-wrap items-center gap-2 border-t-2 border-line pt-5">
           <p className="mr-auto text-muted">
             {tn('editor.question.responses', question.responseCount)}
           </p>
           {question.responseCount > 0 ? (
-            <Button variant="secondary" onClick={onReset}>
+            <ConfirmButton
+              variant="secondary"
+              onConfirm={onReset}
+              label={t('editor.question.reset')}
+              confirmLabel={t('common.confirmReset')}
+            >
               {t('editor.question.reset')}
-            </Button>
+            </ConfirmButton>
           ) : null}
           <Button
             variant="quiet"
@@ -165,7 +210,11 @@ export const QuestionPanel = forwardRef<QuestionPanelHandle, QuestionPanelProps>
           >
             ↓
           </Button>
-          <ConfirmButton onConfirm={onDelete} label={t('editor.question.delete')}>
+          <ConfirmButton
+            onConfirm={onDelete}
+            label={t('editor.question.delete')}
+            confirmLabel={t('common.confirmDelete')}
+          >
             {t('editor.question.delete')}
           </ConfirmButton>
         </div>

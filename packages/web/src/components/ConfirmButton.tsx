@@ -1,5 +1,4 @@
 import { type ReactNode, useEffect, useState } from 'react';
-import { useI18n } from '../i18n/I18nProvider';
 import { Button } from './Button';
 
 /** Destructive action that needs a second click within a few seconds; no browser dialogs. */
@@ -7,12 +6,15 @@ export function ConfirmButton({
   children,
   onConfirm,
   label,
+  confirmLabel,
+  variant = 'danger',
 }: {
   children: ReactNode;
   onConfirm(): void;
-  label?: string;
+  label: string;
+  confirmLabel: string;
+  variant?: 'danger' | 'secondary';
 }) {
-  const { t } = useI18n();
   const [armed, setArmed] = useState(false);
   useEffect(() => {
     if (!armed) return;
@@ -21,8 +23,8 @@ export function ConfirmButton({
   }, [armed]);
   return (
     <Button
-      variant="danger"
-      aria-label={armed ? t('common.confirmDelete') : label}
+      variant={armed ? 'danger' : variant}
+      aria-label={armed ? confirmLabel : label}
       onClick={() => {
         if (armed) {
           setArmed(false);
@@ -32,7 +34,7 @@ export function ConfirmButton({
         }
       }}
     >
-      {armed ? t('common.confirmDelete') : children}
+      {armed ? confirmLabel : children}
     </Button>
   );
 }

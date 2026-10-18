@@ -23,13 +23,14 @@ export function OpenEndedRespond({ onSubmit }: RespondProps<'open-ended'>) {
         </label>
         <textarea
           id={id}
+          aria-describedby={`${id}-count`}
           className={`${inputClass} min-h-36 resize-y`}
           value={text}
           maxLength={LIMITS.openEndedEntry}
           placeholder={t('oe.respond.placeholder')}
           onChange={(event) => setText(event.target.value)}
         />
-        <CharCount value={text} max={LIMITS.openEndedEntry} />
+        <CharCount id={`${id}-count`} value={text} max={LIMITS.openEndedEntry} />
       </div>
     </RespondForm>
   );

@@ -12,6 +12,7 @@ export const en = {
   'common.copied': 'Copied',
   'common.delete': 'Delete',
   'common.confirmDelete': 'Click again to delete',
+  'common.confirmReset': 'Click again to reset',
   'common.saving': 'Saving…',
   'common.saved': 'Saved',
   'common.retry': 'Try again',
@@ -29,6 +30,9 @@ export const en = {
   'error.RESPONSE_LIMIT_REACHED': 'You’ve already answered this question.',
   'error.QUESTION_LIMIT_REACHED': 'A presentation can have up to 50 questions.',
   'error.QUESTION_FULL': 'This question isn’t taking more answers.',
+  'error.PRESENTATION_FULL':
+    'This presentation has reached its answer limit. Reset a question to make room.',
+  'error.STORAGE_FULL': 'The server is out of storage. Tell whoever runs it.',
   'error.INTERNAL': 'Something went wrong on the server. Try again.',
   'error.NETWORK': 'Can’t reach the server. Check your connection and try again.',
 
@@ -56,7 +60,7 @@ export const en = {
 
   'editor.adminLink.title': 'Keep this link',
   'editor.adminLink.body':
-    'It’s the only way back into this presentation. Anyone who has it can edit and present.',
+    'It’s the only way back into this presentation. Anyone who has it can edit and present, so don’t show it on the projector.',
   'editor.adminLink.copy': 'Copy admin link',
   'editor.adminLink.dismiss': 'I saved it',
   'editor.title.label': 'Presentation name',
@@ -78,6 +82,10 @@ export const en = {
   'editor.question.responses.one': '1 answer so far',
   'editor.question.responses.other': '{count} answers so far',
   'editor.deletePresentation': 'Delete presentation',
+  'editor.outOfDate':
+    'This presentation changed somewhere else, so the latest version was loaded. Try again.',
+  'editor.saveRetry': 'Couldn’t save your last change. Trying again…',
+  'question.unavailable': 'This question’s settings can’t be read by this version of Oyla.',
   'editor.missingKey.title': 'This device can’t edit this presentation',
   'editor.missingKey.body':
     'Open the admin link you saved when you created it. It ends with #key=…',
@@ -132,6 +140,7 @@ export const en = {
   'present.fullscreen': 'Full screen',
   'present.invite': 'Show join instructions',
   'present.inviteClose': 'Hide join instructions',
+  'present.goTo': 'Go to {host}',
   'present.exit': 'Back to editor',
   'present.keys': 'Use the arrow keys to move between questions',
   'present.empty.title': 'This presentation has no questions yet',

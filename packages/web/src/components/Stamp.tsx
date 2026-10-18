@@ -1,4 +1,5 @@
 import { useId } from 'react';
+import { useI18n } from '../i18n/I18nProvider';
 
 interface StampProps {
   size?: number;
@@ -12,6 +13,7 @@ interface StampProps {
 /** The Oyla rubber stamp: a double ring with a check mark, inked at a slight angle. */
 export function Stamp({ size = 40, label, press = false, className = '' }: StampProps) {
   const id = useId();
+  const { language } = useI18n();
   const grain = `${id}-grain`;
   const ring = `${id}-ring`;
   return (
@@ -43,7 +45,7 @@ export function Stamp({ size = 40, label, press = false, className = '' }: Stamp
         {label ? (
           <text fill="currentColor" stroke="none" fontSize="15" fontWeight="800" letterSpacing="3">
             <textPath href={`#${ring}`} startOffset="50%" textAnchor="middle">
-              {`${label.toLocaleUpperCase()} ★ ${label.toLocaleUpperCase()} ★`}
+              {`${label.toLocaleUpperCase(language)} ★ ${label.toLocaleUpperCase(language)} ★`}
             </textPath>
           </text>
         ) : null}

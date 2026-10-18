@@ -12,12 +12,17 @@ export interface ParticipantSession {
   title: string;
   state: ParticipantState | null;
   submit(questionId: string, response: unknown): Promise<ResponseSubmitAck>;
+  /** Marks the question as fully answered (the server said no answers are left). */
+  markAnswered(questionId: string): void;
 }
 
 const ACK_TIMEOUT_MS = 10_000;
 
-/** Joins a presentation by code and re-joins after every reconnect; the server owns the state. */
-export function useParticipantSession(joinCode: string): ParticipantSession {
+/**
+ * Joins a presentation by code and re-joins after every reconnect; the server owns the state.
+ * Pass null for a malformed code: nothing connects.
+ */
+export function useParticipantSession(joinCode: string | null): ParticipantSession {
   const socketRef = useRef<OylaSocket | null>(null);
   const [status, setStatus] = useState<ParticipantStatus>('connecting');
   const [errorCode, setErrorCode] = useState<ErrorCode | null>(null);
@@ -26,6 +31,7 @@ export function useParticipantSession(joinCode: string): ParticipantSession {
   const [state, setState] = useState<ParticipantState | null>(null);
 
   useEffect(() => {
+    if (joinCode === null) return;
     const socket = createSocket();
     socketRef.current = socket;
     const participantId = getParticipantId();
@@ -84,5 +90,11 @@ export function useParticipantSession(joinCode: string): ParticipantSession {
     [],
   );
 
-  return { status, errorCode, connected, title, state, submit };
+  const markAnswered = useCallback((questionId: string) => {
+    setState((current) =>
+      current?.activeQuestion?.id === questionId ? { ...current, remaining: 0 } : current,
+    );
+  }, []);
+
+  return { status, errorCode, connected, title, state, submit, markAnswered };
 }
