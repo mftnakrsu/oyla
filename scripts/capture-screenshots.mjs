@@ -5,7 +5,8 @@
  *   npm run build && PORT=3100 OYLA_DB_PATH=:memory: npm start   # in one terminal
  *   node scripts/capture-screenshots.mjs [outDir]                 # in another
  *
- * The browser maps oyla.mefby.com to the local server so the screens show a real address.
+ * The browser maps oyla.example.com to the local server so the screens show a plausible address
+ * of a self-hosted server.
  * Simulated participants vote over Socket.IO directly, which is far lighter than one browser
  * per phone.
  */
@@ -15,7 +16,7 @@ import { chromium, devices } from '@playwright/test';
 import { io } from 'socket.io-client';
 
 const server = process.env.OYLA_URL ?? 'http://127.0.0.1:3100';
-const host = 'oyla.mefby.com';
+const host = 'oyla.example.com';
 const base = `http://${host}`;
 const outDir = process.argv[2] ?? 'docs/media/screenshots';
 const { port } = new URL(server);
@@ -137,8 +138,9 @@ async function rest(method, path, token, body) {
 }
 
 /** Creates a presentation through the API and returns ids, token and question ids. */
-async function createDeck(deck) {
+async function createDeck(deck, theme) {
   const created = await rest('POST', '/presentations', null, { title: deck.title });
+  if (theme) await rest('PATCH', `/presentations/${created.id}`, created.adminToken, { theme });
   const ids = [];
   for (const question of deck.questions) {
     const config =
@@ -299,8 +301,45 @@ async function capture(language, scheme, { phoneShots = true, desktopShots = tru
   await desktop.close();
 }
 
+/** The first question of a deck in another theme: presenter screen and phone. */
+async function captureTheme(theme, language) {
+  const deck = { ...decks[language], questions: decks[language].questions.slice(0, 1) };
+  const created = await createDeck(deck, theme);
+  const prefs = { 'oyla:language': JSON.stringify(language) };
+  const init = (values) => {
+    for (const [key, value] of Object.entries(values)) localStorage.setItem(key, value);
+  };
+  const desktop = await browser.newContext({
+    viewport: { width: 1440, height: 900 },
+    deviceScaleFactor: 1.5,
+  });
+  await desktop.addInitScript(init, prefs);
+  const page = await desktop.newPage();
+  await page.goto(`${base}/present/${created.id}#key=${created.adminToken}`);
+  await page.getByRole('heading', { level: 1 }).waitFor();
+  const people = await crowd(created.joinCode, 24);
+  const phoneContext = await browser.newContext({ ...devices['iPhone 13'] });
+  await phoneContext.addInitScript(init, prefs);
+  const phone = await phoneContext.newPage();
+  await phone.goto(`${base}/join/${created.joinCode}`);
+  await phone.getByRole('heading', { name: deck.questions[0].title }).waitFor();
+  await phone.getByText(deck.questions[0].options[0], { exact: true }).click();
+  await phone.waitForTimeout(250);
+  await phone.screenshot({ path: join(outDir, `theme-${theme}-phone-${language}.png`) });
+  await people.answer(created.questionIds[0], responsesFor(deck.questions[0]));
+  await page.waitForTimeout(1200);
+  await page.screenshot({ path: join(outDir, `theme-${theme}-present-${language}.png`) });
+  people.close();
+  await phoneContext.close();
+  await desktop.close();
+}
+
 await capture('en', 'light');
-await capture('en', 'dark', { desktopShots: true, phoneShots: true });
-await capture('tr', 'light', { desktopShots: true, phoneShots: true });
+await capture('en', 'dark');
+await capture('tr', 'light');
+for (const theme of ['emerald', 'indigo', 'navy', 'blue']) {
+  await captureTheme(theme, 'en');
+  await captureTheme(theme, 'tr');
+}
 await browser.close();
 console.log(`Screenshots written to ${outDir}`);
