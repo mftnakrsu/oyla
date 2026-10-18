@@ -23,3 +23,18 @@ describe('TokenBucket', () => {
     expect([bucket.take(), bucket.take(), bucket.take()]).toEqual([true, true, false]);
   });
 });
+
+describe('TokenBucket.available and full', () => {
+  test('available does not consume; full reports a recovered bucket', () => {
+    let now = 0;
+    const bucket = new TokenBucket(2, 1, () => now);
+    expect(bucket.full()).toBe(true);
+    expect(bucket.available()).toBe(true);
+    bucket.take();
+    bucket.take();
+    expect(bucket.available()).toBe(false);
+    expect(bucket.full()).toBe(false);
+    now += 2000;
+    expect(bucket.full()).toBe(true);
+  });
+});

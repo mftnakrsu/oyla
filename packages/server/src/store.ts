@@ -89,6 +89,16 @@ export function createStore({ db, sqlite }: DatabaseHandle) {
           .get();
         return row?.value ?? 0;
       },
+      /** Question ids in presentation order, without loading configs. */
+      ids(presentationId: string): string[] {
+        return db
+          .select({ id: questions.id })
+          .from(questions)
+          .where(eq(questions.presentationId, presentationId))
+          .orderBy(asc(questions.position))
+          .all()
+          .map((row) => row.id);
+      },
       nextPosition(presentationId: string): number {
         const row = db
           .select({ value: sql<number | null>`max(${questions.position})` })
@@ -166,6 +176,25 @@ export function createStore({ db, sqlite }: DatabaseHandle) {
           .where(
             and(eq(responses.questionId, questionId), eq(responses.participantId, participantId)),
           )
+          .get();
+        return row?.value ?? 0;
+      },
+      /** Answers per participant for one question, in one query. */
+      countsByParticipant(questionId: string): Map<string, number> {
+        const rows = db
+          .select({ participantId: responses.participantId, value: count() })
+          .from(responses)
+          .where(eq(responses.questionId, questionId))
+          .groupBy(responses.participantId)
+          .all();
+        return new Map(rows.map((row) => [row.participantId, row.value]));
+      },
+      countForPresentation(presentationId: string): number {
+        const row = db
+          .select({ value: count() })
+          .from(responses)
+          .innerJoin(questions, eq(questions.id, responses.questionId))
+          .where(eq(questions.presentationId, presentationId))
           .get();
         return row?.value ?? 0;
       },

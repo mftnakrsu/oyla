@@ -4,6 +4,7 @@ import { EventEmitter } from 'node:events';
 interface LiveEventMap {
   'state-changed': [presentationId: string];
   'results-changed': [presentationId: string, questionId: string];
+  'responses-cleared': [presentationId: string, questionId: string];
   'presentation-ended': [presentationId: string];
 }
 

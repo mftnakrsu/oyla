@@ -1,6 +1,8 @@
+import rateLimit from '@fastify/rate-limit';
 import {
   createPresentationBody,
   createQuestionBody,
+  LIMITS,
   reorderQuestionsBody,
   type ServerConfigDto,
   updatePresentationBody,
@@ -23,16 +25,21 @@ export interface RouteDeps {
 }
 
 export async function apiRoutes(app: FastifyInstance, { service, config }: RouteDeps) {
-  const limited = { rateLimit: { max: config.rateLimits.apiPerMinute, timeWindow: '1 minute' } };
+  // One shared budget per IP for every route in this scope; static files live outside it.
+  await app.register(rateLimit, {
+    global: true,
+    max: config.rateLimits.apiPerMinute,
+    timeWindow: '1 minute',
+  });
 
-  app.get('/health', async () => ({ status: 'ok' }));
+  app.get('/health', { config: { rateLimit: false } }, async () => ({ status: 'ok' }));
 
   app.get(
     '/config',
-    { config: limited },
     async (): Promise<ServerConfigDto> => ({
       createPasswordRequired: config.createPassword !== null,
       retentionDays: config.retentionDays,
+      limits: LIMITS,
     }),
   );
 
@@ -45,66 +52,58 @@ export async function apiRoutes(app: FastifyInstance, { service, config }: Route
     },
   );
 
-  app.get('/presentations/:id', { config: limited }, async (request) => {
+  app.get('/presentations/:id', async (request) => {
     const { id } = parse(presentationParams, request.params);
     requireAdmin(request, service, id);
     return service.get(id);
   });
 
-  app.patch('/presentations/:id', { config: limited }, async (request) => {
+  app.patch('/presentations/:id', async (request) => {
     const { id } = parse(presentationParams, request.params);
     requireAdmin(request, service, id);
     const body = parse(updatePresentationBody, request.body);
     return service.rename(id, body.title);
   });
 
-  app.delete('/presentations/:id', { config: limited }, async (request, reply) => {
+  app.delete('/presentations/:id', async (request, reply) => {
     const { id } = parse(presentationParams, request.params);
     requireAdmin(request, service, id);
     service.remove(id);
     return reply.status(204).send();
   });
 
-  app.post('/presentations/:id/questions', { config: limited }, async (request, reply) => {
+  app.post('/presentations/:id/questions', async (request, reply) => {
     const { id } = parse(presentationParams, request.params);
     requireAdmin(request, service, id);
     const body = parse(createQuestionBody, request.body);
     return reply.status(201).send(service.addQuestion(id, body));
   });
 
-  app.put('/presentations/:id/questions/order', { config: limited }, async (request) => {
+  app.put('/presentations/:id/questions/order', async (request) => {
     const { id } = parse(presentationParams, request.params);
     requireAdmin(request, service, id);
     const body = parse(reorderQuestionsBody, request.body);
     return service.reorder(id, body.ids);
   });
 
-  app.patch('/presentations/:id/questions/:questionId', { config: limited }, async (request) => {
+  app.patch('/presentations/:id/questions/:questionId', async (request) => {
     const { id, questionId } = parse(questionParams, request.params);
     requireAdmin(request, service, id);
     const body = parse(updateQuestionBody, request.body);
     return service.updateQuestion(id, questionId, body);
   });
 
-  app.delete(
-    '/presentations/:id/questions/:questionId',
-    { config: limited },
-    async (request, reply) => {
-      const { id, questionId } = parse(questionParams, request.params);
-      requireAdmin(request, service, id);
-      service.deleteQuestion(id, questionId);
-      return reply.status(204).send();
-    },
-  );
+  app.delete('/presentations/:id/questions/:questionId', async (request, reply) => {
+    const { id, questionId } = parse(questionParams, request.params);
+    requireAdmin(request, service, id);
+    service.deleteQuestion(id, questionId);
+    return reply.status(204).send();
+  });
 
-  app.delete(
-    '/presentations/:id/questions/:questionId/responses',
-    { config: limited },
-    async (request, reply) => {
-      const { id, questionId } = parse(questionParams, request.params);
-      requireAdmin(request, service, id);
-      service.resetResults(id, questionId);
-      return reply.status(204).send();
-    },
-  );
+  app.delete('/presentations/:id/questions/:questionId/responses', async (request, reply) => {
+    const { id, questionId } = parse(questionParams, request.params);
+    requireAdmin(request, service, id);
+    service.resetResults(id, questionId);
+    return reply.status(204).send();
+  });
 }

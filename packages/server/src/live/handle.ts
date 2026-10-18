@@ -1,7 +1,7 @@
 import type { Ack } from '@oyla/shared';
 import type { FastifyBaseLogger } from 'fastify';
 import type { z } from 'zod';
-import { AppError } from '../app-error';
+import { AppError, asAppError } from '../app-error';
 
 /**
  * Runs a socket handler and always answers through the acknowledgement callback.
@@ -15,8 +15,9 @@ export function handle<T extends object>(log: FastifyBaseLogger, ack: unknown, r
   try {
     reply({ ok: true, ...run() });
   } catch (error) {
-    if (error instanceof AppError) {
-      reply({ ok: false, error: { code: error.code } });
+    const expected = asAppError(error);
+    if (expected) {
+      reply({ ok: false, error: { code: expected.code } });
       return;
     }
     log.error({ err: error }, 'Socket handler failed');

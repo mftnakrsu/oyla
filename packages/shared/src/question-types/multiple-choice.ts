@@ -1,11 +1,12 @@
 import { z } from 'zod';
 import { randomId } from '../ids';
 import { LIMITS } from '../limits';
+import { textField } from '../text';
 import { defineQuestionType } from './define';
 
 const optionSchema = z.object({
   id: z.string().min(1).max(32),
-  label: z.string().trim().max(LIMITS.optionLabel),
+  label: textField({ max: LIMITS.optionLabel }),
 });
 
 const configSchema = z.object({
@@ -49,9 +50,9 @@ export const multipleChoice = defineQuestionType<
     }
     let total = 0;
     for (const { optionId } of responses) {
-      const current = counts[optionId];
-      if (current !== undefined) {
-        counts[optionId] = current + 1;
+      // hasOwn, so an id like "toString" from a removed option can't hit Object.prototype.
+      if (Object.hasOwn(counts, optionId)) {
+        counts[optionId] = (counts[optionId] ?? 0) + 1;
         total += 1;
       }
     }

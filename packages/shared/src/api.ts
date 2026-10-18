@@ -2,9 +2,10 @@ import { z } from 'zod';
 import type { ErrorCode } from './errors';
 import { LIMITS } from './limits';
 import { QUESTION_TYPE_KEYS, type QuestionTypeKey } from './question-types/registry';
+import { textField } from './text';
 
-const presentationTitle = z.string().trim().min(1).max(LIMITS.presentationTitle);
-const questionTitle = z.string().trim().max(LIMITS.questionTitle);
+const presentationTitle = textField({ min: 1, max: LIMITS.presentationTitle });
+const questionTitle = textField({ max: LIMITS.questionTitle, multiline: false });
 const entityId = z.string().min(1).max(32);
 
 export const createPresentationBody = z.object({
@@ -62,6 +63,7 @@ export interface PresentationDto {
 export interface ServerConfigDto {
   createPasswordRequired: boolean;
   retentionDays: number;
+  limits: typeof LIMITS;
 }
 
 export interface ApiErrorBody {

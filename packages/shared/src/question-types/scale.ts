@@ -1,12 +1,13 @@
 import { z } from 'zod';
 import { LIMITS } from '../limits';
+import { textField } from '../text';
 import { defineQuestionType } from './define';
 
 const configSchema = z.object({
   min: z.union([z.literal(0), z.literal(1)]),
   max: z.number().int().min(2).max(10),
-  minLabel: z.string().trim().max(LIMITS.scaleLabel),
-  maxLabel: z.string().trim().max(LIMITS.scaleLabel),
+  minLabel: textField({ max: LIMITS.scaleLabel }),
+  maxLabel: textField({ max: LIMITS.scaleLabel }),
 });
 
 export type ScaleConfig = z.infer<typeof configSchema>;

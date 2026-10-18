@@ -9,3 +9,4 @@ export * from './question-types/open-ended';
 export * from './question-types/registry';
 export * from './question-types/scale';
 export * from './question-types/word-cloud';
+export * from './text';

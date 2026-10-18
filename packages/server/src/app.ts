@@ -1,5 +1,4 @@
 import helmet from '@fastify/helmet';
-import rateLimit from '@fastify/rate-limit';
 import Fastify, { type FastifyInstance } from 'fastify';
 import type { AppConfig } from './config';
 import { openDatabase } from './db/client';
@@ -29,7 +28,7 @@ export interface BuildOptions {
 }
 
 export async function buildApp(config: AppConfig, options: BuildOptions = {}): Promise<BuiltApp> {
-  const database = openDatabase(config.dbPath);
+  const database = openDatabase(config.dbPath, { maxDbMb: config.maxDbMb });
   const store = createStore(database);
   const events = createLiveEvents();
   const service = createPresentationService({ store, events, config });
@@ -61,7 +60,6 @@ export async function buildApp(config: AppConfig, options: BuildOptions = {}): P
       },
     },
   });
-  await app.register(rateLimit, { global: false });
   app.setErrorHandler(errorHandler);
   await app.register(apiRoutes, { prefix: '/api', service, config });
   const hasWebApp = await registerWebApp(app, config.webDistPath);

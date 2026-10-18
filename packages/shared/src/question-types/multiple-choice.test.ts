@@ -70,6 +70,15 @@ describe('multiple-choice aggregate', () => {
     expect(multipleChoice.aggregate(config, [])).toEqual({ counts: { a: 0, b: 0 }, total: 0 });
   });
 
+  test('ignores ids that collide with Object.prototype', () => {
+    expect(
+      multipleChoice.aggregate(config, [{ optionId: 'toString' }, { optionId: '__proto__' }]),
+    ).toEqual({
+      counts: { a: 0, b: 0 },
+      total: 0,
+    });
+  });
+
   test('counts votes and ignores votes for removed options', () => {
     const results = multipleChoice.aggregate(config, [
       { optionId: 'a' },

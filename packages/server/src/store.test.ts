@@ -183,3 +183,40 @@ describe('responses', () => {
     expect(store.responses.countForQuestion('q1')).toBe(0);
   });
 });
+
+describe('storage cap', () => {
+  test('a full database raises SQLITE_FULL, which maps to STORAGE_FULL', async () => {
+    const { asAppError } = await import('./app-error');
+    const capped = createStore(openDatabase(':memory:', { maxDbMb: 1 }));
+    capped.presentations.insert({
+      id: 'p1',
+      joinCode: '123456',
+      title: 'x',
+      adminTokenHash: 'h',
+      activeQuestionId: null,
+      createdAt: 0,
+      updatedAt: 0,
+      lastActivityAt: 0,
+    });
+    capped.questions.insert({
+      id: 'q1',
+      presentationId: 'p1',
+      position: 0,
+      type: 'open-ended',
+      title: '',
+      config: { maxEntries: 1 },
+      createdAt: 0,
+      updatedAt: 0,
+    });
+    let caught: unknown;
+    try {
+      for (let i = 0; i < 2000; i += 1) {
+        capped.responses.insert('q1', `participant-${i}`, { text: 'x'.repeat(1000) }, 0);
+      }
+    } catch (error) {
+      caught = error;
+    }
+    expect((caught as { code?: string }).code).toBe('SQLITE_FULL');
+    expect(asAppError(caught)?.code).toBe('STORAGE_FULL');
+  });
+});

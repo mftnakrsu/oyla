@@ -67,19 +67,58 @@ export function createPresentationService({ store, events, config, now = Date.no
     return parsed.data;
   }
 
-  /** Stored rows were validated on write; fall back to defaults if a schema changed since. */
+  /**
+   * The question with its parsed config, or null when the type is unknown or the stored config no
+   * longer parses (e.g. after a schema change). Such a question is shown as unavailable rather
+   * than with invented settings.
+   */
   function resolve(row: QuestionRow): ResolvedQuestion | null {
     if (!isQuestionTypeKey(row.type)) {
       return null;
     }
     const type = getQuestionType(row.type);
     const parsed = type.configSchema.safeParse(row.config);
-    return {
-      row,
-      key: row.type,
-      type,
-      config: parsed.success ? parsed.data : type.defaultConfig(),
+    return parsed.success ? { row, key: row.type, type, config: parsed.data } : null;
+  }
+
+  /** Every participant's view of the active question, with one query for all answer counts. */
+  function participantStates(
+    presentationId: string,
+    participantIds: string[],
+  ): Map<string, ParticipantState> {
+    const presentation = requirePresentation(presentationId);
+    const states = new Map<string, ParticipantState>();
+    const activeId = presentation.activeQuestionId;
+    const ids = activeId ? store.questions.ids(presentationId) : [];
+    const index = activeId ? ids.indexOf(activeId) : -1;
+    const row = activeId && index >= 0 ? store.questions.get(presentationId, activeId) : undefined;
+    const question = row ? resolve(row) : null;
+    if (!question) {
+      for (const id of participantIds) states.set(id, { activeQuestion: null, remaining: 0 });
+      return states;
+    }
+    const used =
+      participantIds.length === 1
+        ? new Map(
+            participantIds.map((id) => [
+              id,
+              store.responses.countForParticipant(question.row.id, id),
+            ]),
+          )
+        : store.responses.countsByParticipant(question.row.id);
+    const allowed = question.type.maxResponses(question.config);
+    const activeQuestion = {
+      id: question.row.id,
+      type: question.key,
+      title: question.row.title,
+      config: publicConfig(question.key, question.config),
+      index,
+      total: ids.length,
     };
+    for (const id of participantIds) {
+      states.set(id, { activeQuestion, remaining: Math.max(0, allowed - (used.get(id) ?? 0)) });
+    }
+    return states;
   }
 
   function toQuestionDto(row: QuestionRow, responseCount: number): QuestionDto {
@@ -245,6 +284,7 @@ export function createPresentationService({ store, events, config, now = Date.no
       requireQuestion(presentationId, questionId);
       store.responses.deleteForQuestion(questionId);
       store.presentations.touch(presentationId, now());
+      events.emit('responses-cleared', presentationId, questionId);
       events.emit('results-changed', presentationId, questionId);
       events.emit('state-changed', presentationId);
     },
@@ -267,35 +307,19 @@ export function createPresentationService({ store, events, config, now = Date.no
       if (!row) {
         throw new AppError('JOIN_CODE_NOT_FOUND', 404, 'No presentation with this code');
       }
-      store.presentations.touch(row.id, now());
+      // No touch: guessing codes must not keep presentations alive. Answers and edits do.
       return row;
     },
 
+    participantStates,
+
     participantState(presentationId: string, participantId: string): ParticipantState {
-      const presentation = requirePresentation(presentationId);
-      const idle: ParticipantState = { activeQuestion: null, remaining: 0 };
-      if (presentation.activeQuestionId === null) {
-        return idle;
-      }
-      const list = store.questions.list(presentationId);
-      const index = list.findIndex((q) => q.id === presentation.activeQuestionId);
-      const row = list[index];
-      const question = row ? resolve(row) : null;
-      if (!question) {
-        return idle;
-      }
-      const used = store.responses.countForParticipant(question.row.id, participantId);
-      return {
-        activeQuestion: {
-          id: question.row.id,
-          type: question.key,
-          title: question.row.title,
-          config: publicConfig(question.key, question.config),
-          index,
-          total: list.length,
-        },
-        remaining: Math.max(0, question.type.maxResponses(question.config) - used),
-      };
+      return (
+        participantStates(presentationId, [participantId]).get(participantId) ?? {
+          activeQuestion: null,
+          remaining: 0,
+        }
+      );
     },
 
     submit(
@@ -311,7 +335,7 @@ export function createPresentationService({ store, events, config, now = Date.no
         }
         const question = resolve(requireQuestion(presentationId, questionId));
         if (!question) {
-          throw new AppError('VALIDATION_FAILED', 400, 'Unknown question type');
+          throw new AppError('VALIDATION_FAILED', 400, 'This question cannot take answers');
         }
         const parsed = question.type.responseSchema(question.config).safeParse(response);
         if (!parsed.success) {
@@ -324,6 +348,11 @@ export function createPresentationService({ store, events, config, now = Date.no
         }
         if (store.responses.countForQuestion(questionId) >= LIMITS.responsesPerQuestion) {
           throw new AppError('QUESTION_FULL', 409, 'This question has too many answers');
+        }
+        if (
+          store.responses.countForPresentation(presentationId) >= LIMITS.responsesPerPresentation
+        ) {
+          throw new AppError('PRESENTATION_FULL', 409, 'This presentation has too many answers');
         }
         const time = now();
         store.responses.insert(questionId, participantId, parsed.data, time);

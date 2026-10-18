@@ -52,6 +52,26 @@ describe('word-cloud aggregate', () => {
     });
   });
 
+  test('groups Turkish dotted and dotless i', () => {
+    const results = wordCloud.aggregate({ maxEntries: 3 }, [
+      { text: 'İzmir' },
+      { text: 'izmir' },
+      { text: 'IZMIR' },
+      { text: 'ılık' },
+      { text: 'ILIK' },
+    ]);
+    expect(results.words).toEqual([
+      { text: 'İzmir', count: 3 },
+      { text: 'ılık', count: 2 },
+    ]);
+  });
+
+  test('strips invisible characters before grouping', () => {
+    const schema = wordCloud.responseSchema({ maxEntries: 3 });
+    expect(schema.parse({ text: 'c\u200Bat' })).toEqual({ text: 'cat' });
+    expect(schema.safeParse({ text: '\u200B\u200B' }).success).toBe(false);
+  });
+
   test('breaks ties by first appearance', () => {
     const results = wordCloud.aggregate({ maxEntries: 3 }, [{ text: 'b' }, { text: 'a' }]);
     expect(results.words.map((w) => w.text)).toEqual(['b', 'a']);

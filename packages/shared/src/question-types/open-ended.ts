@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { LIMITS } from '../limits';
+import { textField } from '../text';
 import { defineQuestionType } from './define';
 
 const configSchema = z.object({
@@ -7,7 +8,7 @@ const configSchema = z.object({
 });
 
 const entrySchema = z.object({
-  text: z.string().trim().min(1).max(LIMITS.openEndedEntry),
+  text: textField({ min: 1, max: LIMITS.openEndedEntry, multiline: true }),
 });
 
 export type OpenEndedConfig = z.infer<typeof configSchema>;

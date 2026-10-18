@@ -18,6 +18,8 @@ export interface AppConfig {
   webDistPath: string | null;
   logLevel: string;
   rateLimits: { apiPerMinute: number; createPerHour: number };
+  /** Largest allowed database file in MB; 0 means no limit. */
+  maxDbMb: number;
 }
 
 const integer = (fallback: number, min: number, max = Number.MAX_SAFE_INTEGER) =>
@@ -47,7 +49,8 @@ const envSchema = z.object({
     .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
     .default('info'),
   OYLA_RATE_LIMIT_API_PER_MINUTE: integer(600, 1),
-  OYLA_RATE_LIMIT_CREATE_PER_HOUR: integer(30, 1),
+  OYLA_RATE_LIMIT_CREATE_PER_HOUR: integer(10, 1),
+  OYLA_MAX_DB_MB: integer(1024, 0),
 });
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
@@ -72,5 +75,6 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
       apiPerMinute: values.OYLA_RATE_LIMIT_API_PER_MINUTE,
       createPerHour: values.OYLA_RATE_LIMIT_CREATE_PER_HOUR,
     },
+    maxDbMb: values.OYLA_MAX_DB_MB,
   };
 }

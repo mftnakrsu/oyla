@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { LIMITS } from '../limits';
+import { cleanText } from '../text';
 import { defineQuestionType } from './define';
 
 const configSchema = z.object({
@@ -9,9 +10,21 @@ const configSchema = z.object({
 const entrySchema = z.object({
   text: z
     .string()
-    .transform((text) => text.trim().replace(/\s+/g, ' '))
+    .transform((text) => cleanText(text).trim().replace(/\s+/g, ' '))
     .pipe(z.string().min(1).max(LIMITS.wordCloudEntry)),
 });
+
+/**
+ * Case-insensitive grouping that also works for Turkish: "İzmir", "izmir" and "IZMIR" match
+ * (lower-casing İ leaves a combining dot, and ı is folded into i).
+ */
+export function groupKey(text: string): string {
+  return text
+    .normalize('NFKC')
+    .toLowerCase()
+    .replace(/\u0307/g, '')
+    .replace(/ı/g, 'i');
+}
 
 export type WordCloudConfig = z.infer<typeof configSchema>;
 export type WordCloudResponse = { text: string };
@@ -27,7 +40,7 @@ export const wordCloud = defineQuestionType<WordCloudConfig, WordCloudResponse, 
     // Map keeps insertion order, which gives ties a stable first-appearance order.
     const groups = new Map<string, { text: string; count: number }>();
     for (const { text } of responses) {
-      const key = text.normalize('NFKC').toLowerCase();
+      const key = groupKey(text);
       const group = groups.get(key);
       if (group) {
         group.count += 1;

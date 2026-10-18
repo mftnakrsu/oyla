@@ -30,9 +30,10 @@ describe('meta routes', () => {
   test('health and config', async () => {
     const app = await start({ createPassword: 'x', retentionDays: 7 });
     expect((await app.inject('/api/health')).json()).toEqual({ status: 'ok' });
-    expect((await app.inject('/api/config')).json()).toEqual({
+    expect((await app.inject('/api/config')).json()).toMatchObject({
       createPasswordRequired: true,
       retentionDays: 7,
+      limits: { questionsPerPresentation: 50 },
     });
   });
 
@@ -220,6 +221,17 @@ describe('presentations', () => {
     });
     expect(third.statusCode).toBe(429);
     expect(third.json().error.code).toBe('RATE_LIMITED');
+  });
+});
+
+describe('rate limits', () => {
+  test('the API limit is shared across routes, health checks are exempt', async () => {
+    const app = await start({ rateLimits: { apiPerMinute: 2, createPerHour: 10 } });
+    expect((await app.inject('/api/config')).statusCode).toBe(200);
+    expect((await app.inject('/api/config')).statusCode).toBe(200);
+    expect((await app.inject('/api/config')).statusCode).toBe(429);
+    expect((await app.inject('/api/presentations/abc')).statusCode).toBe(429);
+    expect((await app.inject('/api/health')).statusCode).toBe(200);
   });
 });
 

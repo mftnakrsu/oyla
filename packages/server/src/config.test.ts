@@ -12,7 +12,8 @@ describe('loadConfig', () => {
       retentionDays: 30,
       trustProxy: 0,
       logLevel: 'info',
-      rateLimits: { apiPerMinute: 600, createPerHour: 30 },
+      rateLimits: { apiPerMinute: 600, createPerHour: 10 },
+      maxDbMb: 1024,
     });
     expect(config.webDistPath).toMatch(/web[/\\]dist$/);
   });
@@ -29,6 +30,7 @@ describe('loadConfig', () => {
       OYLA_LOG_LEVEL: 'warn',
       OYLA_RATE_LIMIT_API_PER_MINUTE: '100',
       OYLA_RATE_LIMIT_CREATE_PER_HOUR: '5',
+      OYLA_MAX_DB_MB: '0',
     });
     expect(config).toEqual({
       port: 8080,
@@ -40,6 +42,7 @@ describe('loadConfig', () => {
       webDistPath: '/srv/web',
       logLevel: 'warn',
       rateLimits: { apiPerMinute: 100, createPerHour: 5 },
+      maxDbMb: 0,
     });
   });
 

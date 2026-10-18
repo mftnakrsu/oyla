@@ -48,7 +48,13 @@ export function createBroadcaster(
     }
   }
 
+  function hasPresenters(presentationId: string): boolean {
+    return (io.sockets.adapter.rooms.get(rooms.presenters(presentationId))?.size ?? 0) > 0;
+  }
+
   function sendResults(presentationId: string, questionId: string) {
+    // Aggregating can be costly (thousands of answers); skip it when nobody is watching.
+    if (!hasPresenters(presentationId)) return;
     ignoreMissing(() => {
       io.to(rooms.presenters(presentationId)).emit(
         'results',
@@ -61,16 +67,16 @@ export function createBroadcaster(
     const sockets = await io.in(rooms.participants(presentationId)).fetchSockets();
     ignoreMissing(() => {
       const activeQuestionId = service.activeQuestionId(presentationId);
-      const states = new Map<string, ReturnType<PresentationService['participantState']>>();
+      const ids = [
+        ...new Set(
+          sockets.map((socket) => socket.data.participantId).filter((id): id is string => !!id),
+        ),
+      ];
+      // One batched lookup for everyone instead of a few queries per participant.
+      const states = service.participantStates(presentationId, ids);
       for (const socket of sockets) {
-        const participantId = socket.data.participantId;
-        if (!participantId) continue;
-        let state = states.get(participantId);
-        if (!state) {
-          state = service.participantState(presentationId, participantId);
-          states.set(participantId, state);
-        }
-        socket.emit('state', state);
+        const state = socket.data.participantId ? states.get(socket.data.participantId) : undefined;
+        if (state) socket.emit('state', state);
       }
       io.to(rooms.presenters(presentationId)).emit('presenter:state', { activeQuestionId });
       if (activeQuestionId) {

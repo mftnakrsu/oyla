@@ -299,3 +299,69 @@ describe('live sessions', () => {
     expect(service.get(id).activeQuestionId).toBeNull();
   });
 });
+
+describe('hardening', () => {
+  test('participantStates answers many participants at once, like participantState', () => {
+    const { id, questionId } = pollPresentation();
+    service.activate(id, questionId);
+    service.submit(id, alice, questionId, { optionId: 'a' });
+    const states = service.participantStates(id, [alice, bob]);
+    expect(states.get(alice)).toEqual(service.participantState(id, alice));
+    expect(states.get(alice)?.remaining).toBe(0);
+    expect(states.get(bob)?.remaining).toBe(1);
+  });
+
+  test('a stored config that no longer parses makes the question unavailable instead of inventing one', () => {
+    const { id, questionId } = pollPresentation();
+    store.questions.update(id, questionId, { config: { options: 'broken' } }, clock);
+    service.activate(id, questionId);
+    expect(service.participantState(id, alice)).toEqual({ activeQuestion: null, remaining: 0 });
+    expectAppError(
+      () => service.submit(id, alice, questionId, { optionId: 'a' }),
+      'VALIDATION_FAILED',
+      400,
+    );
+    expect(service.results(id, questionId).results).toBeNull();
+  });
+
+  test('joining does not extend a presentation’s life; answering does', () => {
+    const { id, joinCode, questionId } = pollPresentation();
+    const before = store.presentations.get(id)?.lastActivityAt;
+    clock += 60_000;
+    service.joinByCode(joinCode);
+    expect(store.presentations.get(id)?.lastActivityAt).toBe(before);
+    service.activate(id, questionId);
+    clock += 60_000;
+    service.submit(id, alice, questionId, { optionId: 'a' });
+    expect(store.presentations.get(id)?.lastActivityAt).toBe(clock);
+  });
+
+  test('a presentation stops accepting answers at the per-presentation cap', () => {
+    const { id, questionId } = pollPresentation();
+    const other = service.addQuestion(id, { type: 'open-ended' }).id;
+    store.transaction(() => {
+      for (let i = 0; i < 20_000; i += 1) {
+        store.responses.insert(
+          questionId,
+          `participant-${String(i).padStart(8, '0')}`,
+          { optionId: 'a' },
+          clock,
+        );
+      }
+    });
+    service.activate(id, other);
+    expectAppError(
+      () => service.submit(id, alice, other, { text: 'late' }),
+      'PRESENTATION_FULL',
+      409,
+    );
+  });
+
+  test('reset announces that the answers of a question were cleared', () => {
+    const { id, questionId } = pollPresentation();
+    const cleared = vi.fn();
+    events.on('responses-cleared', cleared);
+    service.resetResults(id, questionId);
+    expect(cleared).toHaveBeenCalledWith(id, questionId);
+  });
+});

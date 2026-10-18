@@ -14,5 +14,5 @@ export function leaveCurrent(
   } else if (role === 'presenter') {
     socket.leave(rooms.presenters(presentationId));
   }
-  socket.data = {};
+  socket.data = { ip: socket.data.ip };
 }

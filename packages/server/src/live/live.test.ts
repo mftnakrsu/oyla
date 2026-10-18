@@ -322,6 +322,40 @@ describe('a live poll', () => {
   });
 });
 
+describe('abuse limits', () => {
+  test('a page on another origin cannot open a socket', async () => {
+    const { url } = await start();
+    const socket: ClientSocket = connect(url, {
+      transports: ['websocket'],
+      forceNew: true,
+      reconnection: false,
+      extraHeaders: { origin: 'https://evil.example' },
+    });
+    sockets.push(socket);
+    const error = await new Promise<Error>((resolve) => socket.once('connect_error', resolve));
+    expect(error).toBeInstanceOf(Error);
+    expect(socket.connected).toBe(false);
+  });
+
+  test('guessing join codes from new sockets is limited per IP, real codes are not', async () => {
+    const { built, url } = await start();
+    const { joinCode } = await setupPoll(built);
+    const wrong = joinCode === '000000' ? '000001' : '000000';
+    const codes: string[] = [];
+    for (let i = 0; i < 21; i += 1) {
+      const socket = await client(url);
+      const ack = await emit<ParticipantJoinAck>(socket, 'participant:join', {
+        joinCode: wrong,
+        participantId: participant(i),
+      });
+      codes.push(ack.ok ? 'ok' : ack.error.code);
+      socket.disconnect();
+    }
+    expect(codes.slice(0, 20).every((code) => code === 'JOIN_CODE_NOT_FOUND')).toBe(true);
+    expect(codes[20]).toBe('RATE_LIMITED');
+  });
+});
+
 describe('persistence', () => {
   test('a restart keeps the active question', async () => {
     const dbPath = join(mkdtempSync(join(tmpdir(), 'oyla-db-')), 'oyla.db');
