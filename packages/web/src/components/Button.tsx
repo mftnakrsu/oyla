@@ -4,10 +4,10 @@ type Variant = 'primary' | 'secondary' | 'quiet' | 'danger';
 type Size = 'md' | 'lg';
 
 const variants: Record<Variant, string> = {
-  primary: 'bg-ink text-paper hover:opacity-90 disabled:opacity-40',
-  secondary: 'bg-paper text-ink border-2 border-line hover:border-ink disabled:opacity-40',
+  primary: 'bg-brand text-on-brand hover:opacity-90 disabled:opacity-40',
+  secondary: 'bg-paper text-ink border-2 border-line hover:border-brand disabled:opacity-40',
   quiet: 'text-ink hover:bg-ink/5 disabled:opacity-40',
-  danger: 'bg-paper text-stamp border-2 border-stamp/40 hover:border-stamp disabled:opacity-40',
+  danger: 'bg-paper text-danger border-2 border-danger/40 hover:border-danger disabled:opacity-40',
 };
 
 const sizes: Record<Size, string> = {

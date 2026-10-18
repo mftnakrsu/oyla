@@ -23,7 +23,7 @@ export function MultipleChoiceRespond({ config, onSubmit }: RespondProps<'multip
             <label
               key={option.id}
               className={`flex min-h-16 cursor-pointer items-center gap-4 rounded-xl border-2 bg-paper px-4 py-3 text-lg transition-colors has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-focus ${
-                checked ? 'border-ink' : 'border-line hover:border-muted'
+                checked ? 'border-brand' : 'border-line hover:border-muted'
               }`}
             >
               <input
@@ -37,10 +37,10 @@ export function MultipleChoiceRespond({ config, onSubmit }: RespondProps<'multip
               <span
                 aria-hidden="true"
                 className={`grid size-7 shrink-0 place-items-center rounded-full border-2 ${
-                  checked ? 'border-ink bg-ink' : 'border-line'
+                  checked ? 'border-brand bg-brand' : 'border-line'
                 }`}
               >
-                {checked ? <span className="size-2.5 rounded-full bg-paper" /> : null}
+                {checked ? <span className="size-2.5 rounded-full bg-on-brand" /> : null}
               </span>
               <span className="font-bold">
                 {option.label || t('mc.option.placeholder', { n: index + 1 })}

@@ -1,4 +1,4 @@
-import { participantJoinSchema, responseSubmitSchema } from '@oyla/shared';
+import { participantJoinSchema, responseSubmitSchema, toThemeKey } from '@oyla/shared';
 import { AppError } from '../app-error';
 import { handle, parsePayload, rateLimited } from './handle';
 import { ANSWERS_PER_IP_PER_QUESTION } from './ip-limits';
@@ -37,6 +37,7 @@ export function registerParticipantHandlers(socket: OylaSocket, context: LiveCon
       return {
         presentationId: presentation.id,
         title: presentation.title,
+        theme: toThemeKey(presentation.theme),
         state: service.participantState(presentation.id, participantId),
       };
     }),

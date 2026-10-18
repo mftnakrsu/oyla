@@ -62,7 +62,7 @@ export async function apiRoutes(app: FastifyInstance, { service, config }: Route
     const { id } = parse(presentationParams, request.params);
     requireAdmin(request, service, id);
     const body = parse(updatePresentationBody, request.body);
-    return service.rename(id, body.title);
+    return service.update(id, body);
   });
 
   app.delete('/presentations/:id', async (request, reply) => {

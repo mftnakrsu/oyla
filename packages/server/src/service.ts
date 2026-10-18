@@ -2,17 +2,21 @@ import {
   type CreatePresentationBody,
   type CreatePresentationResult,
   type CreateQuestionBody,
+  DEFAULT_THEME,
   getQuestionType,
   isQuestionTypeKey,
   LIMITS,
   type ParticipantState,
   type PresentationDto,
+  type PresentationInfo,
   publicConfig,
   type QuestionDto,
   type QuestionTypeDefinition,
   type QuestionTypeKey,
   type ResultsMessage,
   randomId,
+  toThemeKey,
+  type UpdatePresentationBody,
   type UpdateQuestionBody,
 } from '@oyla/shared';
 import { AppError } from './app-error';
@@ -137,6 +141,7 @@ export function createPresentationService({ store, events, config, now = Date.no
     return {
       id: row.id,
       title: row.title,
+      theme: toThemeKey(row.theme),
       joinCode: row.joinCode,
       activeQuestionId: row.activeQuestionId,
       questions: store.questions.list(row.id).map((q) => toQuestionDto(q, counts.get(q.id) ?? 0)),
@@ -163,6 +168,7 @@ export function createPresentationService({ store, events, config, now = Date.no
         id,
         joinCode,
         title: input.title,
+        theme: DEFAULT_THEME,
         adminTokenHash: hashToken(adminToken),
         activeQuestionId: null,
         createdAt: time,
@@ -186,10 +192,17 @@ export function createPresentationService({ store, events, config, now = Date.no
       return toPresentationDto(row);
     },
 
-    rename(presentationId: string, title: string): PresentationDto {
+    update(presentationId: string, changes: UpdatePresentationBody): PresentationDto {
       requirePresentation(presentationId);
-      store.presentations.updateTitle(presentationId, title, now());
+      store.presentations.update(presentationId, changes, now());
+      events.emit('presentation-changed', presentationId);
       return toPresentationDto(requirePresentation(presentationId));
+    },
+
+    /** Title and theme, for the live layer. */
+    info(presentationId: string): PresentationInfo {
+      const row = requirePresentation(presentationId);
+      return { title: row.title, theme: toThemeKey(row.theme) };
     },
 
     remove(presentationId: string): void {

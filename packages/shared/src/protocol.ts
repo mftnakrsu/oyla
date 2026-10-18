@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { ErrorCode } from './errors';
 import type { QuestionTypeKey } from './question-types/registry';
+import type { ThemeKey } from './themes';
 
 export type AckError = { ok: false; error: { code: ErrorCode } };
 export type Ack<T extends object = object> = ({ ok: true } & T) | AckError;
@@ -20,6 +21,12 @@ export interface ParticipantState {
   activeQuestion: PublicQuestion | null;
   /** Answers this participant may still give to the active question. */
   remaining: number;
+}
+
+/** What every screen of a presentation shows around the questions. */
+export interface PresentationInfo {
+  title: string;
+  theme: ThemeKey;
 }
 
 export interface ResultsMessage {
@@ -58,11 +65,13 @@ export const presenterResetSchema = z.object({
 export type ParticipantJoinAck = Ack<{
   presentationId: string;
   title: string;
+  theme: ThemeKey;
   state: ParticipantState;
 }>;
 export type ResponseSubmitAck = Ack<{ remaining: number }>;
 export type PresenterJoinAck = Ack<{
   title: string;
+  theme: ThemeKey;
   activeQuestionId: string | null;
   participants: number;
   results: ResultsMessage | null;
@@ -85,5 +94,7 @@ export interface ServerToClientEvents {
   'presenter:state': (state: { activeQuestionId: string | null }) => void;
   results: (message: ResultsMessage) => void;
   presence: (presence: { participants: number }) => void;
+  /** The title or theme changed; sent to participants and presenters. */
+  presentation: (info: PresentationInfo) => void;
   'presentation:ended': () => void;
 }

@@ -8,6 +8,7 @@ import { Logo } from '../components/Logo';
 import { Stamp } from '../components/Stamp';
 import { useI18n } from '../i18n/I18nProvider';
 import { formatJoinCode } from '../lib/format';
+import { usePalette } from '../lib/palette';
 import { useParticipantSession } from '../live/useParticipantSession';
 import { getQuestionTypeUi } from '../question-types/registry';
 
@@ -118,6 +119,7 @@ export function JoinPage() {
   const { t } = useI18n();
   const valid = /^\d{6}$/.test(code);
   const session = useParticipantSession(valid ? code : null);
+  usePalette(session.theme);
   const status = valid ? session.status : 'not-found';
   const question = session.state?.activeQuestion ?? null;
 
@@ -131,7 +133,7 @@ export function JoinPage() {
         <p className="truncate border-b-2 border-line pb-3 font-bold text-muted">{session.title}</p>
       ) : null}
       {status === 'ready' && !session.connected ? (
-        <p role="status" className="mt-3 rounded-xl bg-stamp-soft px-4 py-2 text-sm font-bold">
+        <p role="status" className="mt-3 rounded-xl bg-danger-soft px-4 py-2 text-sm font-bold">
           {t('join.reconnecting')}
         </p>
       ) : null}

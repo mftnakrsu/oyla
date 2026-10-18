@@ -14,7 +14,7 @@ export function LanguageSwitcher() {
           title={LANGUAGES[code]}
           onClick={() => setLanguage(code)}
           className={`min-h-10 min-w-10 rounded-md px-2.5 text-sm font-bold ${
-            language === code ? 'bg-ink text-paper' : 'text-muted hover:text-ink'
+            language === code ? 'bg-brand text-on-brand' : 'text-muted hover:text-ink'
           }`}
         >
           {code.toUpperCase()}

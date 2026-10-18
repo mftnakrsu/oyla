@@ -3,6 +3,7 @@ import type { ErrorCode } from './errors';
 import { LIMITS } from './limits';
 import { QUESTION_TYPE_KEYS, type QuestionTypeKey } from './question-types/registry';
 import { textField } from './text';
+import { type ThemeKey, themeSchema } from './themes';
 
 const presentationTitle = textField({ min: 1, max: LIMITS.presentationTitle });
 const questionTitle = textField({ max: LIMITS.questionTitle, multiline: false });
@@ -14,7 +15,11 @@ export const createPresentationBody = z.object({
 });
 export type CreatePresentationBody = z.infer<typeof createPresentationBody>;
 
-export const updatePresentationBody = z.object({ title: presentationTitle });
+export const updatePresentationBody = z
+  .object({ title: presentationTitle.optional(), theme: themeSchema.optional() })
+  .refine((body) => body.title !== undefined || body.theme !== undefined, {
+    message: 'Send a title or a theme',
+  });
 export type UpdatePresentationBody = z.infer<typeof updatePresentationBody>;
 
 export const createQuestionBody = z.object({
@@ -53,6 +58,7 @@ export interface QuestionDto {
 export interface PresentationDto {
   id: string;
   title: string;
+  theme: ThemeKey;
   joinCode: string;
   activeQuestionId: string | null;
   questions: QuestionDto[];

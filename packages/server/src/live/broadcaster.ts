@@ -109,6 +109,14 @@ export function createBroadcaster(
     );
   }
 
+  function onPresentationChanged(presentationId: string) {
+    ignoreMissing(() => {
+      io.to(rooms.participants(presentationId))
+        .to(rooms.presenters(presentationId))
+        .emit('presentation', service.info(presentationId));
+    });
+  }
+
   function onPresentationEnded(presentationId: string) {
     const participants = rooms.participants(presentationId);
     const presenters = rooms.presenters(presentationId);
@@ -126,6 +134,7 @@ export function createBroadcaster(
 
   events.on('state-changed', onStateChanged);
   events.on('results-changed', onResultsChanged);
+  events.on('presentation-changed', onPresentationChanged);
   events.on('presentation-ended', onPresentationEnded);
 
   return {
@@ -156,6 +165,7 @@ export function createBroadcaster(
     dispose() {
       events.off('state-changed', onStateChanged);
       events.off('results-changed', onResultsChanged);
+      events.off('presentation-changed', onPresentationChanged);
       events.off('presentation-ended', onPresentationEnded);
       for (const timer of timers.values()) clearTimeout(timer);
       timers.clear();

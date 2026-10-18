@@ -106,6 +106,24 @@ describe('presentations', () => {
     });
     expect(renamed.json<PresentationDto>()).toMatchObject({ title: 'Sprint review', joinCode });
 
+    const themed = await app.inject({
+      method: 'PATCH',
+      url: `/api/presentations/${id}`,
+      headers: auth,
+      payload: { theme: 'navy' },
+    });
+    expect(themed.json<PresentationDto>()).toMatchObject({ title: 'Sprint review', theme: 'navy' });
+
+    for (const payload of [{}, { theme: 'neon' }, { title: 'Ok', theme: 3 }]) {
+      const rejected = await app.inject({
+        method: 'PATCH',
+        url: `/api/presentations/${id}`,
+        headers: auth,
+        payload,
+      });
+      expect(rejected.statusCode).toBe(400);
+    }
+
     const reset = await app.inject({
       method: 'DELETE',
       url: `/api/presentations/${id}/questions/${question.id}/responses`,

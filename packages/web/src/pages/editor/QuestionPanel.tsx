@@ -147,7 +147,7 @@ export const QuestionPanel = forwardRef<QuestionPanelHandle, QuestionPanelProps>
           </h2>
           <p
             aria-live="polite"
-            className={`text-sm ${saveState === 'retrying' ? 'text-stamp' : 'text-muted'}`}
+            className={`text-sm ${saveState === 'retrying' ? 'text-danger' : 'text-muted'}`}
           >
             {status}
           </p>

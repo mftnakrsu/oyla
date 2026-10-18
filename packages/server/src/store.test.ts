@@ -9,6 +9,7 @@ function addPresentation(id = 'p1', joinCode = '123456', lastActivityAt = 1000) 
     id,
     joinCode,
     title: 'Retro',
+    theme: 'emerald',
     adminTokenHash: 'hash',
     activeQuestionId: null,
     createdAt: 1000,
@@ -49,13 +50,15 @@ describe('presentations', () => {
     expect(() => addPresentation('p2', '111111')).toThrow();
   });
 
-  test('updates title, active question and activity time', () => {
+  test('updates title, theme, active question and activity time', () => {
     addPresentation();
-    store.presentations.updateTitle('p1', 'New', 2000);
+    store.presentations.update('p1', { title: 'New' }, 1500);
+    store.presentations.update('p1', { theme: 'navy' }, 2000);
     store.presentations.setActiveQuestion('p1', 'q1', 3000);
     const row = store.presentations.get('p1');
     expect(row).toMatchObject({
       title: 'New',
+      theme: 'navy',
       activeQuestionId: 'q1',
       updatedAt: 3000,
       lastActivityAt: 3000,
@@ -192,6 +195,7 @@ describe('storage cap', () => {
       id: 'p1',
       joinCode: '123456',
       title: 'x',
+      theme: 'emerald',
       adminTokenHash: 'h',
       activeQuestionId: null,
       createdAt: 0,

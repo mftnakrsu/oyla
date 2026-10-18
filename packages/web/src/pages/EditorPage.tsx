@@ -1,4 +1,10 @@
-import { LIMITS, type PresentationDto, type QuestionDto, type QuestionTypeKey } from '@oyla/shared';
+import {
+  LIMITS,
+  type PresentationDto,
+  type QuestionDto,
+  type QuestionTypeKey,
+  type ThemeKey,
+} from '@oyla/shared';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router';
 import { api, errorCodeOf } from '../api/client';
@@ -13,8 +19,10 @@ import { useI18n } from '../i18n/I18nProvider';
 import { dropHash, readKeyFromHash } from '../lib/admin-key';
 import { adminUrl, formatJoinCode, joinUrl } from '../lib/format';
 import { forgetMine, listMine, saveMine, tokenFor, updateMine } from '../lib/my-presentations';
+import { usePalette } from '../lib/palette';
 import { getQuestionTypeUi } from '../question-types/registry';
 import { QuestionPanel, type QuestionPanelHandle } from './editor/QuestionPanel';
+import { ThemePicker } from './editor/ThemePicker';
 import { TypePicker } from './editor/TypePicker';
 
 type ErrorState = ReturnType<typeof errorCodeOf> | 'OUT_OF_DATE' | null;
@@ -38,7 +46,7 @@ function TitleField({ value, onSave }: { value: string; onSave(title: string): v
       onKeyDown={(event) => {
         if (event.key === 'Enter') event.currentTarget.blur();
       }}
-      className="min-h-11 min-w-0 flex-1 rounded-lg border-2 border-transparent bg-transparent px-2 text-xl font-extrabold hover:border-line focus:border-ink focus:bg-paper focus:outline-none"
+      className="min-h-11 min-w-0 flex-1 rounded-lg border-2 border-transparent bg-transparent px-2 text-xl font-extrabold hover:border-line focus:border-brand focus:bg-paper focus:outline-none"
     />
   );
 }
@@ -48,7 +56,7 @@ function AdminLinkBanner({ link, onDismiss }: { link: string; onDismiss(): void 
   const [copied, copy] = useCopy();
   return (
     <div className="mx-auto mt-4 max-w-6xl px-4">
-      <section className="flex flex-col gap-3 rounded-2xl border-2 border-stamp/50 bg-stamp-soft p-5">
+      <section className="flex flex-col gap-3 rounded-2xl border-2 border-brand/40 bg-brand-soft p-5">
         <h2 className="text-lg font-extrabold">{t('editor.adminLink.title')}</h2>
         <p>{t('editor.adminLink.body')}</p>
         <code className="block overflow-x-auto rounded-lg bg-paper px-3 py-2 text-sm">{link}</code>
@@ -82,6 +90,7 @@ export function EditorPage() {
   const [copiedAdmin, copyAdmin] = useCopy();
 
   useEffect(() => dropHash(), []);
+  usePalette(presentation?.theme);
 
   const [version, setVersion] = useState(0);
   /** Loads the presentation again, e.g. after it changed in another tab. */
@@ -198,6 +207,17 @@ export function EditorPage() {
       }),
     );
 
+  const changeTheme = (theme: ThemeKey) => {
+    const previous = presentation.theme;
+    setPresentation((current) => (current ? { ...current, theme } : current));
+    run(
+      api.updatePresentation(id, token, { theme }).catch((error: unknown) => {
+        setPresentation((current) => (current ? { ...current, theme: previous } : current));
+        throw error;
+      }),
+    );
+  };
+
   const present = async () => {
     await panel.current?.flush();
     navigate(`/present/${id}`);
@@ -212,7 +232,7 @@ export function EditorPage() {
             value={presentation.title}
             onSave={(title) =>
               run(
-                api.renamePresentation(id, token, title).then((updated) => {
+                api.updatePresentation(id, token, { title }).then((updated) => {
                   setPresentation((current) =>
                     current ? { ...current, title: updated.title } : current,
                   );
@@ -258,7 +278,7 @@ export function EditorPage() {
                         setPicking(false);
                       }}
                       className={`flex w-full items-center gap-3 rounded-xl border-2 px-3 py-2.5 text-left ${
-                        current ? 'border-ink bg-paper' : 'border-transparent hover:bg-paper'
+                        current ? 'border-brand bg-paper' : 'border-transparent hover:bg-paper'
                       }`}
                     >
                       <span className="w-6 shrink-0 text-right font-bold text-muted">
@@ -279,6 +299,9 @@ export function EditorPage() {
               + {t('editor.addQuestion')}
             </Button>
           ) : null}
+          <div className="mt-4 border-t-2 border-line pt-5">
+            <ThemePicker value={presentation.theme} onChange={changeTheme} />
+          </div>
         </aside>
 
         <main className="flex min-w-0 flex-col gap-4">

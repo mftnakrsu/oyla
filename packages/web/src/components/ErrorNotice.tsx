@@ -13,7 +13,7 @@ export function ErrorNotice({
   return (
     <div
       role="alert"
-      className="rounded-xl border-2 border-stamp/40 bg-stamp-soft px-4 py-3 text-ink"
+      className="rounded-xl border-2 border-danger/40 bg-danger-soft px-4 py-3 text-ink"
     >
       <p>{t(`error.${code}`)}</p>
       {children}

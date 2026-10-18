@@ -1,4 +1,4 @@
-import type { Ack, ErrorCode, ResultsMessage } from '@oyla/shared';
+import type { Ack, ErrorCode, ResultsMessage, ThemeKey } from '@oyla/shared';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createSocket, type OylaSocket } from './socket';
 
@@ -14,6 +14,8 @@ export interface PresenterSession {
   status: PresenterStatus;
   errorCode: ErrorCode | null;
   connected: boolean;
+  /** Null until the first join; follows changes made in the editor. */
+  theme: ThemeKey | null;
   activeQuestionId: string | null;
   /** Increases on every state broadcast, i.e. whenever questions or the active one changed. */
   stateVersion: number;
@@ -34,6 +36,7 @@ export function usePresenterSession(
   const [status, setStatus] = useState<PresenterStatus>('connecting');
   const [errorCode, setErrorCode] = useState<ErrorCode | null>(null);
   const [connected, setConnected] = useState(false);
+  const [theme, setTheme] = useState<ThemeKey | null>(null);
   const [activeQuestionId, setActiveQuestionId] = useState<string | null>(null);
   const [stateVersion, setStateVersion] = useState(0);
   const [participants, setParticipants] = useState(0);
@@ -50,6 +53,7 @@ export function usePresenterSession(
       setConnected(true);
       socket.emit('presenter:join', { presentationId, adminToken }, (ack) => {
         if (ack.ok) {
+          setTheme(ack.theme);
           setActiveQuestionId(ack.activeQuestionId);
           setParticipants(ack.participants);
           if (ack.results) keep(ack.results);
@@ -70,6 +74,7 @@ export function usePresenterSession(
       setStateVersion((version) => version + 1);
     });
     socket.on('results', keep);
+    socket.on('presentation', (info) => setTheme(info.theme));
     socket.on('presence', (presence) => setParticipants(presence.participants));
     socket.on('presentation:ended', () => {
       setStatus('ended');
@@ -114,6 +119,7 @@ export function usePresenterSession(
     status,
     errorCode,
     connected,
+    theme,
     activeQuestionId,
     stateVersion,
     participants,

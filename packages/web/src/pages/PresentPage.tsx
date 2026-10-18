@@ -12,6 +12,7 @@ import { useI18n } from '../i18n/I18nProvider';
 import { dropHash, readKeyFromHash } from '../lib/admin-key';
 import { displayHost, formatJoinCode, joinUrl } from '../lib/format';
 import { tokenFor } from '../lib/my-presentations';
+import { usePalette } from '../lib/palette';
 import { usePresenterSession } from '../live/usePresenterSession';
 import { getQuestionTypeUi } from '../question-types/registry';
 import {
@@ -45,7 +46,7 @@ function ControlButton({
       onClick={onClick}
       disabled={disabled}
       className={`grid h-[2.6em] min-w-[2.6em] place-items-center rounded-xl px-[0.5em] disabled:opacity-30 ${
-        armed ? 'bg-stamp text-paper' : 'text-ink hover:bg-ink/5'
+        armed ? 'bg-danger text-on-danger' : 'text-ink hover:bg-ink/5'
       }`}
     >
       {children}
@@ -157,6 +158,7 @@ export function PresentPage() {
   const [loadError, setLoadError] = useState<ReturnType<typeof errorCodeOf> | null>(null);
   const [invite, setInvite] = useState(false);
   const session = usePresenterSession(id, token);
+  usePalette(session.theme ?? presentation?.theme);
   const autoStarted = useRef(false);
 
   useEffect(() => dropHash(), []);
@@ -316,7 +318,7 @@ export function PresentPage() {
       </header>
 
       {!session.connected && session.status !== 'connecting' ? (
-        <p role="status" className="bg-stamp-soft px-[1.5em] py-[0.4em] font-bold">
+        <p role="status" className="bg-danger-soft px-[1.5em] py-[0.4em] font-bold">
           {t('present.reconnecting')}
         </p>
       ) : null}

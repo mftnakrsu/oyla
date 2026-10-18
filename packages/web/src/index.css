@@ -1,40 +1,185 @@
 @import "tailwindcss";
 
 /*
- * Oyla tokens. Ink on paper, a red rubber stamp as the only flourish, and the Okabe–Ito
- * palette for answer options so they stay distinguishable for colour-blind viewers.
+ * Oyla tokens. Components use only these semantic colours (bg-brand, text-series, …), so every
+ * presentation theme works everywhere. A presentation's theme is set as data-palette on <html>;
+ * any element can carry one too, like the swatches in the theme picker. Without one, the default
+ * (emerald) applies. All selectors share one specificity, so source order decides: the dark sets
+ * come last. Answer options carry their labels, so results use one series hue per theme.
+ * Contrast: text ≥ 4.5:1 on paper and page; bars, borders and the stamp ≥ 3:1.
  */
-:root {
-  --page: #eef0f4;
+/* Emerald (default) */
+:root,
+[data-palette="emerald"] {
+  --page: #f4f4f5;
   --paper: #ffffff;
-  --ink: #1a1c24;
-  --muted: #5d6272;
-  --line: #d5d9e2;
-  --stamp: #d92d3a;
-  --stamp-soft: #fbe7e9;
-  --focus: #1f6feb;
-  /* Results: one series hue (labels carry identity), and frequency tiers for word clouds. */
-  --series: #0072b2;
-  --cloud-1: #0b5a8c;
-  --cloud-2: #0072b2;
-  --cloud-3: #3d8bc2;
+  --ink: #18181b;
+  --muted: #52525b;
+  --line: #e4e4e7;
+  --brand: #047857;
+  --on-brand: #ffffff;
+  --brand-soft: #ecfdf5;
+  --stamp: #059669;
+  --danger: #b91c1c;
+  --on-danger: #ffffff;
+  --danger-soft: #fef2f2;
+  --focus: #2563eb;
+  --series: #059669;
+  --cloud-1: #064e3b;
+  --cloud-2: #047857;
+  --cloud-3: #059669;
+  color-scheme: light;
+}
+
+/* Indigo */
+[data-palette="indigo"] {
+  --page: #f3f4fb;
+  --paper: #ffffff;
+  --ink: #1e1b3a;
+  --muted: #5b5a72;
+  --line: #dcddeb;
+  --brand: #4f46e5;
+  --on-brand: #ffffff;
+  --brand-soft: #eef0ff;
+  --stamp: #db2777;
+  --danger: #b91c1c;
+  --on-danger: #ffffff;
+  --danger-soft: #fef2f2;
+  --focus: #db2777;
+  --series: #6366f1;
+  --cloud-1: #312e81;
+  --cloud-2: #4338ca;
+  --cloud-3: #6366f1;
+  color-scheme: light;
+}
+
+/* Navy & orange */
+[data-palette="navy"] {
+  --page: #f5f6fa;
+  --paper: #ffffff;
+  --ink: #0f1b33;
+  --muted: #55607a;
+  --line: #dadfea;
+  --brand: #1e3a8a;
+  --on-brand: #ffffff;
+  --brand-soft: #fff1e6;
+  --stamp: #ea580c;
+  --danger: #b91c1c;
+  --on-danger: #ffffff;
+  --danger-soft: #fef2f2;
+  --focus: #2563eb;
+  --series: #ea580c;
+  --cloud-1: #9a3412;
+  --cloud-2: #c2410c;
+  --cloud-3: #ea580c;
+  color-scheme: light;
+}
+
+/* Classic blue */
+[data-palette="blue"] {
+  --page: #f1f5f9;
+  --paper: #ffffff;
+  --ink: #0f172a;
+  --muted: #475569;
+  --line: #e2e8f0;
+  --brand: #2563eb;
+  --on-brand: #ffffff;
+  --brand-soft: #eff6ff;
+  --stamp: #2563eb;
+  --danger: #b91c1c;
+  --on-danger: #ffffff;
+  --danger-soft: #fef2f2;
+  --focus: #7c3aed;
+  --series: #2563eb;
+  --cloud-1: #1e3a8a;
+  --cloud-2: #1d4ed8;
+  --cloud-3: #3b82f6;
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --page: #12131a;
-    --paper: #1c1e27;
-    --ink: #eceef4;
-    --muted: #a3a8b8;
-    --line: #343846;
-    --stamp: #ff5a64;
-    --stamp-soft: #3a1e24;
-    --focus: #6ea8ff;
-    --series: #56b4e9;
-    --cloud-1: #8fd0f5;
-    --cloud-2: #56b4e9;
-    --cloud-3: #3d8bc2;
+  :root,
+  [data-palette="emerald"] {
+    --page: #121214;
+    --paper: #1c1c1f;
+    --ink: #f4f4f5;
+    --muted: #a1a1aa;
+    --line: #3a3a40;
+    --brand: #34d399;
+    --on-brand: #04261a;
+    --brand-soft: #0f2e23;
+    --stamp: #34d399;
+    --danger: #f87171;
+    --on-danger: #2a0707;
+    --danger-soft: #3b1717;
+    --focus: #93c5fd;
+    --series: #34d399;
+    --cloud-1: #a7f3d0;
+    --cloud-2: #6ee7b7;
+    --cloud-3: #34d399;
+    color-scheme: dark;
+  }
+
+  [data-palette="indigo"] {
+    --page: #12121c;
+    --paper: #1b1b2a;
+    --ink: #eef0ff;
+    --muted: #a9aac8;
+    --line: #36374f;
+    --brand: #818cf8;
+    --on-brand: #0f0f33;
+    --brand-soft: #25254d;
+    --stamp: #f472b6;
+    --danger: #f87171;
+    --on-danger: #2a0707;
+    --danger-soft: #3b1717;
+    --focus: #f472b6;
+    --series: #818cf8;
+    --cloud-1: #c7d2fe;
+    --cloud-2: #a5b4fc;
+    --cloud-3: #818cf8;
+    color-scheme: dark;
+  }
+
+  [data-palette="navy"] {
+    --page: #0d1424;
+    --paper: #16203a;
+    --ink: #eef2fa;
+    --muted: #a6b0c7;
+    --line: #2e3c5c;
+    --brand: #9db8f5;
+    --on-brand: #0d1424;
+    --brand-soft: #3a2414;
+    --stamp: #fb923c;
+    --danger: #f87171;
+    --on-danger: #2a0707;
+    --danger-soft: #3b1717;
+    --focus: #93c5fd;
+    --series: #fb923c;
+    --cloud-1: #fed7aa;
+    --cloud-2: #fdba74;
+    --cloud-3: #fb923c;
+    color-scheme: dark;
+  }
+
+  [data-palette="blue"] {
+    --page: #0f172a;
+    --paper: #1e293b;
+    --ink: #f1f5f9;
+    --muted: #a3b1c6;
+    --line: #3a4a63;
+    --brand: #60a5fa;
+    --on-brand: #0b1220;
+    --brand-soft: #172554;
+    --stamp: #60a5fa;
+    --danger: #f87171;
+    --on-danger: #2a0707;
+    --danger-soft: #3b1717;
+    --focus: #c4b5fd;
+    --series: #60a5fa;
+    --cloud-1: #bfdbfe;
+    --cloud-2: #93c5fd;
+    --cloud-3: #60a5fa;
     color-scheme: dark;
   }
 }
@@ -46,8 +191,13 @@
   --color-ink: var(--ink);
   --color-muted: var(--muted);
   --color-line: var(--line);
+  --color-brand: var(--brand);
+  --color-on-brand: var(--on-brand);
+  --color-brand-soft: var(--brand-soft);
   --color-stamp: var(--stamp);
-  --color-stamp-soft: var(--stamp-soft);
+  --color-danger: var(--danger);
+  --color-on-danger: var(--on-danger);
+  --color-danger-soft: var(--danger-soft);
   --color-focus: var(--focus);
   --color-series: var(--series);
   --color-cloud-1: var(--cloud-1);
@@ -76,7 +226,7 @@
   }
 
   ::selection {
-    background: var(--stamp-soft);
+    background: var(--brand-soft);
   }
 }
 

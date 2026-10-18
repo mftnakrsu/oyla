@@ -1,4 +1,9 @@
-import { presenterActivateSchema, presenterJoinSchema, presenterResetSchema } from '@oyla/shared';
+import {
+  presenterActivateSchema,
+  presenterJoinSchema,
+  presenterResetSchema,
+  toThemeKey,
+} from '@oyla/shared';
 import { AppError } from '../app-error';
 import { handle, parsePayload, rateLimited } from './handle';
 import { leaveCurrent } from './session';
@@ -25,10 +30,11 @@ export function registerPresenterHandlers(socket: OylaSocket, context: LiveConte
       const { presentationId, adminToken } = parsePayload(presenterJoinSchema, payload);
       const presentation = service.authenticate(presentationId, adminToken);
       leaveCurrent(socket, context);
-      socket.data = { role: 'presenter', presentationId };
+      socket.data = { ip: socket.data.ip, role: 'presenter', presentationId };
       socket.join(rooms.presenters(presentationId));
       return {
         title: presentation.title,
+        theme: toThemeKey(presentation.theme),
         activeQuestionId: presentation.activeQuestionId,
         participants: broadcaster.participantCount(presentationId),
         results: presentation.activeQuestionId

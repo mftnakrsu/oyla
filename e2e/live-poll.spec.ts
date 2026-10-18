@@ -18,8 +18,13 @@ test('a participant votes and the presenter sees it live', async ({ page, browse
     (await page.getByText(/Join code \d{3} \d{3}/).textContent())?.replace(/\D/g, '') ?? '';
   expect(code).toMatch(/^\d{6}$/);
 
+  // The theme picked in the editor follows the presentation to every screen.
+  await page.getByText('Indigo', { exact: true }).click();
+  await expect(page.locator('html')).toHaveAttribute('data-palette', 'indigo');
+
   await page.getByRole('button', { name: 'Present', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Tea or coffee?' })).toBeVisible();
+  await expect(page.locator('html')).toHaveAttribute('data-palette', 'indigo');
 
   // Participant on a phone, in a separate browser context.
   const phoneContext = await browser.newContext({ ...devices['Pixel 7'] });
@@ -28,6 +33,7 @@ test('a participant votes and the presenter sees it live', async ({ page, browse
   await phone.getByLabel('Join code').fill(code);
   await phone.getByRole('button', { name: 'Join' }).click();
   await expect(phone.getByRole('heading', { name: 'Tea or coffee?' })).toBeVisible();
+  await expect(phone.locator('html')).toHaveAttribute('data-palette', 'indigo');
   await expect(page.getByText('1 person here')).toBeVisible();
 
   await phone.getByText('Coffee', { exact: true }).click();

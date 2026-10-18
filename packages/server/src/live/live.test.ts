@@ -155,6 +155,7 @@ describe('a live poll', () => {
     expect(joined).toMatchObject({
       ok: true,
       title: 'Retro',
+      theme: 'emerald',
       activeQuestionId: null,
       participants: 0,
       results: null,
@@ -171,6 +172,7 @@ describe('a live poll', () => {
       ok: true,
       presentationId: id,
       title: 'Retro',
+      theme: 'emerald',
       state: { activeQuestion: null },
     });
     await emit(bob, 'participant:join', { joinCode, participantId: participant(2) });
@@ -286,6 +288,25 @@ describe('a live poll', () => {
     });
     expect(res.json<QuestionDto>().title).toBe('Renamed');
     await renamed;
+  });
+
+  test('changing the theme reaches participants and presenters', async () => {
+    const { built, url } = await start();
+    const { id, joinCode, adminToken } = await setupPoll(built);
+    const presenter = await client(url);
+    await emit(presenter, 'presenter:join', { presentationId: id, adminToken });
+    const alice = await client(url);
+    await emit(alice, 'participant:join', { joinCode, participantId: participant(1) });
+    const toAlice = next(alice, 'presentation');
+    const toPresenter = next(presenter, 'presentation');
+    await built.app.inject({
+      method: 'PATCH',
+      url: `/api/presentations/${id}`,
+      headers: { authorization: `Bearer ${adminToken}` },
+      payload: { theme: 'blue' },
+    });
+    expect((await toAlice)[0]).toEqual({ title: 'Retro', theme: 'blue' });
+    expect((await toPresenter)[0]).toEqual({ title: 'Retro', theme: 'blue' });
   });
 
   test('deleting the presentation ends it for everyone', async () => {

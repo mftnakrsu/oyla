@@ -13,7 +13,7 @@ export function TypePicker({ onPick }: { onPick(type: QuestionTypeKey): void }) 
             key={key}
             type="button"
             onClick={() => onPick(key)}
-            className="flex items-start gap-4 rounded-2xl border-2 border-line bg-paper p-5 text-left transition-colors hover:border-ink"
+            className="flex items-start gap-4 rounded-2xl border-2 border-line bg-paper p-5 text-left transition-colors hover:border-brand"
           >
             <ui.Icon className="mt-0.5 size-7 shrink-0 text-series" />
             <span>

@@ -7,6 +7,7 @@ import {
   type PresentationDto,
   type QuestionDto,
   type ServerConfigDto,
+  type UpdatePresentationBody,
   type UpdateQuestionBody,
 } from '@oyla/shared';
 
@@ -56,8 +57,8 @@ export const api = {
     request<CreatePresentationResult>('POST', '/presentations', { body }),
   getPresentation: (id: string, token: string) =>
     request<PresentationDto>('GET', `/presentations/${enc(id)}`, { token }),
-  renamePresentation: (id: string, token: string, title: string) =>
-    request<PresentationDto>('PATCH', `/presentations/${enc(id)}`, { token, body: { title } }),
+  updatePresentation: (id: string, token: string, body: UpdatePresentationBody) =>
+    request<PresentationDto>('PATCH', `/presentations/${enc(id)}`, { token, body }),
   deletePresentation: (id: string, token: string) =>
     request<void>('DELETE', `/presentations/${enc(id)}`, { token }),
   addQuestion: (id: string, token: string, body: CreateQuestionBody) =>

@@ -1,0 +1,1 @@
+ALTER TABLE `presentations` ADD `theme` text DEFAULT 'emerald' NOT NULL;

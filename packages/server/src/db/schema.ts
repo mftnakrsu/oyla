@@ -6,6 +6,7 @@ export const presentations = sqliteTable(
     id: text('id').primaryKey(),
     joinCode: text('join_code').notNull().unique(),
     title: text('title').notNull(),
+    theme: text('theme').notNull().default('emerald'),
     adminTokenHash: text('admin_token_hash').notNull(),
     activeQuestionId: text('active_question_id'),
     createdAt: integer('created_at').notNull(),

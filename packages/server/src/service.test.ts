@@ -90,9 +90,31 @@ describe('creating and authenticating', () => {
     });
   });
 
+  test('a new presentation uses the default theme', () => {
+    const created = service.create({ title: 'Retro' });
+    expect(service.get(created.id).theme).toBe('emerald');
+    expect(service.info(created.id)).toEqual({ title: 'Retro', theme: 'emerald' });
+  });
+
+  test('update changes title and theme and tells the live layer', () => {
+    const created = service.create({ title: 'Retro' });
+    const changed = vi.fn();
+    events.on('presentation-changed', changed);
+    expect(service.update(created.id, { theme: 'indigo' })).toMatchObject({
+      title: 'Retro',
+      theme: 'indigo',
+    });
+    expect(service.update(created.id, { title: 'Planning' })).toMatchObject({
+      title: 'Planning',
+      theme: 'indigo',
+    });
+    expect(changed).toHaveBeenCalledTimes(2);
+    expect(changed).toHaveBeenCalledWith(created.id);
+  });
+
   test('rename and remove', () => {
     const created = service.create({ title: 'Retro' });
-    expect(service.rename(created.id, 'Planning').title).toBe('Planning');
+    expect(service.update(created.id, { title: 'Planning' }).title).toBe('Planning');
     const ended = vi.fn();
     events.on('presentation-ended', ended);
     service.remove(created.id);

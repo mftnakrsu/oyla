@@ -28,7 +28,7 @@ export function ScaleRespond({ config, onSubmit }: RespondProps<'scale'>) {
               key={n}
               className={`grid min-h-14 cursor-pointer place-items-center rounded-xl border-2 text-xl font-bold has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-focus ${
                 value === n
-                  ? 'border-ink bg-ink text-paper'
+                  ? 'border-brand bg-brand text-on-brand'
                   : 'border-line bg-paper hover:border-muted'
               }`}
             >

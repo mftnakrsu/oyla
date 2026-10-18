@@ -44,14 +44,14 @@ function JoinForm() {
           placeholder="123 456"
           aria-invalid={invalid}
           aria-describedby={invalid ? `${id}-error` : undefined}
-          className="min-h-16 w-full rounded-2xl border-2 border-line bg-paper px-5 text-center text-4xl font-extrabold tracking-[0.12em] placeholder:text-line focus:border-ink focus:outline-none sm:w-72 sm:text-left"
+          className="min-h-16 w-full rounded-2xl border-2 border-line bg-paper px-5 text-center text-4xl font-extrabold tracking-[0.12em] placeholder:text-line focus:border-brand focus:outline-none sm:w-72 sm:text-left"
         />
         <button type="submit" className={buttonClass('primary', 'lg', 'min-h-16 sm:px-8')}>
           {t('home.join.submit')}
         </button>
       </div>
       {invalid ? (
-        <p id={`${id}-error`} className="font-bold text-stamp">
+        <p id={`${id}-error`} className="font-bold text-danger">
           {t('home.join.invalid')}
         </p>
       ) : null}

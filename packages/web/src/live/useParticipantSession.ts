@@ -1,4 +1,4 @@
-import type { ErrorCode, ParticipantState, ResponseSubmitAck } from '@oyla/shared';
+import type { ErrorCode, ParticipantState, ResponseSubmitAck, ThemeKey } from '@oyla/shared';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { getParticipantId } from '../lib/participant';
 import { createSocket, type OylaSocket } from './socket';
@@ -10,6 +10,8 @@ export interface ParticipantSession {
   errorCode: ErrorCode | null;
   connected: boolean;
   title: string;
+  /** Null until joined; follows changes the presenter makes. */
+  theme: ThemeKey | null;
   state: ParticipantState | null;
   submit(questionId: string, response: unknown): Promise<ResponseSubmitAck>;
   /** Marks the question as fully answered (the server said no answers are left). */
@@ -28,6 +30,7 @@ export function useParticipantSession(joinCode: string | null): ParticipantSessi
   const [errorCode, setErrorCode] = useState<ErrorCode | null>(null);
   const [connected, setConnected] = useState(false);
   const [title, setTitle] = useState('');
+  const [theme, setTheme] = useState<ThemeKey | null>(null);
   const [state, setState] = useState<ParticipantState | null>(null);
 
   useEffect(() => {
@@ -41,6 +44,7 @@ export function useParticipantSession(joinCode: string | null): ParticipantSessi
       socket.emit('participant:join', { joinCode, participantId }, (ack) => {
         if (ack.ok) {
           setTitle(ack.title);
+          setTheme(ack.theme);
           setState(ack.state);
           setStatus('ready');
         } else if (ack.error.code === 'JOIN_CODE_NOT_FOUND') {
@@ -54,6 +58,10 @@ export function useParticipantSession(joinCode: string | null): ParticipantSessi
     });
     socket.on('disconnect', () => setConnected(false));
     socket.on('state', setState);
+    socket.on('presentation', (info) => {
+      setTitle(info.title);
+      setTheme(info.theme);
+    });
     socket.on('presentation:ended', () => {
       setStatus('ended');
       socket.disconnect();
@@ -96,5 +104,5 @@ export function useParticipantSession(joinCode: string | null): ParticipantSessi
     );
   }, []);
 
-  return { status, errorCode, connected, title, state, submit, markAnswered };
+  return { status, errorCode, connected, title, theme, state, submit, markAnswered };
 }
