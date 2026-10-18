@@ -1,10 +1,12 @@
 import { AbsoluteFill, Easing, Interactive, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { Stamp } from "../components/Stamp";
+import { copy, type Lang } from "../i18n";
 import { colors, fontFamily } from "../theme";
 
-const OutroSceneInner = () => {
+const OutroSceneInner = ({ lang }: { readonly lang: Lang }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const text = copy[lang].outro;
   return (
     <AbsoluteFill style={{ backgroundColor: colors.page, alignItems: "center", justifyContent: "center", fontFamily }}>
       <div style={{ display: "flex", alignItems: "center", gap: 44 }}>
@@ -22,13 +24,24 @@ const OutroSceneInner = () => {
       </div>
       <div
         style={{
-          marginTop: 64,
-          textAlign: "center",
+          marginTop: 72,
+          display: "grid",
+          gridTemplateColumns: "auto auto",
+          columnGap: 40,
+          rowGap: 18,
+          alignItems: "baseline",
           opacity: interpolate(frame, [0.6 * fps, 1.1 * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+          translate: interpolate(frame, [0.6 * fps, 1.1 * fps], ["0px 24px", "0px 0px"], {
+            extrapolateLeft: "clamp",
+            extrapolateRight: "clamp",
+            easing: Easing.bezier(0.16, 1, 0.3, 1),
+          }),
         }}
       >
-        <div style={{ fontSize: 64, fontWeight: 800, color: colors.ink }}>oyla.mefby.com</div>
-        <div style={{ marginTop: 16, fontSize: 46, color: colors.muted }}>github.com/mftnakrsu/oyla</div>
+        <div style={{ fontSize: 44, color: colors.muted, textAlign: "right" }}>{text.docs}</div>
+        <div style={{ fontSize: 60, fontWeight: 800, color: colors.ink }}>oyla.mefby.com</div>
+        <div style={{ fontSize: 44, color: colors.muted, textAlign: "right" }}>{text.code}</div>
+        <div style={{ fontSize: 60, fontWeight: 800, color: colors.ink }}>github.com/mftnakrsu/oyla</div>
       </div>
     </AbsoluteFill>
   );

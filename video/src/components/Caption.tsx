@@ -10,9 +10,9 @@ type CaptionProps = {
 /** Scene headline and one supporting line, sized for 1920×1080. */
 export const Caption: React.FC<CaptionProps> = ({ title, body, style }) => (
   <div style={{ fontFamily, color: colors.ink, ...style }}>
-    <div style={{ fontSize: 96, fontWeight: 800, lineHeight: 1.05, letterSpacing: "-0.02em" }}>{title}</div>
+    <div style={{ fontSize: 92, fontWeight: 800, lineHeight: 1.06, letterSpacing: "-0.02em", textWrap: "balance" }}>{title}</div>
     {body ? (
-      <div style={{ marginTop: 28, fontSize: 46, lineHeight: 1.3, color: colors.muted }}>{body}</div>
+      <div style={{ marginTop: 32, fontSize: 46, lineHeight: 1.32, color: colors.muted, textWrap: "pretty" }}>{body}</div>
     ) : null}
   </div>
 );

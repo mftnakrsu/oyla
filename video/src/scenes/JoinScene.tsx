@@ -1,13 +1,18 @@
-import { AbsoluteFill, CanvasImage, Easing, Interactive, interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Easing, Interactive, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { Caption } from "../components/Caption";
-import { PhoneFrame } from "../components/PhoneFrame";
+import { PhoneAnswer } from "../components/Phone";
+import { PhoneFrame, phoneScreenWidth } from "../components/PhoneFrame";
+import { PHONE, Shot, Tap } from "../components/Shot";
+import { copy, type Lang } from "../i18n";
 import { colors } from "../theme";
 
-const fill = { position: "absolute", width: "100%", height: "100%" } as const;
+/** The Join button on the phone's home screen (its position differs per language). */
+const JOIN_Y: Record<Lang, number> = { en: 942, tr: 807 };
 
-const JoinSceneInner = () => {
+const JoinSceneInner = ({ lang }: { readonly lang: Lang }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const text = copy[lang].join;
   return (
     <AbsoluteFill style={{ backgroundColor: colors.page }}>
       <PhoneFrame
@@ -21,42 +26,19 @@ const JoinSceneInner = () => {
             extrapolateRight: "clamp",
             easing: Easing.bezier(0.16, 1, 0.3, 1),
           }),
-          scale: interpolate(frame, [4.4 * fps, 4.5 * fps, 4.7 * fps], [1, 0.97, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
         }}
       >
-        <CanvasImage src={staticFile("shots/phone-home-en-light.png")} fit="cover" style={fill} />
-        <CanvasImage
-          src={staticFile("shots/phone-mc-en-light.png")}
-          fit="cover"
-          style={{ ...fill, opacity: interpolate(frame, [2.1 * fps, 2.4 * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) }}
-        />
-        {/* A tap on "Send vote". */}
-        <div
-          style={{
-            position: "absolute",
-            left: "50%",
-            top: "90.5%",
-            width: 120,
-            height: 120,
-            marginLeft: -60,
-            marginTop: -60,
-            borderRadius: 999,
-            backgroundColor: "rgba(255, 255, 255, 0.55)",
-            opacity: interpolate(frame, [3.7 * fps, 3.8 * fps, 4.2 * fps], [0, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-            scale: interpolate(frame, [3.7 * fps, 4.2 * fps], [0.3, 1.4], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-          }}
-        />
-        <CanvasImage
-          src={staticFile("shots/phone-thanks-en-light.png")}
-          fit="cover"
-          style={{ ...fill, opacity: interpolate(frame, [4.3 * fps, 4.45 * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) }}
-        />
+        <PhoneAnswer type="multiple-choice" lang={lang} width={phoneScreenWidth(900)} timing={{ pick: 2.9 * fps, send: 3.8 * fps }} />
+        <Shot
+          src={`shots/phone-home-${lang}-light.png`}
+          width={phoneScreenWidth(900)}
+          native={PHONE}
+          style={{ opacity: interpolate(frame, [2.05 * fps, 2.35 * fps], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) }}
+        >
+          <Tap x={585} y={JOIN_Y[lang]} at={1.5 * fps} />
+        </Shot>
       </PhoneFrame>
-      <Caption
-        title="Everyone joins from their phone"
-        body="Open oyla.mefby.com and type the code, or scan the QR code. No app, no sign-up."
-        style={{ position: "absolute", left: 900, top: 330, width: 860 }}
-      />
+      <Caption title={text.title} body={text.body} style={{ position: "absolute", left: 900, top: 300, width: 860 }} />
     </AbsoluteFill>
   );
 };

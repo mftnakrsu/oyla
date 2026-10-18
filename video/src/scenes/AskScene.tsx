@@ -1,18 +1,18 @@
-import { AbsoluteFill, CanvasImage, Easing, Interactive, interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Easing, Img, Interactive, interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { BrowserFrame } from "../components/BrowserFrame";
 import { Caption } from "../components/Caption";
+import { copy, type Lang } from "../i18n";
 import { colors } from "../theme";
 
-const AskSceneInner = () => {
+const fill = { position: "absolute", left: 0, top: 0, width: "100%", height: "100%" } as const;
+
+const AskSceneInner = ({ lang }: { readonly lang: Lang }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const text = copy[lang].ask;
   return (
     <AbsoluteFill style={{ backgroundColor: colors.page }}>
-      <Caption
-        title="Ask a question"
-        body="Multiple choice, word clouds, open questions and scales. No account needed."
-        style={{ position: "absolute", left: 120, top: 300, width: 600 }}
-      />
+      <Caption title={text.title} body={text.body} style={{ position: "absolute", left: 120, top: 290, width: 580 }} />
       <BrowserFrame
         width={1040}
         style={{
@@ -27,14 +27,11 @@ const AskSceneInner = () => {
           }),
         }}
       >
-        <CanvasImage src={staticFile("shots/editor-en-light.png")} fit="cover" style={{ position: "absolute", width: "100%", height: "100%" }} />
-        <CanvasImage
-          src={staticFile("shots/editor-types-en-light.png")}
-          fit="cover"
+        <Img src={staticFile(`shots/editor-${lang}-light.png`)} style={fill} />
+        <Img
+          src={staticFile(`shots/editor-types-${lang}-light.png`)}
           style={{
-            position: "absolute",
-            width: "100%",
-            height: "100%",
+            ...fill,
             opacity: interpolate(frame, [3 * fps, 3.4 * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
           }}
         />

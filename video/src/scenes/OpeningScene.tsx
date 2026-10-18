@@ -1,8 +1,9 @@
 import { AbsoluteFill, Easing, Interactive, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { Stamp } from "../components/Stamp";
+import { copy, type Lang } from "../i18n";
 import { colors, fontFamily } from "../theme";
 
-const OpeningSceneInner = () => {
+const OpeningSceneInner = ({ lang }: { readonly lang: Lang }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   return (
@@ -44,7 +45,7 @@ const OpeningSceneInner = () => {
           opacity: interpolate(frame, [1.4 * fps, 1.9 * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
         }}
       >
-        Live polls for talks, classes and meetings
+        {copy[lang].opening.tagline}
       </div>
     </AbsoluteFill>
   );

@@ -7,11 +7,16 @@ type PhoneFrameProps = {
   readonly style?: React.CSSProperties;
 };
 
-/** Phone body around a 390×664 screenshot (Playwright's iPhone 13 viewport). */
+const bezelOf = (height: number) => height * 0.028;
+
+/** Width of the screen inside a phone of the given height (screenshots are 1170×1992). */
+export const phoneScreenWidth = (height: number) => (height - bezelOf(height) * 2) * (1170 / 1992);
+
+/** Phone body around a 390×664 screenshot (Playwright's iPhone 13 viewport, at 3×). */
 export const PhoneFrame: React.FC<PhoneFrameProps> = ({ height, children, style }) => {
-  const bezel = height * 0.028;
+  const bezel = bezelOf(height);
   const screenHeight = height - bezel * 2;
-  const screenWidth = screenHeight * (1170 / 1992);
+  const screenWidth = phoneScreenWidth(height);
   return (
     <div
       style={{
@@ -20,7 +25,7 @@ export const PhoneFrame: React.FC<PhoneFrameProps> = ({ height, children, style 
         padding: bezel,
         borderRadius: height * 0.075,
         backgroundColor: colors.ink,
-        boxShadow: "0 30px 80px rgba(26, 28, 36, 0.25)",
+        boxShadow: "0 30px 80px rgba(24, 24, 27, 0.22)",
         ...style,
       }}
     >

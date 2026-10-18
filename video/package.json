@@ -1,7 +1,7 @@
 {
   "name": "oyla-video",
   "version": "1.0.0",
-  "description": "Oyla demo video and README teaser, made with Remotion",
+  "description": "Oyla demo videos, question-type clips and README teaser, made with Remotion",
   "license": "MIT",
   "engines": {
     "node": "^20.19.0 || ^22.13.0 || >=24"
@@ -25,10 +25,14 @@
   },
   "scripts": {
     "dev": "remotion studio",
-    "render:demo": "remotion render OylaDemo out/oyla-demo.mp4 --codec=h264 --crf=22",
-    "render:teaser": "remotion render OylaTeaser out/oyla-teaser.gif --codec=gif --every-nth-frame=2 --scale=0.5",
-    "render:poster": "remotion still OylaDemo out/oyla-demo-poster.png --frame=690",
-    "render": "npm run render:demo && npm run render:teaser && npm run render:poster",
+    "shots": "python3 scripts/prepare-shots.py",
+    "render": "node scripts/render.mjs all",
+    "render:demo": "node scripts/render.mjs demo",
+    "render:demo:en": "node scripts/render.mjs demo-en",
+    "render:demo:tr": "node scripts/render.mjs demo-tr",
+    "render:clips": "node scripts/render.mjs clips",
+    "render:teaser": "node scripts/render.mjs teaser",
+    "render:posters": "node scripts/render.mjs posters",
     "build": "remotion bundle",
     "lint": "eslint src && tsc"
   },
