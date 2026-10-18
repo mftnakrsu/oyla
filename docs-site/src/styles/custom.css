@@ -1,0 +1,60 @@
+/* Oyla's stamp red as the accent, matching the app. */
+:root {
+  --sl-color-accent-low: #3a1e24;
+  --sl-color-accent: #ff5a64;
+  --sl-color-accent-high: #ffd3d6;
+}
+
+:root[data-theme='light'] {
+  --sl-color-accent-low: #fbe7e9;
+  --sl-color-accent: #d92d3a;
+  --sl-color-accent-high: #8c1621;
+}
+
+/* Screenshots and the demo video. */
+.sl-markdown-content .shot,
+.sl-markdown-content .demo-video {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.75rem;
+}
+
+.sl-markdown-content .demo-video {
+  aspect-ratio: 16 / 10;
+  background: var(--sl-color-gray-6);
+}
+
+.sl-markdown-content .shot.phone {
+  max-width: 15rem;
+}
+
+/* A presenter screen next to a phone; they stack on narrow screens. */
+.sl-markdown-content .screens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.sl-markdown-content .screens > * {
+  margin-top: 0;
+}
+
+.sl-markdown-content .screens .shot {
+  flex: 3 1 22rem;
+  width: auto;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.sl-markdown-content .screens .phone {
+  flex: 0 1 11rem;
+  max-width: 11rem;
+}
+
+.sl-markdown-content .caption {
+  font-size: var(--sl-text-sm);
+  color: var(--sl-color-gray-3);
+}

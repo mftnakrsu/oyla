@@ -1,0 +1,109 @@
+---
+title: Oyla
+description: Oyla; canlı anketler, kelime bulutları, açık uçlu sorular ve ölçekler için açık kaynaklı, kendi sunucunuzda çalıştırabileceğiniz bir uygulama. Katılımcılar telefonlarından 6 haneli bir kodla katılır.
+template: splash
+hero:
+  tagline: Sunumlar, dersler ve toplantılar için açık kaynaklı canlı oylama. Telefonlar 6 haneli bir kodla katılır, sonuçlar ekranınızda anında güncellenir.
+  actions:
+    - text: Başlayın
+      link: /oyla/tr/guide/presenting/
+      icon: right-arrow
+    - text: Kendi sunucunuzda
+      link: /oyla/tr/self-hosting/docker/
+      icon: server
+      variant: secondary
+    - text: GitHub
+      link: https://github.com/mftnakrsu/oyla
+      icon: github
+      variant: minimal
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+<video
+  class="demo-video"
+  controls
+  muted
+  playsinline
+  preload="metadata"
+  poster="/oyla/media/oyla-demo-poster.png"
+  src="/oyla/media/oyla-demo.mp4"
+>
+  Tarayıcınız bu videoyu oynatamıyor. <a href="/oyla/media/oyla-demo.mp4">Tanıtım videosunu indirin</a>.
+</video>
+
+<div class="screens">
+  <img
+    class="shot"
+    src="/oyla/screenshots/present-mc-tr-light.png"
+    alt="Sunum ekranı: 'Sırada hangi özelliği geliştirelim?' sorusu, dört yatay çubuk ve üstte katılım adresiyle kodu"
+    width="2160"
+    height="1350"
+    loading="lazy"
+  />
+  <img
+    class="shot phone"
+    src="/oyla/screenshots/phone-mc-tr-light.png"
+    alt="Aynı soruyu dört seçenek ve Oyu gönder düğmesiyle gösteren bir telefon"
+    width="1170"
+    height="1992"
+    loading="lazy"
+  />
+</div>
+
+Adı üstünde: Oyla. Küçük bir salonda Mentimeter ya da Slido'yu ne için kullanıyorsanız Oyla da onun
+için var; üstelik hesap, uygulama ya da abonelik istemez. Her şey tek bir Node.js süreci ve tek bir
+SQLite dosyasıyla çalışır, bu yüzden tek bir Docker konteyneriyle kendi sunucunuzda
+barındırabilirsiniz.
+
+## Neler sunuyor
+
+<CardGrid>
+  <Card title="Dört soru tipi" icon="list-format">
+    Çoktan seçmeli, kelime bulutu, açık uçlu soru ve ölçek. Her birinin kendi düzenleyicisi,
+    telefon formu ve canlı sonuç görünümü var.
+  </Card>
+  <Card title="Kodla katılım" icon="phone">
+    Katılımcılar siteyi açıp 6 haneli kodu yazar ya da ekrandaki QR kodu okutur. Kayıt olmak da
+    isim vermek de gerekmez.
+  </Card>
+  <Card title="Projeksiyona uygun" icon="laptop">
+    Büyük yazılar, yüksek kontrast, klavyeyle gezinme ve tam ekran. Açık ve koyu mod sistem
+    ayarını izler.
+  </Card>
+  <Card title="Hesap yok" icon="padlock">
+    Sunum oluşturduğunuzda size özel bir yönetici linki verilir. Sunucuyu çalıştıran kişi, sunum
+    oluşturmayı şifreye bağlayabilir.
+  </Card>
+  <Card title="Türkçe ve İngilizce" icon="translate">
+    Arayüz tarayıcının dilini izler; her sayfada dil değiştirme düğmesi var.
+  </Card>
+  <Card title="Kolayca genişletilebilir" icon="puzzle">
+    Bir soru tipi, ortak bir tanım ve üç React bileşeninden ibaret. MIT lisanslı.
+  </Card>
+</CardGrid>
+
+## Nereden başlamalı
+
+<CardGrid>
+  <LinkCard
+    title="Sunum yapın"
+    description="Sunum oluşturun, soru ekleyin ve sorularınızı sunun."
+    href="/oyla/tr/guide/presenting/"
+  />
+  <LinkCard
+    title="Telefondan katılın"
+    description="Katılımcılar ne görür, cevaplar nasıl gönderilir?"
+    href="/oyla/tr/guide/joining/"
+  />
+  <LinkCard
+    title="Soru tipleri"
+    description="Dört soru tipinin ayarları, sınırları ve sonuçları."
+    href="/oyla/tr/guide/question-types/"
+  />
+  <LinkCard
+    title="Railway'de yayınlayın"
+    description="Kalıcı disk ve kendi alan adınızla adım adım kurulum."
+    href="/oyla/tr/self-hosting/railway/"
+  />
+</CardGrid>
