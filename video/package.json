@@ -1,7 +1,7 @@
 {
   "name": "oyla-video",
   "version": "1.0.0",
-  "description": "Oyla demo videos, question-type clips and README teaser, made with Remotion",
+  "description": "Oyla demo videos, vertical social cut, question-type clips and README teaser, made with Remotion",
   "license": "MIT",
   "engines": {
     "node": "^20.19.0 || ^22.13.0 || >=24"
@@ -10,6 +10,7 @@
   "dependencies": {
     "@remotion/cli": "4.0.536",
     "@remotion/fonts": "4.0.536",
+    "@remotion/media": "4.0.536",
     "@remotion/transitions": "4.0.536",
     "react": "19.2.3",
     "react-dom": "19.2.3",
@@ -33,6 +34,10 @@
     "render:clips": "node scripts/render.mjs clips",
     "render:teaser": "node scripts/render.mjs teaser",
     "render:posters": "node scripts/render.mjs posters",
+    "render:social": "node scripts/render.mjs social",
+    "render:demo:captioned": "node scripts/render.mjs demo-captioned",
+    "render:voiced": "node scripts/render.mjs voiced",
+    "render:captions": "node scripts/render.mjs captions",
     "build": "remotion bundle",
     "lint": "eslint src && tsc"
   },

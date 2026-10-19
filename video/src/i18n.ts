@@ -14,6 +14,8 @@ type Copy = {
   };
   readonly selfHost: { readonly title: string; readonly body: string };
   readonly outro: { readonly docs: string; readonly code: string };
+  /** The 9:16 social video's opening: the hook, on screen from the first frame. */
+  readonly social: { readonly hook: { readonly title: string; readonly tags: readonly [string, string, string] } };
   /** The sample presentation in the screenshots. */
   readonly poll: {
     readonly options: readonly string[];
@@ -56,6 +58,7 @@ export const copy: Record<Lang, Copy> = {
       body: "One Docker container and one SQLite file, on your own server. MIT licensed.",
     },
     outro: { docs: "Docs", code: "Code" },
+    social: { hook: { title: "Poll your audience, live", tags: ["Open source", "Self-hosted", "No app"] } },
     poll: {
       options: ["Offline mode", "Dark mode", "CSV export", "Team spaces"],
       votes: [9, 6, 3, 6],
@@ -95,6 +98,7 @@ export const copy: Record<Lang, Copy> = {
       body: "Kendi sunucunuzda tek bir Docker konteyneri ve tek bir SQLite dosyası. MIT lisanslı.",
     },
     outro: { docs: "Dokümantasyon", code: "Kaynak kodu" },
+    social: { hook: { title: "Salona canlı soru sorun", tags: ["Açık kaynak", "Kendi sunucunuzda", "Uygulamasız"] } },
     poll: {
       options: ["Çevrimdışı mod", "Karanlık mod", "CSV dışa aktarma", "Takım alanları"],
       votes: [8, 7, 2, 5],

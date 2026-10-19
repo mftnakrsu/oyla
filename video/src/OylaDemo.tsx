@@ -1,6 +1,9 @@
 import { linearTiming, TransitionSeries } from "@remotion/transitions";
 import { fade } from "@remotion/transitions/fade";
-import { useVideoConfig } from "remotion";
+import { AbsoluteFill, useVideoConfig } from "remotion";
+import { captionScripts } from "./captions";
+import { Soundtrack, type SoundtrackProps } from "./components/Soundtrack";
+import { Subtitles } from "./components/Subtitles";
 import type { Lang } from "./i18n";
 import { AskScene } from "./scenes/AskScene";
 import { JoinScene } from "./scenes/JoinScene";
@@ -10,18 +13,24 @@ import { OutroScene } from "./scenes/OutroScene";
 import { SelfHostScene } from "./scenes/SelfHostScene";
 import { ThemesScene } from "./scenes/ThemesScene";
 import { TypesScene } from "./scenes/TypesScene";
+import { colors } from "./theme";
 
-export type OylaDemoProps = {
+export type OylaDemoProps = SoundtrackProps & {
   readonly lang: Lang;
+  /** Burned-in subtitles from src/captions.ts. Off renders the original, caption-free demo. */
+  readonly captions?: boolean;
 };
+
+/** With subtitles, the scenes shrink to 90 % from the top centre, freeing the bottom 108 px. */
+const CAPTIONED_STAGE = 0.9;
 
 /**
  * 39.5 s product demo: 8 scenes with 0.5 s fades between them
  * (4 + 6 + 6 + 7.5 + 5 + 5 + 5 + 4.5 s, minus 7 × 0.5 s = 1185 frames at 30 fps).
  */
-export const OylaDemo: React.FC<OylaDemoProps> = ({ lang }) => {
+export const OylaDemo: React.FC<OylaDemoProps> = ({ lang, captions = false, ...soundtrack }) => {
   const { fps } = useVideoConfig();
-  return (
+  const scenes = (
     <TransitionSeries>
       <TransitionSeries.Sequence name="Opening" durationInFrames={4 * fps}>
         <OpeningScene lang={lang} />
@@ -55,5 +64,18 @@ export const OylaDemo: React.FC<OylaDemoProps> = ({ lang }) => {
         <OutroScene lang={lang} />
       </TransitionSeries.Sequence>
     </TransitionSeries>
+  );
+  return (
+    <>
+      {captions ? (
+        <AbsoluteFill style={{ backgroundColor: colors.page }}>
+          <AbsoluteFill style={{ scale: CAPTIONED_STAGE, transformOrigin: "50% 0%" }}>{scenes}</AbsoluteFill>
+          <Subtitles cues={captionScripts.demo.cues[lang]} fontSize={42} maxWidth={1560} bottom={34} />
+        </AbsoluteFill>
+      ) : (
+        scenes
+      )}
+      <Soundtrack cues={captionScripts.demo.cues[lang]} {...soundtrack} />
+    </>
   );
 };
