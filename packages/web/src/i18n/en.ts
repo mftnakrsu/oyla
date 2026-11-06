@@ -88,6 +88,7 @@ export const en = {
   'editor.question.responses.one': '1 answer so far',
   'editor.question.responses.other': '{count} answers so far',
   'editor.deletePresentation': 'Delete presentation',
+  'editor.export': 'Download results (CSV)',
   'editor.outOfDate':
     'This presentation changed somewhere else, so the latest version was loaded. Try again.',
   'editor.saveRetry': 'Couldn’t save your last change. Trying again…',
@@ -168,6 +169,13 @@ export const en = {
   'join.position': 'Question {index} of {total}',
   'join.reconnecting': 'Connection lost. Reconnecting…',
   'stamp.voted': 'Voted',
+
+  'csv.number': '#',
+  'csv.question': 'Question',
+  'csv.type': 'Question type',
+  'csv.answer': 'Answer',
+  'csv.participant': 'Participant',
+  'csv.time': 'Time (UTC)',
 
   'notFound.title': 'Page not found',
   'notFound.action': 'Go to the start page',

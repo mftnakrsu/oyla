@@ -38,6 +38,7 @@ computer or server as one Docker container, and your presentations and answers s
 - **Presentation themes:** give each presentation one of four colour themes (Emerald, Indigo,
   Navy & orange, Classic blue). The presenter screen and every phone use it, and phones switch
   right away when you change it during a session.
+- **Download the results** as a CSV file that opens in any spreadsheet app.
 - **No accounts:** creating a presentation gives you a private admin link. Optionally, the server
   owner can require a password to create presentations.
 - **English and Turkish** interface, light and dark mode.
@@ -147,6 +148,7 @@ Sunumlarınız ve cevaplar sizin makinenizde kalır.
 - **Dört soru tipi var:** çoktan seçmeli, kelime bulutu, açık uçlu soru ve ölçek.
 - **Sunum temaları:** Her sunuma dört renk temasından birini verebilirsiniz (Zümrüt, İndigo,
   Lacivert ve turuncu, Klasik mavi). Sunum ekranı da telefonlar da bu temayı kullanır.
+- **Sonuçları indirin:** Bütün cevaplar, her tablo uygulamasında açılan bir CSV dosyası olarak.
 - **Hesap gerekmez:** Sunumu oluşturduğunuzda size özel bir yönetici linki verilir.
 - **Arayüz** Türkçe ve İngilizce, açık ve koyu modla kullanılabilir.
 - **Kurulumu kolay:** Tek bir Docker konteyneri ve tek bir SQLite dosyası yeterli.

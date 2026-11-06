@@ -178,6 +178,25 @@ question, so a server restart resumes at the same place.
 
 To present from another computer, open the admin link there and select **Present**.
 
+## Download the results
+
+Select **Download results (CSV)** at the bottom of the editor to save every answer as a CSV file
+that opens in Excel, Numbers, LibreOffice or Google Sheets. There is one row per answer, grouped by
+question, with these columns:
+
+| Column | What it holds |
+|---|---|
+| `#` | The question's position in the presentation |
+| Question | The question as you typed it |
+| Question type | Multiple choice, Word cloud, Open question or Scale |
+| Answer | The chosen option, the text or the rating |
+| Participant | A number per person: 1 for whoever answered first, 2 for the next one, and so on. The same number marks the same phone across questions |
+| Time (UTC) | When the answer arrived, for example `2026-11-06T09:30:01.000Z` |
+
+The column names follow the interface language. A vote for an option you removed later has an
+empty answer. Answers that start like a spreadsheet formula (`=`, `+`, `-`, `@`) get a leading
+apostrophe, so opening the file never runs anything someone typed.
+
 ## Delete a presentation
 
 Select **Delete presentation** at the bottom of the editor and click again to confirm. This

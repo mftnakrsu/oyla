@@ -31,7 +31,6 @@ explains the setup.
   questions and word clouds.
 - **Drag-and-drop reordering** of questions in the editor, next to the Move up and Move down
   buttons.
-- **CSV export** of the results.
 
 ### Platform
 

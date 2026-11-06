@@ -1,3 +1,4 @@
+import { readFile } from 'node:fs/promises';
 import { devices, expect, test } from '@playwright/test';
 
 test('a participant votes and the presenter sees it live', async ({ page, browser }) => {
@@ -44,6 +45,19 @@ test('a participant votes and the presenter sees it live', async ({ page, browse
   // The presenter's bar chart updates without a reload.
   await expect(page.getByText('100%')).toBeVisible();
   await expect(page.getByText('1 vote', { exact: true })).toBeVisible();
+
+  // The editor exports the answer as CSV (same browser, so it finds the admin key).
+  const presentationId = new URL(page.url()).pathname.split('/').pop();
+  const editor = await page.context().newPage();
+  await editor.goto(`/edit/${presentationId}`);
+  const [download] = await Promise.all([
+    editor.waitForEvent('download'),
+    editor.getByRole('button', { name: 'Download results (CSV)' }).click(),
+  ]);
+  expect(download.suggestedFilename()).toMatch(/^oyla-e2e-retro-\d{4}-\d{2}-\d{2}\.csv$/);
+  const csv = await readFile((await download.path()) ?? '', 'utf8');
+  expect(csv).toContain('1,Tea or coffee?,Multiple choice,Coffee,1,');
+  await editor.close();
 
   // Resetting gives the participant their vote back.
   // Resetting deletes answers, so it asks for a second click.

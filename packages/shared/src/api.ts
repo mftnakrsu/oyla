@@ -66,6 +66,19 @@ export interface PresentationDto {
   updatedAt: number;
 }
 
+/** One answer in the export. Participants are numbered 1, 2, 3… by their first answer. */
+export interface ResponseExportDto {
+  questionId: string;
+  participant: number;
+  payload: unknown;
+  createdAt: number;
+}
+
+export interface ResponsesExportDto {
+  /** Oldest first. */
+  responses: ResponseExportDto[];
+}
+
 export interface ServerConfigDto {
   createPasswordRequired: boolean;
   retentionDays: number;

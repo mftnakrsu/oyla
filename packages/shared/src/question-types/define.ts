@@ -17,6 +17,8 @@ export interface QuestionTypeDefinition<TConfig, TResponse, TResults> {
   maxResponses(config: TConfig): number;
   /** Turns stored answers (oldest first) into what the presenter view shows. Must be pure. */
   aggregate(config: TConfig, responses: TResponse[]): TResults;
+  /** One answer as a person reads it, e.g. the option label. Used for the CSV export. */
+  describeResponse(config: TConfig, response: TResponse): string;
   /** What participants may see of the config. Defaults to all of it. */
   toPublicConfig?(config: TConfig): unknown;
 }

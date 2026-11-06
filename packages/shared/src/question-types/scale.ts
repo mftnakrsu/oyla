@@ -35,4 +35,5 @@ export const scale = defineQuestionType<ScaleConfig, ScaleResponse, ScaleResults
     }
     return { distribution, average: total === 0 ? null : sum / total, total };
   },
+  describeResponse: (_config, { value }) => String(value),
 });

@@ -43,3 +43,11 @@ describe('open-ended', () => {
     expect(results.total).toBe(250);
   });
 });
+
+describe('open-ended describeResponse', () => {
+  test('is the answer text', () => {
+    expect(openEnded.describeResponse({ maxEntries: 1 }, { text: 'More breaks\nplease' })).toBe(
+      'More breaks\nplease',
+    );
+  });
+});
