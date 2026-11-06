@@ -247,6 +247,18 @@ export function EditorPage() {
       }),
     );
 
+  const changeResultsOnPhones = (resultsOnPhones: boolean) => {
+    setPresentation((current) => (current ? { ...current, resultsOnPhones } : current));
+    run(
+      api.updatePresentation(id, token, { resultsOnPhones }).catch((error: unknown) => {
+        setPresentation((current) =>
+          current ? { ...current, resultsOnPhones: !resultsOnPhones } : current,
+        );
+        throw error;
+      }),
+    );
+  };
+
   const changeTheme = (theme: ThemeKey) => {
     const previous = presentation.theme;
     setPresentation((current) => (current ? { ...current, theme } : current));
@@ -381,6 +393,21 @@ export function EditorPage() {
           ) : null}
           <div className="mt-4 border-t-2 border-line pt-5">
             <ThemePicker value={presentation.theme} onChange={changeTheme} />
+            <label className="mt-5 flex cursor-pointer items-start gap-3">
+              <input
+                type="checkbox"
+                checked={presentation.resultsOnPhones}
+                onChange={(event) => changeResultsOnPhones(event.target.checked)}
+                aria-describedby="results-on-phones-hint"
+                className="mt-0.5 size-5 shrink-0 accent-brand"
+              />
+              <span className="flex flex-col">
+                <span className="font-bold">{t('editor.resultsOnPhones')}</span>
+                <span id="results-on-phones-hint" className="text-sm text-muted">
+                  {t('editor.resultsOnPhones.hint')}
+                </span>
+              </span>
+            </label>
           </div>
         </aside>
 

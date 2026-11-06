@@ -97,6 +97,18 @@ Sunum ekranı da katılımcıların telefonları da sunumun temasını kullanır
 değiştirirseniz bağlı telefonlar yeni renklere hemen geçer. Açık ya da koyu mod yine her cihazın
 kendi ayarını izler; ana sayfa gibi bir sunuma ait olmayan sayfalar varsayılan temayla açılır.
 
+## Sonuçları telefonlarda gösterin
+
+Sonuçlar varsayılan olarak yalnızca sunum ekranında görünür. Katılımcıların kendi telefonlarında da
+görmesini istiyorsanız düzenleyicide temanın altındaki **Cevap verenlerin telefonunda sonuçları
+göster** kutusunu işaretleyin.
+
+- Bir telefon, etkin soruyu cevapladıktan sonra teşekkür ekranında canlı grafiği gösterir; daha
+  önce değil. Böylece kimse önce bakıp çoğunluğa uyamaz. Bu kuralı sayfa değil, sunucu uygular.
+- Gizlenen sonuçlar (bkz. [Sonuçları siz gösterene kadar gizleyin](#sonuçları-siz-gösterene-kadar-gizleyin))
+  telefonlarda da gizli kalır; denetim sırasında ekrandan kaldırdığınız cevaplar da gösterilmez.
+- Ayarı açıp kapattığınızda bağlı telefonlar bunu hemen görür.
+
 ## Sunun
 
 Düzenleyicinin üst çubuğundaki **Sunumu başlat** düğmesini seçin (sunumda en az bir soru olduğunda

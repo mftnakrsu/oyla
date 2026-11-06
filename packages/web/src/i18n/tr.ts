@@ -70,6 +70,9 @@ export const tr: Record<MessageKey, string> = {
   'editor.questions': 'Sorular',
   'editor.theme.label': 'Tema',
   'editor.theme.hint': 'Sunum ekranı ve katılımcıların telefonları bu renklerle görünür.',
+  'editor.resultsOnPhones': 'Cevap verenlerin telefonunda sonuçları göster',
+  'editor.resultsOnPhones.hint':
+    'Her telefon, cevap verdikten sonra canlı grafiği görür. Gizlenen sonuçlar gizli kalır.',
   'theme.emerald': 'Zümrüt',
   'theme.indigo': 'İndigo',
   'theme.navy': 'Lacivert ve turuncu',
@@ -177,6 +180,8 @@ export const tr: Record<MessageKey, string> = {
   'join.waiting.body': 'Sunum başladığında soru burada görünecek.',
   'join.thanks.title': 'Cevabınız gönderildi',
   'join.thanks.body': 'Büyük ekranı izleyin. Sonraki soru burada görünecek.',
+  'join.thanks.bodyResults': 'Şu ana kadar herkesin cevabı aşağıda. Sonraki soru burada görünecek.',
+  'join.results.title': 'Canlı sonuçlar',
   'join.thanks.again.one': 'Bir cevap daha ekle (1 hak kaldı)',
   'join.thanks.again.other': 'Bir cevap daha ekle ({count} hak kaldı)',
   'join.ended.title': 'Bu sunum sona erdi',

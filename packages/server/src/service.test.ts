@@ -110,6 +110,11 @@ describe('creating and authenticating', () => {
     });
     expect(changed).toHaveBeenCalledTimes(2);
     expect(changed).toHaveBeenCalledWith(created.id);
+    // Title and theme changes don't need a new participant state.
+    const state = vi.fn();
+    events.on('state-changed', state);
+    service.update(created.id, { theme: 'navy' });
+    expect(state).not.toHaveBeenCalled();
   });
 
   test('rename and remove', () => {
@@ -217,7 +222,11 @@ describe('live sessions', () => {
 
   test('participant state shows the active question in public form', () => {
     const { id, questionId } = pollPresentation();
-    expect(service.participantState(id, alice)).toEqual({ activeQuestion: null, remaining: 0 });
+    expect(service.participantState(id, alice)).toEqual({
+      activeQuestion: null,
+      remaining: 0,
+      results: null,
+    });
     service.activate(id, questionId);
     expect(service.participantState(id, alice)).toEqual({
       activeQuestion: {
@@ -234,6 +243,7 @@ describe('live sessions', () => {
         total: 1,
       },
       remaining: 1,
+      results: null,
     });
   });
 
@@ -320,6 +330,55 @@ describe('live sessions', () => {
     service.activate(id, null);
     expect(state).toHaveBeenCalledTimes(2);
     expect(service.get(id).activeQuestionId).toBeNull();
+  });
+});
+
+describe('results on phones', () => {
+  function votedPoll() {
+    const poll = pollPresentation();
+    service.activate(poll.id, poll.questionId);
+    service.submit(poll.id, alice, poll.questionId, { optionId: 'b' });
+    return poll;
+  }
+
+  test('off by default: nobody gets results', () => {
+    const { id } = votedPoll();
+    expect(service.get(id).resultsOnPhones).toBe(false);
+    expect(service.participantState(id, alice).results).toBeNull();
+    expect(service.resultsAudience(id, service.activeQuestionId(id) ?? '')).toBeNull();
+  });
+
+  test('turned on: only participants who answered get them', () => {
+    const { id, questionId } = votedPoll();
+    const state = vi.fn();
+    events.on('state-changed', state);
+    expect(service.update(id, { resultsOnPhones: true }).resultsOnPhones).toBe(true);
+    // Phones learn about it through a new state, not just the presentation info.
+    expect(state).toHaveBeenCalledWith(id);
+
+    const states = service.participantStates(id, [alice, bob]);
+    expect(states.get(alice)?.results).toMatchObject({
+      questionId,
+      results: { counts: { a: 0, b: 1 }, total: 1 },
+      total: 1,
+    });
+    expect(states.get(bob)?.results).toBeNull();
+    expect(service.resultsAudience(id, questionId)).toEqual(new Set([alice]));
+  });
+
+  test('hidden results stay hidden on phones too', () => {
+    const { id, questionId } = votedPoll();
+    service.update(id, { resultsOnPhones: true });
+    service.updateQuestion(id, questionId, { resultsHidden: true });
+    expect(service.participantState(id, alice).results).toBeNull();
+    expect(service.resultsAudience(id, questionId)).toBeNull();
+  });
+
+  test('only the active question’s results go to phones', () => {
+    const { id, questionId } = votedPoll();
+    service.update(id, { resultsOnPhones: true });
+    service.activate(id, null);
+    expect(service.resultsAudience(id, questionId)).toBeNull();
   });
 });
 
@@ -418,7 +477,11 @@ describe('hardening', () => {
     const { id, questionId } = pollPresentation();
     store.questions.update(id, questionId, { config: { options: 'broken' } }, clock);
     service.activate(id, questionId);
-    expect(service.participantState(id, alice)).toEqual({ activeQuestion: null, remaining: 0 });
+    expect(service.participantState(id, alice)).toEqual({
+      activeQuestion: null,
+      remaining: 0,
+      results: null,
+    });
     expectAppError(
       () => service.submit(id, alice, questionId, { optionId: 'a' }),
       'VALIDATION_FAILED',

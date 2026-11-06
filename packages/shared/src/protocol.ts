@@ -22,6 +22,11 @@ export interface ParticipantState {
   activeQuestion: PublicQuestion | null;
   /** Answers this participant may still give to the active question. */
   remaining: number;
+  /**
+   * Live results of the active question, once this participant answered it and only when the
+   * presentation shares results with phones and they aren't hidden. Null otherwise.
+   */
+  results: ResultsMessage | null;
 }
 
 /** What every screen of a presentation shows around the questions. */

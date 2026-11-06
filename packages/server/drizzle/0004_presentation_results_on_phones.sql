@@ -1,0 +1,1 @@
+ALTER TABLE `presentations` ADD `results_on_phones` integer DEFAULT false NOT NULL;

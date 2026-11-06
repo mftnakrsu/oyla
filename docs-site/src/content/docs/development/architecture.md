@@ -53,6 +53,7 @@ presentations
   join_code           TEXT UNIQUE  6 digits, shown as "123 456"
   title               TEXT         1 to 120 characters
   theme               TEXT         colour theme key, default 'emerald'
+  results_on_phones   INTEGER      boolean, default 0: phones that answered see the results
   admin_token_hash    TEXT         SHA-256 of the admin token, hex
   active_question_id  TEXT NULL    the question the audience sees
   created_at, updated_at, last_activity_at   INTEGER (Unix ms)
@@ -99,7 +100,7 @@ JSON over HTTP under `/api`, defined in `packages/server/src/http/routes.ts`. Ro
 | `GET /api/config` | none | `{ createPasswordRequired, retentionDays }` |
 | `POST /api/presentations` | create password, if set | Body `{ title, password? }`. Returns `201` with `{ id, joinCode, adminToken }` |
 | `GET /api/presentations/:id` | admin | The presentation (`PresentationDto`, including its `theme`) with its questions and answer counts |
-| `PATCH /api/presentations/:id` | admin | Rename or change the theme: `{ title?, theme? }`, at least one. Live clients receive `presentation` |
+| `PATCH /api/presentations/:id` | admin | Change `{ title?, theme?, resultsOnPhones? }`, at least one. Live clients receive `presentation`; changing `resultsOnPhones` also sends participants a new `state` |
 | `DELETE /api/presentations/:id` | admin | Delete. Live clients receive `presentation:ended`. Returns `204` |
 | `GET /api/presentations/:id/responses` | admin | Every answer for the CSV export, oldest first: `{ responses: [{ questionId, participant, payload, createdAt }] }`. `participant` numbers people 1, 2, 3… by their first answer; participant ids never leave the server |
 | `POST /api/presentations/:id/questions` | admin | Add a question: `{ type, title?, config? }`. Returns `201` |
@@ -148,9 +149,9 @@ Every event takes an acknowledgement callback that receives either `{ ok: true, 
 
 | Event | Sent to | Payload |
 |---|---|---|
-| `state` | participants | `{ activeQuestion, remaining }`: the active question in public form and how many answers this participant has left for it |
+| `state` | participants | `{ activeQuestion, remaining, results }`: the active question in public form, how many answers this participant has left for it and, when the presentation shares results with phones, the results once this participant has answered (otherwise `null`) |
 | `presenter:state` | presenters | `{ activeQuestionId }` |
-| `results` | presenters | `{ questionId, results, total, hidden }`, at most once every 250 ms per question. Hidden answers are left out of `results` and `total`; `hidden` counts them |
+| `results` | presenters, and phones that answered | `{ questionId, results, total, hidden }`, at most once every 250 ms per question. Hidden answers are left out of `results` and `total`; `hidden` counts them. Phones get it only for the active question, after answering it, when the presentation shares results and the question's results aren't hidden |
 | `presence` | presenters | `{ participants }`: distinct participant ids currently connected |
 | `presentation` | everyone | `{ title, theme }`, whenever the title or the theme changes |
 | `presentation:ended` | everyone | The presentation was deleted |

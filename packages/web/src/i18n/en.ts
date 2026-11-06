@@ -70,6 +70,9 @@ export const en = {
   'editor.questions': 'Questions',
   'editor.theme.label': 'Theme',
   'editor.theme.hint': 'The presenter screen and the phones use these colours.',
+  'editor.resultsOnPhones': 'Show results on phones after people answer',
+  'editor.resultsOnPhones.hint':
+    'Each phone shows the live chart once it has answered. Hidden results stay hidden.',
   'theme.emerald': 'Emerald',
   'theme.indigo': 'Indigo',
   'theme.navy': 'Navy & orange',
@@ -177,6 +180,9 @@ export const en = {
   'join.waiting.body': 'The question will appear here when the presenter starts.',
   'join.thanks.title': 'Answer sent',
   'join.thanks.body': 'Watch the big screen. The next question will appear here.',
+  'join.thanks.bodyResults':
+    'Here’s how everyone answered so far. The next question will appear here.',
+  'join.results.title': 'Live results',
   'join.thanks.again.one': 'Add another answer (1 left)',
   'join.thanks.again.other': 'Add another answer ({count} left)',
   'join.ended.title': 'This presentation has ended',
