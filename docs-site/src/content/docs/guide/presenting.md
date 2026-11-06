@@ -69,7 +69,9 @@ Changes save on their own shortly after you stop typing; the editor shows **Savi
 **Saved**. Other things you can do in the editor:
 
 - Rename the presentation by clicking its name in the header.
-- Reorder questions with the **Move up** and **Move down** arrows.
+- Reorder questions by dragging them in the question list, or with the **Move up** and
+  **Move down** arrows of the selected question (these also work with the keyboard and on
+  touch screens).
 - Remove a question with **Delete question**. The button asks you to click again to confirm.
 - See how many answers a question has (for example, "3 answers so far") and clear them with
   **Reset results**.

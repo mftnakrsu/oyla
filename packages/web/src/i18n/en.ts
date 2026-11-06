@@ -83,6 +83,7 @@ export const en = {
   'editor.question.untitled': 'Untitled question',
   'editor.question.moveUp': 'Move up',
   'editor.question.moveDown': 'Move down',
+  'editor.question.dragHint': 'Drag to change the order',
   'editor.question.delete': 'Delete question',
   'editor.question.reset': 'Reset results',
   'editor.question.responses.one': '1 answer so far',

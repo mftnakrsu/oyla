@@ -29,8 +29,6 @@ explains the setup.
 - **Hide results until voting ends.** Collect answers first, then reveal them on the screen.
 - **Moderation of open answers.** Let the presenter hide an entry from the screen, for open
   questions and word clouds.
-- **Drag-and-drop reordering** of questions in the editor, next to the Move up and Move down
-  buttons.
 
 ### Platform
 

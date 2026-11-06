@@ -19,6 +19,7 @@ import { useI18n } from '../i18n/I18nProvider';
 import { dropHash, readKeyFromHash } from '../lib/admin-key';
 import { csvFileName, downloadCsv, resultsCsv } from '../lib/csv';
 import { adminUrl, formatJoinCode, joinUrl } from '../lib/format';
+import { dropTarget, moveItem } from '../lib/move';
 import { forgetMine, listMine, saveMine, tokenFor, updateMine } from '../lib/my-presentations';
 import { usePalette } from '../lib/palette';
 import { getQuestionTypeUi } from '../question-types/registry';
@@ -49,6 +50,19 @@ function TitleField({ value, onSave }: { value: string; onSave(title: string): v
       }}
       className="min-h-11 min-w-0 flex-1 rounded-lg border-2 border-transparent bg-transparent px-2 text-xl font-extrabold hover:border-line focus:border-brand focus:bg-paper focus:outline-none"
     />
+  );
+}
+
+function GripIcon({ className = '' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 16 16" aria-hidden="true" className={className} fill="currentColor">
+      <circle cx="5.5" cy="3.5" r="1.5" />
+      <circle cx="10.5" cy="3.5" r="1.5" />
+      <circle cx="5.5" cy="8" r="1.5" />
+      <circle cx="10.5" cy="8" r="1.5" />
+      <circle cx="5.5" cy="12.5" r="1.5" />
+      <circle cx="10.5" cy="12.5" r="1.5" />
+    </svg>
   );
 }
 
@@ -85,6 +99,8 @@ export function EditorPage() {
   const [actionError, setActionError] = useState<ErrorState>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [picking, setPicking] = useState(false);
+  /** The question being dragged in the list and the gap it would drop into (0 = above the first). */
+  const [drag, setDrag] = useState<{ from: number; gap: number | null } | null>(null);
   const [showBanner, setShowBanner] = useState(searchParams.get('new') === '1');
   const panel = useRef<QuestionPanelHandle>(null);
   const [copiedJoin, copyJoin] = useCopy();
@@ -186,14 +202,37 @@ export function EditorPage() {
       }),
     );
 
-  const move = (index: number, direction: -1 | 1) => {
-    const ids = questions.map((q) => q.id);
-    const target = index + direction;
-    const [moved] = ids.splice(index, 1);
-    if (!moved || target < 0 || target > ids.length) return;
-    ids.splice(target, 0, moved);
-    run(api.reorderQuestions(id, token, ids).then(setPresentation));
+  /** Shows the new order right away and goes back to the old one if the server refuses it. */
+  const reorder = (from: number, to: number) => {
+    if (to === from || to < 0 || to >= questions.length) return;
+    const previous = questions;
+    const next = moveItem(previous, from, to).map((q, position) => ({ ...q, position }));
+    setPresentation((current) => (current ? { ...current, questions: next } : current));
+    run(
+      api
+        .reorderQuestions(
+          id,
+          token,
+          next.map((q) => q.id),
+        )
+        .then(setPresentation)
+        .catch((error: unknown) => {
+          setPresentation((current) => (current ? { ...current, questions: previous } : current));
+          throw error;
+        }),
+    );
   };
+
+  const move = (index: number, direction: -1 | 1) => reorder(index, index + direction);
+
+  const drop = () => {
+    if (drag?.gap == null) return;
+    setDrag(null);
+    reorder(drag.from, dropTarget(drag.from, drag.gap));
+  };
+  /** A drop line in the gap, unless dropping there would leave the question where it is. */
+  const lineAt = (gap: number) =>
+    drag !== null && drag.gap === gap && dropTarget(drag.from, gap) !== drag.from;
 
   const deleteQuestion = (questionId: string, index: number) =>
     run(
@@ -279,7 +318,37 @@ export function EditorPage() {
                 const ui = getQuestionTypeUi(question.type);
                 const current = question.id === selectedId && !picking;
                 return (
-                  <li key={question.id}>
+                  <li
+                    key={question.id}
+                    draggable
+                    title={t('editor.question.dragHint')}
+                    onDragStart={(event) => {
+                      event.dataTransfer.effectAllowed = 'move';
+                      // Firefox only starts a drag that carries some data.
+                      event.dataTransfer.setData('text/plain', question.id);
+                      setDrag({ from: index, gap: null });
+                    }}
+                    onDragOver={(event) => {
+                      if (!drag) return; // something else, such as a file
+                      event.preventDefault();
+                      event.dataTransfer.dropEffect = 'move';
+                      const box = event.currentTarget.getBoundingClientRect();
+                      const gap = event.clientY < box.top + box.height / 2 ? index : index + 1;
+                      if (gap !== drag.gap) setDrag({ ...drag, gap });
+                    }}
+                    onDrop={(event) => {
+                      event.preventDefault();
+                      drop();
+                    }}
+                    onDragEnd={() => setDrag(null)}
+                    className={`group relative ${drag?.from === index ? 'opacity-40' : ''}`}
+                  >
+                    {lineAt(index) ? (
+                      <span className="pointer-events-none absolute inset-x-2 -top-[4px] h-1 rounded-full bg-brand" />
+                    ) : null}
+                    {index === questions.length - 1 && lineAt(index + 1) ? (
+                      <span className="pointer-events-none absolute inset-x-2 -bottom-[4px] h-1 rounded-full bg-brand" />
+                    ) : null}
                     <button
                       type="button"
                       aria-current={current ? 'true' : undefined}
@@ -298,6 +367,7 @@ export function EditorPage() {
                       <span className={`truncate ${question.title ? 'font-bold' : 'text-muted'}`}>
                         {question.title || t('editor.question.untitled')}
                       </span>
+                      <GripIcon className="ml-auto size-4 shrink-0 cursor-grab text-muted opacity-0 group-hover:opacity-100" />
                     </button>
                   </li>
                 );

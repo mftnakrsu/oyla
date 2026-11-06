@@ -17,7 +17,6 @@ something big, so work isn't duplicated.
 - Hide results until voting ends, then reveal them.
 - Show results on participants' phones after they answer.
 - Moderation for open answers and word clouds (hide an entry from the screen).
-- Drag-and-drop reordering in the editor.
 
 ### Platform
 - **Scaling to several servers** with the Socket.IO Redis adapter (presence and throttling are

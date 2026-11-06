@@ -70,7 +70,8 @@ Değişiklikler, yazmayı bıraktıktan kısa bir süre sonra kendiliğinden kay
 **Kaydediliyor…**, ardından **Kaydedildi** yazar. Düzenleyicide ayrıca şunları yapabilirsiniz:
 
 - Üst çubuktaki sunum adına tıklayarak sunumu yeniden adlandırmak.
-- **Yukarı taşı** ve **Aşağı taşı** oklarıyla soruların sırasını değiştirmek.
+- Soru listesinde soruları sürükleyerek ya da seçili sorunun **Yukarı taşı** ve **Aşağı taşı**
+  oklarıyla sıralarını değiştirmek (oklar klavyeyle ve dokunmatik ekranlarda da çalışır).
 - **Soruyu sil** ile bir soruyu kaldırmak. Düğme, onay için ikinci bir tıklama ister.
 - Bir sorunun kaç cevap aldığını görmek (örneğin "Şu ana kadar 3 cevap") ve cevapları
   **Sonuçları sıfırla** ile temizlemek.
