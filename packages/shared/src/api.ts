@@ -16,10 +16,16 @@ export const createPresentationBody = z.object({
 export type CreatePresentationBody = z.infer<typeof createPresentationBody>;
 
 export const updatePresentationBody = z
-  .object({ title: presentationTitle.optional(), theme: themeSchema.optional() })
-  .refine((body) => body.title !== undefined || body.theme !== undefined, {
-    message: 'Send a title or a theme',
-  });
+  .object({
+    title: presentationTitle.optional(),
+    theme: themeSchema.optional(),
+    resultsOnPhones: z.boolean().optional(),
+  })
+  .refine(
+    (body) =>
+      body.title !== undefined || body.theme !== undefined || body.resultsOnPhones !== undefined,
+    { message: 'Send a title, a theme or resultsOnPhones' },
+  );
 export type UpdatePresentationBody = z.infer<typeof updatePresentationBody>;
 
 export const createQuestionBody = z.object({
@@ -62,6 +68,8 @@ export interface PresentationDto {
   id: string;
   title: string;
   theme: ThemeKey;
+  /** Phones that answered the active question see its results. */
+  resultsOnPhones: boolean;
   joinCode: string;
   activeQuestionId: string | null;
   questions: QuestionDto[];

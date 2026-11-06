@@ -99,7 +99,9 @@ export function createPresentationService({ store, events, config, now = Date.no
     const row = activeId && index >= 0 ? store.questions.get(presentationId, activeId) : undefined;
     const question = row ? resolve(row) : null;
     if (!question) {
-      for (const id of participantIds) states.set(id, { activeQuestion: null, remaining: 0 });
+      for (const id of participantIds) {
+        states.set(id, { activeQuestion: null, remaining: 0, results: null });
+      }
       return states;
     }
     const used =
@@ -120,10 +122,33 @@ export function createPresentationService({ store, events, config, now = Date.no
       index,
       total: ids.length,
     };
+    // Phones that answered see the results, if the presenter allows it and hasn't hidden them.
+    const share = presentation.resultsOnPhones && !question.row.resultsHidden;
+    let shared: ResultsMessage | undefined;
     for (const id of participantIds) {
-      states.set(id, { activeQuestion, remaining: Math.max(0, allowed - (used.get(id) ?? 0)) });
+      const count = used.get(id) ?? 0;
+      const sees = share && count > 0;
+      if (sees && !shared) shared = resultsOf(question, question.row.id);
+      states.set(id, {
+        activeQuestion,
+        remaining: Math.max(0, allowed - count),
+        results: sees ? (shared ?? null) : null,
+      });
     }
     return states;
+  }
+
+  /** Aggregated results without the answers the presenter hid. */
+  function resultsOf(question: ResolvedQuestion | null, questionId: string): ResultsMessage {
+    const payloads = store.responses.payloads(questionId);
+    const isHidden = question ? hiddenCheck(question) : null;
+    const shown = isHidden ? payloads.filter((payload) => !isHidden(payload)) : payloads;
+    return {
+      questionId,
+      results: question ? question.type.aggregate(question.config, shown) : null,
+      total: shown.length,
+      hidden: payloads.length - shown.length,
+    };
   }
 
   /** The stored hidden keys; anything malformed counts as none. */
@@ -168,6 +193,7 @@ export function createPresentationService({ store, events, config, now = Date.no
       id: row.id,
       title: row.title,
       theme: toThemeKey(row.theme),
+      resultsOnPhones: row.resultsOnPhones,
       joinCode: row.joinCode,
       activeQuestionId: row.activeQuestionId,
       questions: store.questions.list(row.id).map((q) => toQuestionDto(q, counts.get(q.id) ?? 0)),
@@ -195,6 +221,7 @@ export function createPresentationService({ store, events, config, now = Date.no
         joinCode,
         title: input.title,
         theme: DEFAULT_THEME,
+        resultsOnPhones: false,
         adminTokenHash: hashToken(adminToken),
         activeQuestionId: null,
         createdAt: time,
@@ -222,6 +249,8 @@ export function createPresentationService({ store, events, config, now = Date.no
       requirePresentation(presentationId);
       store.presentations.update(presentationId, changes, now());
       events.emit('presentation-changed', presentationId);
+      // Whether phones see results is part of each participant's state.
+      if (changes.resultsOnPhones !== undefined) events.emit('state-changed', presentationId);
       return toPresentationDto(requirePresentation(presentationId));
     },
 
@@ -366,6 +395,7 @@ export function createPresentationService({ store, events, config, now = Date.no
         participantStates(presentationId, [participantId]).get(participantId) ?? {
           activeQuestion: null,
           remaining: 0,
+          results: null,
         }
       );
     },
@@ -443,16 +473,21 @@ export function createPresentationService({ store, events, config, now = Date.no
     },
 
     results(presentationId: string, questionId: string): ResultsMessage {
-      const question = resolve(requireQuestion(presentationId, questionId));
-      const payloads = store.responses.payloads(questionId);
-      const isHidden = question ? hiddenCheck(question) : null;
-      const shown = isHidden ? payloads.filter((payload) => !isHidden(payload)) : payloads;
-      return {
-        questionId,
-        results: question ? question.type.aggregate(question.config, shown) : null,
-        total: shown.length,
-        hidden: payloads.length - shown.length,
-      };
+      return resultsOf(resolve(requireQuestion(presentationId, questionId)), questionId);
+    },
+
+    /**
+     * Participants whose phones should get live results for this question: those who answered
+     * it, while it is active, its results aren't hidden and the presentation shares results.
+     * Null when no phone should get them.
+     */
+    resultsAudience(presentationId: string, questionId: string): Set<string> | null {
+      const presentation = requirePresentation(presentationId);
+      if (!presentation.resultsOnPhones || presentation.activeQuestionId !== questionId)
+        return null;
+      const row = store.questions.get(presentationId, questionId);
+      if (!row || row.resultsHidden) return null;
+      return new Set(store.responses.countsByParticipant(questionId).keys());
     },
 
     /** Moderation: hides every answer with this key, including ones sent later. */

@@ -3,8 +3,9 @@ title: Roadmap
 description: What Oyla does today and the features that are open for contributions.
 ---
 
-Oyla v0.1 covers the core: four question types, live results, presentation themes, English and
-Turkish, no accounts and one container. Everything below is open for contributions and marked "help wanted".
+Oyla covers the core: four question types, live results, presentation themes, presenter tools
+(hiding and revealing results, moderation, results on phones, CSV export, drag-and-drop ordering),
+English and Turkish, no accounts and one container. Everything below is open for contributions and marked "help wanted".
 
 Before you start on something big, comment on the matching issue or open one, so work isn't
 duplicated and the approach can be agreed early. [Contributing](/development/contributing/)
@@ -22,10 +23,6 @@ explains the setup.
   statement.
 
 [Adding a question type](/development/adding-a-question-type/) walks through the code.
-
-### Presenting
-
-- **Results on phones.** Show participants the results after they answer.
 
 ### Platform
 

@@ -37,7 +37,11 @@ export function createStore({ db, sqlite }: DatabaseHandle) {
             .get() !== undefined
         );
       },
-      update(id: string, changes: { title?: string; theme?: string }, now: number): void {
+      update(
+        id: string,
+        changes: { title?: string; theme?: string; resultsOnPhones?: boolean },
+        now: number,
+      ): void {
         db.update(presentations)
           .set({ ...changes, updatedAt: now, lastActivityAt: now })
           .where(eq(presentations.id, id))
