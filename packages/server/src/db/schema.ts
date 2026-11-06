@@ -7,6 +7,8 @@ export const presentations = sqliteTable(
     joinCode: text('join_code').notNull().unique(),
     title: text('title').notNull(),
     theme: text('theme').notNull().default('emerald'),
+    /** Phones that answered the active question see its results. */
+    resultsOnPhones: integer('results_on_phones', { mode: 'boolean' }).notNull().default(false),
     adminTokenHash: text('admin_token_hash').notNull(),
     activeQuestionId: text('active_question_id'),
     createdAt: integer('created_at').notNull(),

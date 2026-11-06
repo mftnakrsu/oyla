@@ -38,6 +38,7 @@ computer or server as one Docker container, and your presentations and answers s
 - **Presentation themes:** give each presentation one of four colour themes (Emerald, Indigo,
   Navy & orange, Classic blue). The presenter screen and every phone use it, and phones switch
   right away when you change it during a session.
+- **Results on phones,** if you want: each phone sees the live chart after it has answered.
 - **Hide results until you reveal them,** for guessing questions or to keep early votes from
   swaying the rest; the screen shows how many people answered meanwhile.
 - **Moderation:** take a rude word or answer off the screen in two clicks; it stays hidden if
@@ -152,6 +153,7 @@ Sunumlarınız ve cevaplar sizin makinenizde kalır.
 - **Dört soru tipi var:** çoktan seçmeli, kelime bulutu, açık uçlu soru ve ölçek.
 - **Sunum temaları:** Her sunuma dört renk temasından birini verebilirsiniz (Zümrüt, İndigo,
   Lacivert ve turuncu, Klasik mavi). Sunum ekranı da telefonlar da bu temayı kullanır.
+- **Telefonda sonuçlar:** İsterseniz her telefon, cevap verdikten sonra canlı grafiği görür.
 - **Sonuçları gizleyin:** Siz gösterene kadar ekranda yalnızca cevap sayısı görünür.
 - **Denetim:** Uygunsuz bir kelimeyi ya da cevabı iki tıklamayla ekrandan kaldırın; tekrar
   gönderilse de gizli kalır.

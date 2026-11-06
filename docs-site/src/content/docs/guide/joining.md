@@ -56,7 +56,9 @@ follows the presenter: when the presenter moves to the next question, the phone 
    questions, **Send rating** for scales.
 
 The phone then shows **Answer sent** and asks you to watch the big screen. Answers can't be edited
-after sending. Results appear on the presenter screen, not on phones.
+after sending. Results appear on the presenter screen. If the presenter shares them with phones,
+the thanks screen also shows **Live results**: the same chart as the big screen, updating as more
+people answer.
 
 Word clouds and open questions can allow more than one answer per person. In that case the thanks
 screen has a button such as **Add another answer (2 left)**.

@@ -1,7 +1,8 @@
-import type { ErrorCode, PublicQuestion, QuestionTypeKey } from '@oyla/shared';
-import { type ReactNode, useEffect, useRef, useState } from 'react';
+import type { ErrorCode, PublicQuestion, QuestionTypeKey, ResultsMessage } from '@oyla/shared';
+import { type ReactNode, Suspense, useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { buttonClass } from '../components/Button';
+import { ErrorBoundary } from '../components/ErrorBoundary';
 import { ErrorNotice } from '../components/ErrorNotice';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { Logo } from '../components/Logo';
@@ -20,14 +21,46 @@ function Centered({ children }: { children: ReactNode }) {
   );
 }
 
+/** The live chart under the "voted" stamp, when the presenter shares results with phones. */
+function PhoneResults({
+  question,
+  message,
+}: {
+  question: PublicQuestion;
+  message: ResultsMessage;
+}) {
+  const { t } = useI18n();
+  const ui = getQuestionTypeUi(question.type as QuestionTypeKey);
+  if (message.results === null) return null;
+  return (
+    <section
+      aria-labelledby="phone-results"
+      className="mt-2 flex w-full flex-col gap-3 rounded-2xl bg-paper p-4 text-left text-sm"
+    >
+      <h2 id="phone-results" className="text-base font-extrabold">
+        {t('join.results.title')}
+      </h2>
+      <div className="h-64 overflow-y-auto">
+        <ErrorBoundary key={question.id} fallback={null}>
+          <Suspense fallback={null}>
+            <ui.Results config={question.config} results={message.results} />
+          </Suspense>
+        </ErrorBoundary>
+      </div>
+    </section>
+  );
+}
+
 function Answer({
   question,
   remaining,
+  results,
   submit,
   markAnswered,
 }: {
   question: PublicQuestion;
   remaining: number;
+  results: ResultsMessage | null;
   submit(
     questionId: string,
     response: unknown,
@@ -57,11 +90,13 @@ function Answer({
   if (!answering) {
     return (
       <Centered>
-        <Stamp size={150} label={t('stamp.voted')} press={justAnswered} />
+        <Stamp size={results ? 96 : 150} label={t('stamp.voted')} press={justAnswered} />
         <h1 ref={thanks} tabIndex={-1} className="mt-4 text-3xl font-extrabold focus:outline-none">
           {t('join.thanks.title')}
         </h1>
-        <p className="max-w-xs text-lg text-muted">{t('join.thanks.body')}</p>
+        <p className="max-w-xs text-lg text-muted">
+          {results ? t('join.thanks.bodyResults') : t('join.thanks.body')}
+        </p>
         {remaining > 0 ? (
           <button
             type="button"
@@ -74,6 +109,7 @@ function Answer({
             {tn('join.thanks.again', remaining)}
           </button>
         ) : null}
+        {results ? <PhoneResults question={question} message={results} /> : null}
       </Centered>
     );
   }
@@ -192,6 +228,7 @@ export function JoinPage() {
             key={question.id}
             question={question}
             remaining={session.state.remaining}
+            results={session.state.results}
             submit={session.submit}
             markAnswered={session.markAnswered}
           />

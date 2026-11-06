@@ -218,6 +218,45 @@ describe('a live poll', () => {
     await left;
   });
 
+  test('phones that answered get live results when the presenter shares them', async () => {
+    const { built, url } = await start();
+    const { id, joinCode, questionId } = await setupPoll(built);
+    built.service.update(id, { resultsOnPhones: true });
+    built.service.activate(id, questionId);
+
+    const alice = await client(url);
+    const bob = await client(url);
+    await emit(alice, 'participant:join', { joinCode, participantId: participant(1) });
+    const bobJoin = await emit<ParticipantJoinAck>(bob, 'participant:join', {
+      joinCode,
+      participantId: participant(2),
+    });
+    expect(bobJoin.ok && bobJoin.state.results).toBeNull();
+
+    const bobResults: ResultsMessage[] = [];
+    bob.on('results', (message) => bobResults.push(message));
+    const aliceResults = next(alice, 'results', (message) => message.total === 1);
+    await emit(alice, 'response:submit', { questionId, response: { optionId: 'b' } });
+    const [message] = await aliceResults;
+    expect(message.results).toEqual({ counts: { a: 0, b: 1 }, total: 1 });
+
+    // Bob hasn't answered, so the results don't reach his phone.
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    expect(bobResults).toEqual([]);
+
+    // A rejoin (reconnect) brings the results back with the state.
+    const rejoin = await emit<ParticipantJoinAck>(alice, 'participant:join', {
+      joinCode,
+      participantId: participant(1),
+    });
+    expect(rejoin.ok && rejoin.state.results?.total).toBe(1);
+
+    // Hiding the results takes them off the phones too.
+    const hidden = next(alice, 'state', (state: ParticipantState) => state.results === null);
+    built.service.updateQuestion(id, questionId, { resultsHidden: true });
+    await hidden;
+  });
+
   test('a reconnecting participant keeps their answers', async () => {
     const { built, url } = await start();
     const { id, joinCode, questionId } = await setupPoll(built);

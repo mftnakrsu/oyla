@@ -2,7 +2,7 @@ import type { FastifyBaseLogger } from 'fastify';
 import { AppError } from '../app-error';
 import type { LiveEvents } from '../events';
 import type { PresentationService } from '../service';
-import { type OylaServer, rooms } from './types';
+import { type OylaServer, type OylaSocket, rooms } from './types';
 
 const RESULTS_THROTTLE_MS = 250;
 const STATE_DEBOUNCE_MS = 30;
@@ -12,7 +12,8 @@ export type Broadcaster = ReturnType<typeof createBroadcaster>;
 
 /**
  * Turns service events into socket messages. Results are throttled per question so a burst of
- * votes becomes a few messages; presence is tracked in memory (one process, see ROADMAP for Redis).
+ * votes becomes a few messages, and go to presenters and to phones that answered (when the
+ * presentation shares results); presence is tracked in memory (one process, see ROADMAP for Redis).
  */
 export function createBroadcaster(
   io: OylaServer,
@@ -52,14 +53,29 @@ export function createBroadcaster(
     return (io.sockets.adapter.rooms.get(rooms.presenters(presentationId))?.size ?? 0) > 0;
   }
 
+  /** Connected phones of participants in `audience`, read from this process's rooms. */
+  function phonesOf(presentationId: string, audience: Set<string>): OylaSocket[] {
+    const ids = io.sockets.adapter.rooms.get(rooms.participants(presentationId)) ?? new Set();
+    const phones: OylaSocket[] = [];
+    for (const socketId of ids) {
+      const socket = io.sockets.sockets.get(socketId);
+      const participantId = socket?.data.participantId;
+      if (socket && participantId && audience.has(participantId)) phones.push(socket);
+    }
+    return phones;
+  }
+
   function sendResults(presentationId: string, questionId: string) {
-    // Aggregating can be costly (thousands of answers); skip it when nobody is watching.
-    if (!hasPresenters(presentationId)) return;
     ignoreMissing(() => {
-      io.to(rooms.presenters(presentationId)).emit(
-        'results',
-        service.results(presentationId, questionId),
-      );
+      const watching = hasPresenters(presentationId);
+      // Phones get results only after answering, and only when the presentation shares them.
+      const audience = service.resultsAudience(presentationId, questionId);
+      const phones = audience && audience.size > 0 ? phonesOf(presentationId, audience) : [];
+      // Aggregating can be costly (thousands of answers); skip it when nobody is watching.
+      if (!watching && phones.length === 0) return;
+      const message = service.results(presentationId, questionId);
+      if (watching) io.to(rooms.presenters(presentationId)).emit('results', message);
+      for (const phone of phones) phone.emit('results', message);
     });
   }
 

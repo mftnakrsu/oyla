@@ -57,7 +57,9 @@ sonra telefon sunumu takip eder: sunum yapan kişi sonraki soruya geçtiğinde t
    sorularda **Gönder**, ölçekte **Puanı gönder**.
 
 Ardından telefonda **Cevabınız gönderildi** yazar ve büyük ekranı izlemeniz istenir. Gönderilen
-cevap sonradan değiştirilemez. Sonuçlar telefonlarda değil, sunum ekranında görünür.
+cevap sonradan değiştirilemez. Sonuçlar sunum ekranında görünür. Sunum yapan kişi sonuçları
+telefonlarla da paylaşıyorsa teşekkür ekranında **Canlı sonuçlar** başlığı altında büyük ekrandaki
+grafiğin aynısı görünür ve yeni cevaplar geldikçe güncellenir.
 
 Kelime bulutu ve açık uçlu sorularda kişi başına birden fazla cevaba izin verilebilir. Bu durumda
 teşekkür ekranında **Bir cevap daha ekle (2 hak kaldı)** gibi bir düğme bulunur.

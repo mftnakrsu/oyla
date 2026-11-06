@@ -1,7 +1,8 @@
 # Roadmap
 
-Oyla v0.1 covers the core: four question types, live results, presentation themes, no accounts,
-one container.
+Oyla covers the core: four question types, live results, presentation themes, presenter tools
+(hiding and revealing results, moderation, results on phones, CSV export, drag-and-drop ordering),
+no accounts, one container.
 The items below are open for contributions. Comment on (or open) an issue before starting
 something big, so work isn't duplicated.
 
@@ -12,9 +13,6 @@ something big, so work isn't duplicated.
   `toPublicConfig` hook already exists so the correct answer can be hidden from phones.
 - **Audience Q&A:** participants ask questions and upvote each other's.
 - **Multi-statement scale:** rate several statements at once, show the average per statement.
-
-### Presenting
-- Show results on participants' phones after they answer.
 
 ### Platform
 - **Scaling to several servers** with the Socket.IO Redis adapter (presence and throttling are

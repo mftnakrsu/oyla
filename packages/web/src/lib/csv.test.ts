@@ -7,6 +7,7 @@ const presentation: PresentationDto = {
   id: 'p1',
   title: 'Retro',
   theme: 'emerald',
+  resultsOnPhones: false,
   joinCode: '123456',
   activeQuestionId: null,
   createdAt: 0,

@@ -97,6 +97,18 @@ during a session, connected phones switch to the new colours right away. Light a
 follow each device's own setting, and pages outside a presentation, such as the start page, use the
 default theme.
 
+## Show results on phones
+
+By default, results appear only on the presenter screen. To let people see them on their own
+phones, tick **Show results on phones after people answer** under the theme in the editor.
+
+- A phone shows the live chart on its thanks screen once it has answered the current question,
+  never before, so nobody can peek and follow the crowd. The server enforces this, not just the
+  page.
+- Hidden results (see [Hide results until you reveal them](#hide-results-until-you-reveal-them))
+  stay hidden on phones too, and answers you take off the screen while moderating are left out.
+- Turning the setting on or off reaches connected phones right away.
+
 ## Present
 
 Select **Present** in the editor header (it is available once the presentation has a question).

@@ -58,6 +58,14 @@ export function useParticipantSession(joinCode: string | null): ParticipantSessi
     });
     socket.on('disconnect', () => setConnected(false));
     socket.on('state', setState);
+    // Live results for phones that answered (only sent when the presentation shares them).
+    socket.on('results', (message) =>
+      setState((current) =>
+        current?.activeQuestion?.id === message.questionId
+          ? { ...current, results: message }
+          : current,
+      ),
+    );
     socket.on('presentation', (info) => {
       setTitle(info.title);
       setTheme(info.theme);
