@@ -14,7 +14,7 @@ test('a participant votes and the presenter sees it live', async ({ page, browse
   await page.getByLabel('Question', { exact: true }).fill('Tea or coffee?');
   await page.getByRole('textbox', { name: 'Option 1' }).fill('Tea');
   await page.getByRole('textbox', { name: 'Option 2' }).fill('Coffee');
-  await expect(page.getByText('Saved')).toBeVisible();
+  await expect(page.getByText('Saved', { exact: true })).toBeVisible();
   const code =
     (await page.getByText(/Join code \d{3} \d{3}/).textContent())?.replace(/\D/g, '') ?? '';
   expect(code).toMatch(/^\d{6}$/);

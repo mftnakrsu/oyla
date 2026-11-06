@@ -38,6 +38,17 @@ export const ExitIcon = () => (
     <path d="M14 4h6v16h-6M10 8l-4 4 4 4M6 12h10" />
   </svg>
 );
+export const EyeIcon = ({ className }: { className?: string }) => (
+  <svg aria-hidden="true" {...base} className={className ?? base.className}>
+    <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" />
+    <circle cx="12" cy="12" r="3" />
+  </svg>
+);
+export const EyeOffIcon = ({ className }: { className?: string }) => (
+  <svg aria-hidden="true" {...base} className={className ?? base.className}>
+    <path d="M10.6 5.1A10.4 10.4 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-2.4 3.3M6.6 6.6C3.7 8.5 2 12 2 12s3.6 7 10 7a9.7 9.7 0 0 0 5.4-1.6M9.9 9.9a3 3 0 0 0 4.2 4.2M3 3l18 18" />
+  </svg>
+);
 export const PeopleIcon = () => (
   <svg aria-hidden="true" {...base}>
     <circle cx="9" cy="8" r="3.5" />

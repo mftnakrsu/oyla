@@ -17,6 +17,8 @@ import { usePresenterSession } from '../live/usePresenterSession';
 import { getQuestionTypeUi } from '../question-types/registry';
 import {
   ExitIcon,
+  EyeIcon,
+  EyeOffIcon,
   FullscreenIcon,
   InviteIcon,
   NextIcon,
@@ -124,7 +126,39 @@ function Invite({ code, onClose }: { code: string; onClose(): void }) {
   );
 }
 
-function ActiveQuestion({ question, results }: { question: QuestionDto; results: unknown }) {
+/** Shown instead of the results while they are hidden: answers keep arriving, only the count shows. */
+function HiddenResults({ total, onReveal }: { total: number; onReveal(): void }) {
+  const { t, tn } = useI18n();
+  return (
+    <div className="flex h-full flex-col items-center justify-center gap-[1em] text-center">
+      <EyeOffIcon className="size-[4em] text-muted" />
+      <p className="text-[2em] font-extrabold">{t('present.hidden.title')}</p>
+      <p className="text-[1.4em] text-muted" aria-live="polite">
+        {tn('results.answers', total)}
+      </p>
+      <button
+        type="button"
+        onClick={onReveal}
+        className={buttonClass('primary', 'lg', 'mt-[0.5em]')}
+      >
+        <EyeIcon className="size-[1.2em]" />
+        {t('present.showResults')}
+      </button>
+    </div>
+  );
+}
+
+function ActiveQuestion({
+  question,
+  results,
+  total,
+  onReveal,
+}: {
+  question: QuestionDto;
+  results: unknown;
+  total: number;
+  onReveal(): void;
+}) {
   const { t } = useI18n();
   const ui = getQuestionTypeUi(question.type);
   const unavailable = <p className="text-[1.3em] text-muted">{t('question.unavailable')}</p>;
@@ -135,7 +169,9 @@ function ActiveQuestion({ question, results }: { question: QuestionDto; results:
         {question.title || t('editor.question.untitled')}
       </h1>
       <div className="min-h-0 flex-1 overflow-y-auto">
-        {readable && results !== null ? (
+        {question.resultsHidden ? (
+          <HiddenResults total={total} onReveal={onReveal} />
+        ) : readable && results !== null ? (
           <ErrorBoundary key={question.id} fallback={unavailable}>
             <Suspense fallback={null}>
               <ui.Results config={question.config} results={results} />
@@ -157,6 +193,7 @@ export function PresentPage() {
   const [presentation, setPresentation] = useState<PresentationDto | null>(null);
   const [loadError, setLoadError] = useState<ReturnType<typeof errorCodeOf> | null>(null);
   const [invite, setInvite] = useState(false);
+  const [toggleError, setToggleError] = useState<ReturnType<typeof errorCodeOf> | null>(null);
   const session = usePresenterSession(id, token);
   usePalette(session.theme ?? presentation?.theme);
   const autoStarted = useRef(false);
@@ -213,6 +250,25 @@ export function PresentPage() {
     [index, questions, session],
   );
 
+  /** Hides or reveals the active question's results on this screen (and every other one). */
+  const toggleHidden = useCallback(() => {
+    if (!active || !token) return;
+    setToggleError(null);
+    api
+      .updateQuestion(id, token, active.id, { resultsHidden: !active.resultsHidden })
+      .then((updated) =>
+        setPresentation((current) =>
+          current
+            ? {
+                ...current,
+                questions: current.questions.map((q) => (q.id === updated.id ? updated : q)),
+              }
+            : current,
+        ),
+      )
+      .catch((error) => setToggleError(errorCodeOf(error)));
+  }, [active, id, token]);
+
   const toggleFullscreen = useCallback(() => {
     if (document.fullscreenElement) void document.exitFullscreen();
     else void document.documentElement.requestFullscreen?.().catch(() => {});
@@ -239,13 +295,15 @@ export function PresentPage() {
         go(-1);
       } else if (event.key === 'f') {
         toggleFullscreen();
+      } else if (event.key === 'h') {
+        toggleHidden();
       } else if (event.key === 'i') {
         setInvite(true);
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [go, toggleFullscreen, invite]);
+  }, [go, toggleFullscreen, toggleHidden, invite]);
 
   if (!token || session.status === 'unauthorized' || loadError === 'UNAUTHORIZED') {
     return (
@@ -326,6 +384,10 @@ export function PresentPage() {
         <div className="px-[1.5em] pt-[0.6em]">
           <ErrorNotice code={session.errorCode} />
         </div>
+      ) : toggleError ? (
+        <div className="px-[1.5em] pt-[0.6em]">
+          <ErrorNotice code={toggleError} />
+        </div>
       ) : null}
 
       <main className="flex min-h-0 flex-1 flex-col px-[2em] py-[1.4em]">
@@ -338,7 +400,12 @@ export function PresentPage() {
             </Link>
           </div>
         ) : active ? (
-          <ActiveQuestion question={active} results={results} />
+          <ActiveQuestion
+            question={active}
+            results={results}
+            total={message?.total ?? 0}
+            onReveal={toggleHidden}
+          />
         ) : (
           <div className="flex flex-1 items-center justify-center">
             <Stamp size={120} />
@@ -367,6 +434,13 @@ export function PresentPage() {
             disabled={index === questions.length - 1}
           >
             <NextIcon />
+          </ControlButton>
+          <ControlButton
+            label={active?.resultsHidden ? t('present.showResults') : t('present.hideResults')}
+            onClick={toggleHidden}
+            disabled={!active}
+          >
+            {active?.resultsHidden ? <EyeIcon /> : <EyeOffIcon />}
           </ControlButton>
           <ResetButton disabled={!active} onReset={() => active && void session.reset(active.id)} />
           <ControlButton label={t('present.invite')} onClick={() => setInvite(true)}>

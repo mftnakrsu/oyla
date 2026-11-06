@@ -120,8 +120,9 @@ projeksiyona yansıtın.
 - Alt çubukta kaç kişinin bağlı olduğu (örneğin "25 kişi bağlı") ve kaçıncı soruda olduğunuz
   ("1 / 4") görünür.
 
-Sağ alttaki düğmeler sırasıyla **Önceki soru**, **Sonraki soru**, **Sonuçları sıfırla**,
-**Katılım bilgilerini göster**, **Tam ekran** ve **Düzenleyiciye dön**'dür.
+Sağ alttaki düğmeler sırasıyla **Önceki soru**, **Sonraki soru**, **Sonuçları gizle** (ya da
+**Sonuçları göster**), **Sonuçları sıfırla**, **Katılım bilgilerini göster**, **Tam ekran** ve
+**Düzenleyiciye dön**'dür.
 
 ### Klavye kısayolları
 
@@ -129,6 +130,7 @@ Sağ alttaki düğmeler sırasıyla **Önceki soru**, **Sonraki soru**, **Sonuç
 |---|---|
 | <kbd>→</kbd>, <kbd>Page Down</kbd> ya da <kbd>Boşluk</kbd> | Sonraki soru |
 | <kbd>←</kbd> ya da <kbd>Page Up</kbd> | Önceki soru |
+| <kbd>H</kbd> | Etkin sorunun sonuçlarını gizler ya da gösterir |
 | <kbd>F</kbd> | Tam ekranı açar ya da kapatır |
 | <kbd>I</kbd> | Katılım bilgilerini gösterir ya da gizler |
 | <kbd>Esc</kbd> | Katılım bilgilerini gizler |
@@ -150,6 +152,21 @@ tuşu ekranı kapatır.
   height="1350"
   loading="lazy"
 />
+
+## Sonuçları siz gösterene kadar gizleyin
+
+Bir tahmin sorusunda ya da ilk oyların diğerlerini etkilememesi için sonuçları katılımcılar cevap
+verirken gizleyebilirsiniz:
+
+- Düzenleyicide soruda **Ben gösterene kadar sonuçları gizle** kutusunu işaretleyin ya da
+- sunum ekranında göz düğmesini (**Sonuçları gizle**) seçin veya <kbd>H</kbd> tuşuna basın.
+
+Sonuçlar gizliyken sunum ekranında **Sonuçlar gizli** yazısı ve o ana kadar gelen cevap sayısı
+görünür; sayı artmaya devam eder. Sonuçları tek seferde açmak için **Sonuçları göster**'i, göz
+düğmesini ya da <kbd>H</kbd> tuşunu kullanın. Sonuçları açtıktan sonra da oylama devam eder.
+
+Bu ayar soruya aittir ve kaydedilir; o soruyu sunan her ekranda aynıdır ve bir sonraki sunumda
+bıraktığınız gibi kalır.
 
 ## Sonuçları sıfırlayın
 

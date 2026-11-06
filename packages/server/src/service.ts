@@ -133,6 +133,7 @@ export function createPresentationService({ store, events, config, now = Date.no
       title: row.title,
       config: row.config,
       position: row.position,
+      resultsHidden: row.resultsHidden,
       responseCount,
     };
   }
@@ -226,6 +227,7 @@ export function createPresentationService({ store, events, config, now = Date.no
         type: body.type,
         title: body.title ?? '',
         config: body.config === undefined ? type.defaultConfig() : parseConfig(type, body.config),
+        resultsHidden: false,
         createdAt: time,
         updatedAt: time,
       });
@@ -242,9 +244,12 @@ export function createPresentationService({ store, events, config, now = Date.no
     ): QuestionDto {
       const presentation = requirePresentation(presentationId);
       const row = requireQuestion(presentationId, questionId);
-      const changes: { title?: string; config?: unknown } = {};
+      const changes: { title?: string; config?: unknown; resultsHidden?: boolean } = {};
       if (body.title !== undefined) {
         changes.title = body.title;
+      }
+      if (body.resultsHidden !== undefined) {
+        changes.resultsHidden = body.resultsHidden;
       }
       if (body.config !== undefined) {
         if (!isQuestionTypeKey(row.type)) {

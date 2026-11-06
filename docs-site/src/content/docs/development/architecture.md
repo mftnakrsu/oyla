@@ -64,6 +64,7 @@ questions
   type                TEXT         question type key, e.g. "multiple-choice"
   title               TEXT         up to 200 characters
   config              TEXT (JSON)  validated by the type's config schema
+  results_hidden      INTEGER      boolean, default 0: the presenter screen hides the results
   created_at, updated_at
 
 responses
@@ -102,7 +103,7 @@ JSON over HTTP under `/api`, defined in `packages/server/src/http/routes.ts`. Ro
 | `GET /api/presentations/:id/responses` | admin | Every answer for the CSV export, oldest first: `{ responses: [{ questionId, participant, payload, createdAt }] }`. `participant` numbers people 1, 2, 3… by their first answer; participant ids never leave the server |
 | `POST /api/presentations/:id/questions` | admin | Add a question: `{ type, title?, config? }`. Returns `201` |
 | `PUT /api/presentations/:id/questions/order` | admin | Reorder: `{ ids }`, the full new order |
-| `PATCH /api/presentations/:id/questions/:questionId` | admin | Update `{ title?, config? }` |
+| `PATCH /api/presentations/:id/questions/:questionId` | admin | Update `{ title?, config?, resultsHidden? }`. The presenter screen toggles `resultsHidden` through this route too |
 | `DELETE /api/presentations/:id/questions/:questionId` | admin | Delete a question. Returns `204` |
 | `DELETE /api/presentations/:id/questions/:questionId/responses` | admin | Reset results. Returns `204` |
 
