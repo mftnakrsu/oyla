@@ -1,7 +1,8 @@
+import { moderationKeyOf } from '@oyla/shared';
 import cloud from 'd3-cloud';
 import { useEffect, useRef, useState } from 'react';
 import { useI18n } from '../../i18n/I18nProvider';
-import { EmptyResults } from '../shared';
+import { EmptyResults, HideButton } from '../shared';
 import type { ResultsProps } from '../types';
 import { type Orientation, orientationOf, sizeOf, type Tier, tierOf } from './layout';
 
@@ -45,13 +46,16 @@ function useSize<T extends HTMLElement>() {
  * Word size and colour tier both follow how many people gave the word; some words read
  * vertically, like a classic word cloud (see layout.ts).
  */
-export function WordCloudResults({ results }: ResultsProps<'word-cloud'>) {
-  const { tn } = useI18n();
+export function WordCloudResults({ results, onHide }: ResultsProps<'word-cloud'>) {
+  const { t, tn } = useI18n();
+  const moderating = onHide !== undefined;
   const [ref, { width, height }] = useSize<HTMLDivElement>();
   const [placed, setPlaced] = useState<PlacedWord[] | null>(null);
   const max = results.words[0]?.count ?? 1;
 
   useEffect(() => {
+    // While moderating, the words show as a plain list: no layout needed.
+    if (moderating) return;
     if (width === 0 || height === 0 || results.words.length === 0) {
       setPlaced([]);
       return;
@@ -109,12 +113,38 @@ export function WordCloudResults({ results }: ResultsProps<'word-cloud'>) {
       cancelled = true;
       layout?.stop();
     };
-  }, [results, width, height]);
+  }, [results, width, height, moderating]);
 
   if (results.words.length === 0) {
     return (
       <div ref={ref} className="h-full min-h-[12em]">
         <EmptyResults />
+      </div>
+    );
+  }
+
+  if (onHide) {
+    // A list rather than the cloud: words don't move while the presenter aims, and every word
+    // is a button that works with the keyboard.
+    return (
+      <div ref={ref} className="h-full min-h-[12em] w-full">
+        <ul aria-label={t('moderate.answers')} className="flex flex-wrap gap-[0.6em]">
+          {results.words.map((word) => (
+            <li
+              key={word.text}
+              className="flex items-center gap-[0.5em] rounded-full border-2 border-line bg-paper py-[0.3em] pr-[0.4em] pl-[0.9em] text-[1.3em] font-bold"
+            >
+              <span>{word.text}</span>
+              <span className="text-[0.8em] font-normal text-muted">{word.count}</span>
+              <HideButton
+                text={word.text}
+                onHide={() =>
+                  onHide(moderationKeyOf('word-cloud', { text: word.text }) ?? word.text)
+                }
+              />
+            </li>
+          ))}
+        </ul>
       </div>
     );
   }

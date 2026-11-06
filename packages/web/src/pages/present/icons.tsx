@@ -49,6 +49,12 @@ export const EyeOffIcon = ({ className }: { className?: string }) => (
     <path d="M10.6 5.1A10.4 10.4 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-2.4 3.3M6.6 6.6C3.7 8.5 2 12 2 12s3.6 7 10 7a9.7 9.7 0 0 0 5.4-1.6M9.9 9.9a3 3 0 0 0 4.2 4.2M3 3l18 18" />
   </svg>
 );
+export const ModerateIcon = () => (
+  <svg aria-hidden="true" {...base}>
+    <path d="M12 3l7.5 3v5.5c0 4.6-3.1 8.1-7.5 9.5-4.4-1.4-7.5-4.9-7.5-9.5V6L12 3z" />
+    <path d="M9 12l2 2 4-4" />
+  </svg>
+);
 export const PeopleIcon = () => (
   <svg aria-hidden="true" {...base}>
     <circle cx="9" cy="8" r="3.5" />

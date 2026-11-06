@@ -6,6 +6,7 @@ import { I18nProvider } from '../i18n/I18nProvider';
 import { MultipleChoiceRespond } from './multiple-choice/Respond';
 import { MultipleChoiceResults } from './multiple-choice/Results';
 import { OpenEndedRespond } from './open-ended/Respond';
+import { OpenEndedResults } from './open-ended/Results';
 import { ScaleRespond } from './scale/Respond';
 import { ScaleResults } from './scale/Results';
 import { WordCloudRespond } from './word-cloud/Respond';
@@ -134,5 +135,46 @@ describe('Results components', () => {
       />,
     );
     expect(screen.getByText(/pizza: 2 answers/)).toBeInTheDocument();
+  });
+});
+
+describe('Moderation', () => {
+  const notes = {
+    entries: [
+      { key: 1, text: 'More breaks' },
+      { key: 0, text: 'Spam SPAM' },
+    ],
+    total: 2,
+  };
+
+  test('open answers get hide buttons only while moderating', async () => {
+    const { unmount } = renderEn(<OpenEndedResults config={{ maxEntries: 1 }} results={notes} />);
+    expect(screen.queryByRole('button', { name: /Hide/ })).toBeNull();
+    unmount();
+
+    const onHide = vi.fn();
+    renderEn(<OpenEndedResults config={{ maxEntries: 1 }} results={notes} onHide={onHide} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Hide “Spam SPAM”' }));
+    expect(onHide).toHaveBeenCalledWith('spam spam');
+  });
+
+  test('the word cloud becomes a list of words to hide while moderating', async () => {
+    const onHide = vi.fn();
+    renderEn(
+      <WordCloudResults
+        config={{ maxEntries: 3 }}
+        results={{
+          words: [
+            { text: 'İzmir', count: 3 },
+            { text: 'Ankara', count: 1 },
+          ],
+          total: 4,
+        }}
+        onHide={onHide}
+      />,
+    );
+    expect(screen.getByRole('list', { name: 'Answers' })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Hide “İzmir”' }));
+    expect(onHide).toHaveBeenCalledWith('izmir');
   });
 });

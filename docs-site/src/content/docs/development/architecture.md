@@ -65,6 +65,7 @@ questions
   title               TEXT         up to 200 characters
   config              TEXT (JSON)  validated by the type's config schema
   results_hidden      INTEGER      boolean, default 0: the presenter screen hides the results
+  hidden_keys         TEXT (JSON)  moderation keys of answers taken off the screen, default []
   created_at, updated_at
 
 responses
@@ -139,7 +140,9 @@ Every event takes an acknowledgement callback that receives either `{ ok: true, 
 | `response:submit` | `{ questionId, response }` | `{ remaining }` |
 | `presenter:join` | `{ presentationId, adminToken }` | `{ title, theme, activeQuestionId, participants, results }` |
 | `presenter:activate` | `{ questionId }`; `null` means no active question | `{}` |
-| `presenter:reset` | `{ questionId }` | `{}` |
+| `presenter:reset` | `{ questionId }` | `{}`. Also clears the question's hidden answers |
+| `presenter:hide-entry` | `{ questionId, key }`: a moderation key, 1 to 300 characters | `{}`. Up to 500 keys per question; only types with a `moderationKey` |
+| `presenter:show-hidden` | `{ questionId }` | `{}` |
 
 ### Server to client
 
@@ -147,7 +150,7 @@ Every event takes an acknowledgement callback that receives either `{ ok: true, 
 |---|---|---|
 | `state` | participants | `{ activeQuestion, remaining }`: the active question in public form and how many answers this participant has left for it |
 | `presenter:state` | presenters | `{ activeQuestionId }` |
-| `results` | presenters | `{ questionId, results, total }`, at most once every 250 ms per question |
+| `results` | presenters | `{ questionId, results, total, hidden }`, at most once every 250 ms per question. Hidden answers are left out of `results` and `total`; `hidden` counts them |
 | `presence` | presenters | `{ participants }`: distinct participant ids currently connected |
 | `presentation` | everyone | `{ title, theme }`, whenever the title or the theme changes |
 | `presentation:ended` | everyone | The presentation was deleted |

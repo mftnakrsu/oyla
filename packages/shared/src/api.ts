@@ -75,6 +75,8 @@ export interface ResponseExportDto {
   participant: number;
   payload: unknown;
   createdAt: number;
+  /** The presenter hid this answer from the screen (moderation). */
+  hidden: boolean;
 }
 
 export interface ResponsesExportDto {

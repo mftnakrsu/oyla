@@ -121,8 +121,8 @@ projeksiyona yansıtın.
   ("1 / 4") görünür.
 
 Sağ alttaki düğmeler sırasıyla **Önceki soru**, **Sonraki soru**, **Sonuçları gizle** (ya da
-**Sonuçları göster**), **Sonuçları sıfırla**, **Katılım bilgilerini göster**, **Tam ekran** ve
-**Düzenleyiciye dön**'dür.
+**Sonuçları göster**), **Cevapları denetle** (yalnızca kelime bulutu ve açık uçlu sorularda),
+**Sonuçları sıfırla**, **Katılım bilgilerini göster**, **Tam ekran** ve **Düzenleyiciye dön**'dür.
 
 ### Klavye kısayolları
 
@@ -131,6 +131,7 @@ Sağ alttaki düğmeler sırasıyla **Önceki soru**, **Sonraki soru**, **Sonuç
 | <kbd>→</kbd>, <kbd>Page Down</kbd> ya da <kbd>Boşluk</kbd> | Sonraki soru |
 | <kbd>←</kbd> ya da <kbd>Page Up</kbd> | Önceki soru |
 | <kbd>H</kbd> | Etkin sorunun sonuçlarını gizler ya da gösterir |
+| <kbd>M</kbd> | Kelime bulutu ya da açık uçlu soruda denetimi başlatır ya da bitirir |
 | <kbd>F</kbd> | Tam ekranı açar ya da kapatır |
 | <kbd>I</kbd> | Katılım bilgilerini gösterir ya da gizler |
 | <kbd>Esc</kbd> | Katılım bilgilerini gizler |
@@ -167,6 +168,25 @@ düğmesini ya da <kbd>H</kbd> tuşunu kullanın. Sonuçları açtıktan sonra d
 
 Bu ayar soruya aittir ve kaydedilir; o soruyu sunan her ekranda aynıdır ve bir sonraki sunumda
 bıraktığınız gibi kalır.
+
+## Cevapları ekrandan kaldırın
+
+Kodu bilen herkes kelime bulutuna ya da açık uçlu soruya istediğini yazabilir. Bir cevabı ekrandan
+kaldırmak için:
+
+1. **Cevapları denetle**'yi (kalkan düğmesi) seçin ya da <kbd>M</kbd> tuşuna basın. Sorunun üstünde
+   bir çubuk belirir ve her cevabın yanında kırmızı bir ✕ çıkar. Denetim sırasında kelime bulutu
+   bir kelime listesine dönüşür; böylece siz seçerken hiçbir şey yer değiştirmez.
+2. Cevabın yanındaki ✕ düğmesini seçin. Cevap ekrandan hemen kalkar.
+3. Normal görünüme dönmek için **Bitti**'yi seçin (ya da yeniden <kbd>M</kbd> tuşuna basın).
+
+Gizleme tek bir cevaba değil, metne uygulanır: "spam" gizlenince "Spam" ve "SPAM" de gizlenir;
+sonradan aynı şeyi gönderenlerin cevabı da gizli kalır. Çubuk kaç cevabın gizlendiğini gösterir ve
+**Geri getir** hepsini geri getirir. **Sonuçları sıfırla**, cevaplarla birlikte gizleme listesini de
+temizler.
+
+Gizlenen cevaplar silinmez. Katılımcının cevap hakkından düşülür ve CSV dışa aktarımında
+**Gizlendi** sütununda `evet` olarak görünür.
 
 ## Sonuçları sıfırlayın
 
@@ -211,6 +231,7 @@ satırdır, satırlar soruya göre sıralanır ve şu sütunlar bulunur:
 | Cevap | Seçilen seçenek, yazılan metin ya da verilen puan |
 | Katılımcı | Her kişiye bir numara: ilk cevap veren 1, sonraki 2 ve böyle devam eder. Aynı numara, sorular boyunca aynı telefonu gösterir |
 | Zaman (UTC) | Cevabın geldiği an, örneğin `2026-11-06T09:30:01.000Z` |
+| Gizlendi | Denetim sırasında cevabı ekrandan kaldırdıysanız `evet` |
 
 Sütun adları arayüz dilini izler. Sonradan kaldırdığınız bir seçeneğe verilen oyların cevap hücresi
 boş kalır. Bir tablo formülü gibi başlayan cevapların (`=`, `+`, `-`, `@`) başına kesme işareti

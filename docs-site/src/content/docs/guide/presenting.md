@@ -121,8 +121,8 @@ window on the projector.
   you are ("1 of 4").
 
 The buttons at the bottom right are **Previous question**, **Next question**, **Hide results** (or
-**Show results**), **Reset results**, **Show join instructions**, **Full screen** and **Back to
-editor**.
+**Show results**), **Moderate answers** (word clouds and open questions only), **Reset results**,
+**Show join instructions**, **Full screen** and **Back to editor**.
 
 ### Keyboard shortcuts
 
@@ -131,6 +131,7 @@ editor**.
 | <kbd>→</kbd>, <kbd>Page Down</kbd> or <kbd>Space</kbd> | Next question |
 | <kbd>←</kbd> or <kbd>Page Up</kbd> | Previous question |
 | <kbd>H</kbd> | Hide or show the results of the current question |
+| <kbd>M</kbd> | Start or stop moderating a word cloud or open question |
 | <kbd>F</kbd> | Full screen on and off |
 | <kbd>I</kbd> | Show or hide the join instructions |
 | <kbd>Esc</kbd> | Hide the join instructions |
@@ -166,6 +167,25 @@ to reveal them all at once. Voting stays open after you reveal them.
 
 The setting belongs to the question and is saved, so it is the same on every screen that presents
 it, and it stays as you left it the next time you present.
+
+## Take answers off the screen
+
+Anyone with the code can type anything into a word cloud or an open question. To remove an
+answer from the screen:
+
+1. Select **Moderate answers** (the shield button) or press <kbd>M</kbd>. A bar appears above the
+   question, and every answer gets a red ✕. A word cloud turns into a list of words while you
+   moderate, so nothing moves while you aim.
+2. Select ✕ next to the answer. It disappears from the screen right away.
+3. Select **Done** (or press <kbd>M</kbd> again) to go back to the normal view.
+
+Hiding works on the text, not on one answer: hiding "spam" also hides "Spam" and "SPAM", and
+anyone who sends it again later stays hidden too. The bar shows how many answers are hidden, and
+**Show them again** brings them all back. **Reset results** clears the hidden list along with the
+answers.
+
+Hidden answers are not deleted. They still count as the participant's answer, and the CSV export
+lists them with **Hidden** set to `yes`.
 
 ## Reset results
 
@@ -211,6 +231,7 @@ question, with these columns:
 | Answer | The chosen option, the text or the rating |
 | Participant | A number per person: 1 for whoever answered first, 2 for the next one, and so on. The same number marks the same phone across questions |
 | Time (UTC) | When the answer arrived, for example `2026-11-06T09:30:01.000Z` |
+| Hidden | `yes` when you took the answer off the screen while moderating |
 
 The column names follow the interface language. A vote for an option you removed later has an
 empty answer. Answers that start like a spreadsheet formula (`=`, `+`, `-`, `@`) get a leading

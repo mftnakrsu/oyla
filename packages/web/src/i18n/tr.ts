@@ -159,6 +159,14 @@ export const tr: Record<MessageKey, string> = {
   'present.keys': 'Sorular arasında geçmek için ok tuşlarını kullanın',
   'present.empty.title': 'Bu sunumda henüz soru yok',
   'present.empty.action': 'Soru ekle',
+  'moderate.hide': 'Gizle: “{text}”',
+  'moderate.answers': 'Cevaplar',
+  'present.moderate': 'Cevapları denetle',
+  'present.moderation.hint': 'Bir cevabı ekrandan kaldırmak için ✕ düğmesini seçin.',
+  'present.moderation.hidden.one': '1 cevap gizlendi',
+  'present.moderation.hidden.other': '{count} cevap gizlendi',
+  'present.moderation.restore': 'Geri getir',
+  'present.moderation.done': 'Bitti',
   'present.reconnecting': 'Bağlantı koptu. Yeniden bağlanılıyor…',
 
   'join.connecting': 'Bağlanılıyor…',
@@ -183,6 +191,8 @@ export const tr: Record<MessageKey, string> = {
   'csv.answer': 'Cevap',
   'csv.participant': 'Katılımcı',
   'csv.time': 'Zaman (UTC)',
+  'csv.hidden': 'Gizlendi',
+  'csv.yes': 'evet',
 
   'notFound.title': 'Sayfa bulunamadı',
   'notFound.action': 'Ana sayfaya git',

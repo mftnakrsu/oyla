@@ -266,7 +266,49 @@ describe('a live poll', () => {
       questionId,
       results: { counts: { a: 0, b: 1 }, total: 1 },
       total: 1,
+      hidden: 0,
     });
+  });
+
+  test('the presenter hides a word and brings it back', async () => {
+    const { built, url } = await start();
+    const { id, adminToken } = built.service.create({ title: 'Retro' });
+    const cloud = built.service.addQuestion(id, { type: 'word-cloud' }).id;
+    built.service.activate(id, cloud);
+    built.service.submit(id, participant(1), cloud, { text: 'Tea' });
+    built.service.submit(id, participant(2), cloud, { text: 'spam' });
+
+    const phone = await client(url);
+    await emit(phone, 'participant:join', {
+      joinCode: built.service.get(id).joinCode,
+      participantId: participant(3),
+    });
+    // Only presenters moderate.
+    expect(
+      await emit<Ack>(phone, 'presenter:hide-entry', { questionId: cloud, key: 'tea' }),
+    ).toEqual({ ok: false, error: { code: 'UNAUTHORIZED' } });
+
+    const presenter = await client(url);
+    await emit(presenter, 'presenter:join', { presentationId: id, adminToken });
+    const hiddenResults = next(presenter, 'results', (message) => message.hidden === 1);
+    expect(
+      await emit<Ack>(presenter, 'presenter:hide-entry', { questionId: cloud, key: 'spam' }),
+    ).toEqual({ ok: true });
+    const [message] = await hiddenResults;
+    expect(message).toMatchObject({ total: 1, results: { words: [{ text: 'Tea', count: 1 }] } });
+
+    expect(
+      await emit<Ack>(presenter, 'presenter:hide-entry', { questionId: cloud, key: '' }),
+    ).toEqual({
+      ok: false,
+      error: { code: 'VALIDATION_FAILED' },
+    });
+
+    const restored = next(presenter, 'results', (result) => result.hidden === 0);
+    expect(await emit<Ack>(presenter, 'presenter:show-hidden', { questionId: cloud })).toEqual({
+      ok: true,
+    });
+    expect((await restored)[0].total).toBe(2);
   });
 
   test('editing the active question over REST updates participants', async () => {

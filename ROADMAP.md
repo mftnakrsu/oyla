@@ -15,7 +15,6 @@ something big, so work isn't duplicated.
 
 ### Presenting
 - Show results on participants' phones after they answer.
-- Moderation for open answers and word clouds (hide an entry from the screen).
 
 ### Platform
 - **Scaling to several servers** with the Socket.IO Redis adapter (presence and throttling are

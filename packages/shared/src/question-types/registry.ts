@@ -38,6 +38,17 @@ export function getQuestionType(
   return questionTypes[key] as unknown as QuestionTypeDefinition<unknown, unknown, unknown>;
 }
 
+/** Whether the presenter can hide answers of this type from the screen. */
+export function canModerate(key: QuestionTypeKey): boolean {
+  return getQuestionType(key).moderationKey !== undefined;
+}
+
+/** The answer's moderation key, or null when the type can't be moderated. */
+export function moderationKeyOf(key: QuestionTypeKey, response: unknown): string | null {
+  const type = getQuestionType(key);
+  return type.moderationKey ? type.moderationKey(response) : null;
+}
+
 export function publicConfig(key: QuestionTypeKey, config: unknown): unknown {
   const type = getQuestionType(key);
   return type.toPublicConfig ? type.toPublicConfig(config) : config;

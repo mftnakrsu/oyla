@@ -2,8 +2,10 @@ import { describe, expect, expectTypeOf, test } from 'vitest';
 import type { MultipleChoiceResponse } from './multiple-choice';
 import {
   type ConfigOf,
+  canModerate,
   getQuestionType,
   isQuestionTypeKey,
+  moderationKeyOf,
   publicConfig,
   QUESTION_TYPE_KEYS,
   questionTypes,
@@ -35,6 +37,15 @@ describe('question type registry', () => {
     expect(isQuestionTypeKey('scale')).toBe(true);
     expect(isQuestionTypeKey('quiz')).toBe(false);
     expect(isQuestionTypeKey('toString')).toBe(false);
+  });
+
+  test('only answers people type can be moderated', () => {
+    expect(canModerate('word-cloud')).toBe(true);
+    expect(canModerate('open-ended')).toBe(true);
+    expect(canModerate('multiple-choice')).toBe(false);
+    expect(canModerate('scale')).toBe(false);
+    expect(moderationKeyOf('word-cloud', { text: 'Tea' })).toBe('tea');
+    expect(moderationKeyOf('scale', { value: 3 })).toBeNull();
   });
 
   test('publicConfig returns the config when a type does not hide anything', () => {

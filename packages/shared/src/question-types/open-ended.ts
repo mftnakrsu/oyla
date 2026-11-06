@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { LIMITS } from '../limits';
-import { textField } from '../text';
+import { groupKey, textField } from '../text';
 import { defineQuestionType } from './define';
 
 const configSchema = z.object({
@@ -33,4 +33,6 @@ export const openEnded = defineQuestionType<OpenEndedConfig, OpenEndedResponse, 
     return { entries, total: responses.length };
   },
   describeResponse: (_config, { text }) => text,
+  // Identical answers hide together, so pasting the same text again doesn't bring it back.
+  moderationKey: ({ text }) => groupKey(text),
 });

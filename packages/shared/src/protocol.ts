@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { ErrorCode } from './errors';
+import { LIMITS } from './limits';
 import type { QuestionTypeKey } from './question-types/registry';
 import type { ThemeKey } from './themes';
 
@@ -32,7 +33,10 @@ export interface PresentationInfo {
 export interface ResultsMessage {
   questionId: string;
   results: unknown;
+  /** Answers counted in `results`. */
   total: number;
+  /** Answers the presenter hid (moderation); not part of `results` or `total`. */
+  hidden: number;
 }
 
 const entityId = z.string().min(1).max(32);
@@ -62,6 +66,15 @@ export const presenterResetSchema = z.object({
   questionId: entityId,
 });
 
+export const presenterHideEntrySchema = z.object({
+  questionId: entityId,
+  key: z.string().min(1).max(LIMITS.hiddenKey),
+});
+
+export const presenterShowHiddenSchema = z.object({
+  questionId: entityId,
+});
+
 export type ParticipantJoinAck = Ack<{
   presentationId: string;
   title: string;
@@ -87,6 +100,10 @@ export interface ClientToServerEvents {
   'presenter:join': (payload: unknown, ack: (result: PresenterJoinAck) => void) => void;
   'presenter:activate': (payload: unknown, ack: (result: Ack) => void) => void;
   'presenter:reset': (payload: unknown, ack: (result: Ack) => void) => void;
+  /** Hides every answer with this moderation key from the results. */
+  'presenter:hide-entry': (payload: unknown, ack: (result: Ack) => void) => void;
+  /** Brings back every hidden answer of a question. */
+  'presenter:show-hidden': (payload: unknown, ack: (result: Ack) => void) => void;
 }
 
 export interface ServerToClientEvents {

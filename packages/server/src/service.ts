@@ -126,6 +126,30 @@ export function createPresentationService({ store, events, config, now = Date.no
     return states;
   }
 
+  /** The stored hidden keys; anything malformed counts as none. */
+  function hiddenKeysOf(row: QuestionRow): string[] {
+    return Array.isArray(row.hiddenKeys)
+      ? row.hiddenKeys.filter((key): key is string => typeof key === 'string')
+      : [];
+  }
+
+  /**
+   * Whether the presenter hid this answer. Null when nothing is hidden or the type can't be
+   * moderated, so callers can skip the check.
+   */
+  function hiddenCheck(question: ResolvedQuestion): ((payload: unknown) => boolean) | null {
+    const keys = new Set(hiddenKeysOf(question.row));
+    const keyOf = question.type.moderationKey;
+    if (keys.size === 0 || !keyOf) return null;
+    return (payload) => {
+      try {
+        return keys.has(keyOf(payload));
+      } catch {
+        return false; // an answer of an older shape: leave it visible
+      }
+    };
+  }
+
   function toQuestionDto(row: QuestionRow, responseCount: number): QuestionDto {
     return {
       id: row.id,
@@ -228,6 +252,7 @@ export function createPresentationService({ store, events, config, now = Date.no
         title: body.title ?? '',
         config: body.config === undefined ? type.defaultConfig() : parseConfig(type, body.config),
         resultsHidden: false,
+        hiddenKeys: [],
         createdAt: time,
         updatedAt: time,
       });
@@ -301,7 +326,11 @@ export function createPresentationService({ store, events, config, now = Date.no
     resetResults(presentationId: string, questionId: string): void {
       requirePresentation(presentationId);
       requireQuestion(presentationId, questionId);
-      store.responses.deleteForQuestion(questionId);
+      store.transaction(() => {
+        store.responses.deleteForQuestion(questionId);
+        // Starting over: nothing is left to hide.
+        store.questions.update(presentationId, questionId, { hiddenKeys: [] }, now());
+      });
       store.presentations.touch(presentationId, now());
       events.emit('responses-cleared', presentationId, questionId);
       events.emit('results-changed', presentationId, questionId);
@@ -390,6 +419,11 @@ export function createPresentationService({ store, events, config, now = Date.no
       requirePresentation(presentationId);
       const numbers = new Map<string, number>();
       const rows = store.responses.listForPresentation(presentationId);
+      const checks = new Map<string, ((payload: unknown) => boolean) | null>();
+      for (const row of store.questions.list(presentationId)) {
+        const question = resolve(row);
+        checks.set(row.id, question ? hiddenCheck(question) : null);
+      }
       return {
         responses: rows.map((row) => {
           let participant = numbers.get(row.participantId);
@@ -402,6 +436,7 @@ export function createPresentationService({ store, events, config, now = Date.no
             participant,
             payload: row.payload,
             createdAt: row.createdAt,
+            hidden: checks.get(row.questionId)?.(row.payload) ?? false,
           };
         }),
       };
@@ -410,11 +445,42 @@ export function createPresentationService({ store, events, config, now = Date.no
     results(presentationId: string, questionId: string): ResultsMessage {
       const question = resolve(requireQuestion(presentationId, questionId));
       const payloads = store.responses.payloads(questionId);
+      const isHidden = question ? hiddenCheck(question) : null;
+      const shown = isHidden ? payloads.filter((payload) => !isHidden(payload)) : payloads;
       return {
         questionId,
-        results: question ? question.type.aggregate(question.config, payloads) : null,
-        total: payloads.length,
+        results: question ? question.type.aggregate(question.config, shown) : null,
+        total: shown.length,
+        hidden: payloads.length - shown.length,
       };
+    },
+
+    /** Moderation: hides every answer with this key, including ones sent later. */
+    hideEntry(presentationId: string, questionId: string, key: string): void {
+      requirePresentation(presentationId);
+      const question = resolve(requireQuestion(presentationId, questionId));
+      if (!question?.type.moderationKey) {
+        throw new AppError('VALIDATION_FAILED', 400, 'Answers to this question cannot be hidden');
+      }
+      const keys = hiddenKeysOf(question.row);
+      if (keys.includes(key)) return;
+      if (keys.length >= LIMITS.hiddenEntries) {
+        throw new AppError('VALIDATION_FAILED', 400, 'Too many hidden answers');
+      }
+      const time = now();
+      store.questions.update(presentationId, questionId, { hiddenKeys: [...keys, key] }, time);
+      store.presentations.touch(presentationId, time);
+      events.emit('results-changed', presentationId, questionId);
+    },
+
+    /** Moderation: brings back every hidden answer of a question. */
+    showHidden(presentationId: string, questionId: string): void {
+      requirePresentation(presentationId);
+      requireQuestion(presentationId, questionId);
+      const time = now();
+      store.questions.update(presentationId, questionId, { hiddenKeys: [] }, time);
+      store.presentations.touch(presentationId, time);
+      events.emit('results-changed', presentationId, questionId);
     },
   };
 }
