@@ -13,6 +13,7 @@ import {
   type QuestionDto,
   type QuestionTypeDefinition,
   type QuestionTypeKey,
+  type ResponsesExportDto,
   type ResultsMessage,
   randomId,
   toThemeKey,
@@ -374,6 +375,31 @@ export function createPresentationService({ store, events, config, now = Date.no
       });
       events.emit('results-changed', presentationId, questionId);
       return result;
+    },
+
+    /**
+     * Every answer for the CSV export. Participant ids become 1, 2, 3…: the id is what lets a
+     * phone back into its answers, so it never leaves the server.
+     */
+    exportResponses(presentationId: string): ResponsesExportDto {
+      requirePresentation(presentationId);
+      const numbers = new Map<string, number>();
+      const rows = store.responses.listForPresentation(presentationId);
+      return {
+        responses: rows.map((row) => {
+          let participant = numbers.get(row.participantId);
+          if (participant === undefined) {
+            participant = numbers.size + 1;
+            numbers.set(row.participantId, participant);
+          }
+          return {
+            questionId: row.questionId,
+            participant,
+            payload: row.payload,
+            createdAt: row.createdAt,
+          };
+        }),
+      };
     },
 
     results(presentationId: string, questionId: string): ResultsMessage {

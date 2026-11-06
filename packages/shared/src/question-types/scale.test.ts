@@ -55,3 +55,9 @@ describe('scale aggregate', () => {
     expect(results.average).toBeCloseTo(13 / 3);
   });
 });
+
+describe('scale describeResponse', () => {
+  test('is the number', () => {
+    expect(scale.describeResponse(config, { value: 4 })).toBe('4');
+  });
+});

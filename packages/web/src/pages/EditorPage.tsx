@@ -17,6 +17,7 @@ import { Shell } from '../components/Shell';
 import { useCopy } from '../components/useCopy';
 import { useI18n } from '../i18n/I18nProvider';
 import { dropHash, readKeyFromHash } from '../lib/admin-key';
+import { csvFileName, downloadCsv, resultsCsv } from '../lib/csv';
 import { adminUrl, formatJoinCode, joinUrl } from '../lib/format';
 import { forgetMine, listMine, saveMine, tokenFor, updateMine } from '../lib/my-presentations';
 import { usePalette } from '../lib/palette';
@@ -218,6 +219,15 @@ export function EditorPage() {
     );
   };
 
+  // Both are fetched fresh: questions may have been added or renamed in another tab.
+  const exportResults = () =>
+    run(
+      Promise.all([api.getPresentation(id, token), api.exportResponses(id, token)]).then(
+        ([current, { responses }]) =>
+          downloadCsv(csvFileName(current.title, new Date()), resultsCsv(current, responses, t)),
+      ),
+    );
+
   const present = async () => {
     await panel.current?.flush();
     navigate(`/present/${id}`);
@@ -359,6 +369,9 @@ export function EditorPage() {
       <footer className="mx-auto flex max-w-6xl flex-wrap gap-2 border-t-2 border-line px-4 py-6">
         <Button variant="secondary" onClick={() => copyAdmin(adminUrl(id, token))}>
           {copiedAdmin ? t('common.copied') : t('editor.adminLink.copy')}
+        </Button>
+        <Button variant="secondary" onClick={exportResults} disabled={questions.length === 0}>
+          {t('editor.export')}
         </Button>
         <ConfirmButton
           label={t('editor.deletePresentation')}

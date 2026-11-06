@@ -58,4 +58,6 @@ export const multipleChoice = defineQuestionType<
     }
     return { counts, total };
   },
+  describeResponse: (config, { optionId }) =>
+    config.options.find((option) => option.id === optionId)?.label ?? '',
 });

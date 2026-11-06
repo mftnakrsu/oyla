@@ -6,6 +6,7 @@ import {
   isErrorCode,
   type PresentationDto,
   type QuestionDto,
+  type ResponsesExportDto,
   type ServerConfigDto,
   type UpdatePresentationBody,
   type UpdateQuestionBody,
@@ -75,6 +76,8 @@ export const api = {
       token,
       body: { ids },
     }),
+  exportResponses: (id: string, token: string) =>
+    request<ResponsesExportDto>('GET', `/presentations/${enc(id)}/responses`, { token }),
   resetResults: (id: string, token: string, questionId: string) =>
     request<void>('DELETE', `/presentations/${enc(id)}/questions/${enc(questionId)}/responses`, {
       token,

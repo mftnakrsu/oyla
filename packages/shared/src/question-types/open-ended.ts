@@ -32,4 +32,5 @@ export const openEnded = defineQuestionType<OpenEndedConfig, OpenEndedResponse, 
     }
     return { entries, total: responses.length };
   },
+  describeResponse: (_config, { text }) => text,
 });

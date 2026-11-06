@@ -99,6 +99,7 @@ JSON over HTTP under `/api`, defined in `packages/server/src/http/routes.ts`. Ro
 | `GET /api/presentations/:id` | admin | The presentation (`PresentationDto`, including its `theme`) with its questions and answer counts |
 | `PATCH /api/presentations/:id` | admin | Rename or change the theme: `{ title?, theme? }`, at least one. Live clients receive `presentation` |
 | `DELETE /api/presentations/:id` | admin | Delete. Live clients receive `presentation:ended`. Returns `204` |
+| `GET /api/presentations/:id/responses` | admin | Every answer for the CSV export, oldest first: `{ responses: [{ questionId, participant, payload, createdAt }] }`. `participant` numbers people 1, 2, 3… by their first answer; participant ids never leave the server |
 | `POST /api/presentations/:id/questions` | admin | Add a question: `{ type, title?, config? }`. Returns `201` |
 | `PUT /api/presentations/:id/questions/order` | admin | Reorder: `{ ids }`, the full new order |
 | `PATCH /api/presentations/:id/questions/:questionId` | admin | Update `{ title?, config? }` |

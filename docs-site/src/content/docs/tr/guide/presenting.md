@@ -179,6 +179,25 @@ için sunucu yeniden başlasa bile oturum kaldığı yerden devam eder.
 
 Başka bir bilgisayardan sunmak için yönetici linkini o bilgisayarda açın ve **Sunumu başlat**'ı seçin.
 
+## Sonuçları indirin
+
+Düzenleyicinin altındaki **Sonuçları indir (CSV)** düğmesi bütün cevapları bir CSV dosyası olarak
+kaydeder. Dosya Excel, Numbers, LibreOffice ya da Google E-Tablolar ile açılır. Her cevap bir
+satırdır, satırlar soruya göre sıralanır ve şu sütunlar bulunur:
+
+| Sütun | İçeriği |
+|---|---|
+| `#` | Sorunun sunumdaki sırası |
+| Soru | Sorunun sizin yazdığınız hâli |
+| Soru tipi | Çoktan seçmeli, Kelime bulutu, Açık uçlu soru ya da Ölçek |
+| Cevap | Seçilen seçenek, yazılan metin ya da verilen puan |
+| Katılımcı | Her kişiye bir numara: ilk cevap veren 1, sonraki 2 ve böyle devam eder. Aynı numara, sorular boyunca aynı telefonu gösterir |
+| Zaman (UTC) | Cevabın geldiği an, örneğin `2026-11-06T09:30:01.000Z` |
+
+Sütun adları arayüz dilini izler. Sonradan kaldırdığınız bir seçeneğe verilen oyların cevap hücresi
+boş kalır. Bir tablo formülü gibi başlayan cevapların (`=`, `+`, `-`, `@`) başına kesme işareti
+eklenir; böylece dosyayı açmak, birinin yazdığı bir şeyi asla çalıştırmaz.
+
 ## Sunumu silin
 
 Düzenleyicinin altındaki **Sunumu sil** düğmesini seçin ve onaylamak için bir kez daha tıklayın.

@@ -53,8 +53,9 @@ CI runs the same checks.
 This is the best first contribution. A question type has two halves:
 
 1. **`packages/shared/src/question-types/<type>.ts`:** a `defineQuestionType({...})` with the
-   config schema, default config, response schema, answers per person and an `aggregate`
-   function that turns answers into results. Use `textField()` from `shared/src/text.ts` for any
+   config schema, default config, response schema, answers per person, an `aggregate`
+   function that turns answers into results and a `describeResponse` function that writes one
+   answer as text for the CSV export. Use `textField()` from `shared/src/text.ts` for any
    text people type. Register it in `registry.ts` and export it from `packages/shared/src/index.ts`.
 2. **`packages/web/src/question-types/<type>/`:** `Editor.tsx` (the presenter's settings),
    `Respond.tsx` (the phone form) and `Results.tsx` (the presenter screen). Add an icon to

@@ -89,6 +89,7 @@ export const tr: Record<MessageKey, string> = {
   'editor.question.responses.one': 'Şu ana kadar 1 cevap',
   'editor.question.responses.other': 'Şu ana kadar {count} cevap',
   'editor.deletePresentation': 'Sunumu sil',
+  'editor.export': 'Sonuçları indir (CSV)',
   'editor.outOfDate': 'Bu sunum başka bir yerde değişti, en güncel hali yüklendi. Tekrar deneyin.',
   'editor.saveRetry': 'Son değişiklik kaydedilemedi. Tekrar deneniyor…',
   'question.unavailable': 'Bu sorunun ayarları Oyla’nın bu sürümüyle okunamıyor.',
@@ -168,6 +169,13 @@ export const tr: Record<MessageKey, string> = {
   'join.position': 'Soru {index} / {total}',
   'join.reconnecting': 'Bağlantı koptu. Yeniden bağlanılıyor…',
   'stamp.voted': 'Oylandı',
+
+  'csv.number': '#',
+  'csv.question': 'Soru',
+  'csv.type': 'Soru tipi',
+  'csv.answer': 'Cevap',
+  'csv.participant': 'Katılımcı',
+  'csv.time': 'Zaman (UTC)',
 
   'notFound.title': 'Sayfa bulunamadı',
   'notFound.action': 'Ana sayfaya git',

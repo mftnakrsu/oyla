@@ -72,6 +72,12 @@ export async function apiRoutes(app: FastifyInstance, { service, config }: Route
     return reply.status(204).send();
   });
 
+  app.get('/presentations/:id/responses', async (request) => {
+    const { id } = parse(presentationParams, request.params);
+    requireAdmin(request, service, id);
+    return service.exportResponses(id);
+  });
+
   app.post('/presentations/:id/questions', async (request, reply) => {
     const { id } = parse(presentationParams, request.params);
     requireAdmin(request, service, id);

@@ -84,3 +84,9 @@ describe('word-cloud aggregate', () => {
     expect(results.total).toBe(150);
   });
 });
+
+describe('word-cloud describeResponse', () => {
+  test('is the word as typed', () => {
+    expect(wordCloud.describeResponse({ maxEntries: 3 }, { text: 'İzmir' })).toBe('İzmir');
+  });
+});

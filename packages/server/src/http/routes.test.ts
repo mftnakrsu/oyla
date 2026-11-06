@@ -1,7 +1,12 @@
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import type { CreatePresentationResult, PresentationDto, QuestionDto } from '@oyla/shared';
+import type {
+  CreatePresentationResult,
+  PresentationDto,
+  QuestionDto,
+  ResponsesExportDto,
+} from '@oyla/shared';
 import { afterEach, describe, expect, test } from 'vitest';
 import type { BuiltApp } from '../app';
 import { startTestApp } from '../test-helpers';
@@ -150,6 +155,52 @@ describe('presentations', () => {
     expect((await app.inject({ url: `/api/presentations/${id}`, headers: auth })).statusCode).toBe(
       404,
     );
+  });
+
+  test('exports every answer with numbered participants', async () => {
+    const app = await start();
+    const { id, adminToken } = await createPresentation(app);
+    const auth = bearer(adminToken);
+    const add = async (type: string) =>
+      (
+        await app.inject({
+          method: 'POST',
+          url: `/api/presentations/${id}/questions`,
+          headers: auth,
+          payload: { type },
+        })
+      ).json<QuestionDto>();
+    const cloud = await add('word-cloud');
+    const notes = await add('open-ended');
+    const ada = 'ada_____________';
+    const bob = 'bob_____________';
+    const service = built?.service;
+    if (!service) throw new Error('app not started');
+    service.activate(id, cloud.id);
+    service.submit(id, bob, cloud.id, { text: 'tea' });
+    service.submit(id, ada, cloud.id, { text: 'coffee' });
+    service.activate(id, notes.id);
+    service.submit(id, ada, notes.id, { text: 'More breaks' });
+
+    expect((await app.inject({ url: `/api/presentations/${id}/responses` })).statusCode).toBe(401);
+    const res = await app.inject({ url: `/api/presentations/${id}/responses`, headers: auth });
+    expect(res.statusCode).toBe(200);
+    const body = res.json<ResponsesExportDto>();
+    expect(
+      body.responses.map(({ questionId, participant, payload }) => ({
+        questionId,
+        participant,
+        payload,
+      })),
+    ).toEqual([
+      { questionId: cloud.id, participant: 1, payload: { text: 'tea' } },
+      { questionId: cloud.id, participant: 2, payload: { text: 'coffee' } },
+      { questionId: notes.id, participant: 2, payload: { text: 'More breaks' } },
+    ]);
+    expect(typeof body.responses[0]?.createdAt).toBe('number');
+    // Participant ids identify a phone on reconnect, so they never leave the server.
+    expect(res.body).not.toContain(ada);
+    expect(res.body).not.toContain(bob);
   });
 
   test('admin routes need the right token', async () => {
