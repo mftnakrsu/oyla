@@ -32,6 +32,7 @@ export type CreateQuestionBody = z.infer<typeof createQuestionBody>;
 export const updateQuestionBody = z.object({
   title: questionTitle.optional(),
   config: z.unknown().optional(),
+  resultsHidden: z.boolean().optional(),
 });
 export type UpdateQuestionBody = z.infer<typeof updateQuestionBody>;
 
@@ -53,6 +54,8 @@ export interface QuestionDto {
   config: unknown;
   position: number;
   responseCount: number;
+  /** The presenter screen hides the results until the presenter reveals them. */
+  resultsHidden: boolean;
 }
 
 export interface PresentationDto {

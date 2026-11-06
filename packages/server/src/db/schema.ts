@@ -27,6 +27,8 @@ export const questions = sqliteTable(
     type: text('type').notNull(),
     title: text('title').notNull(),
     config: text('config', { mode: 'json' }).$type<unknown>().notNull(),
+    /** The presenter screen shows a "results are hidden" card until the presenter reveals them. */
+    resultsHidden: integer('results_hidden', { mode: 'boolean' }).notNull().default(false),
     createdAt: integer('created_at').notNull(),
     updatedAt: integer('updated_at').notNull(),
   },

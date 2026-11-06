@@ -12,6 +12,7 @@ const question: QuestionDto = {
   config: { maxEntries: 1 },
   position: 0,
   responseCount: 0,
+  resultsHidden: false,
 };
 
 function renderPanel(onSaved = vi.fn(), onError = vi.fn()) {
@@ -79,6 +80,21 @@ describe('QuestionPanel autosave', () => {
     await act(() => vi.advanceTimersByTimeAsync(10));
     expect(update).toHaveBeenCalledTimes(2);
     expect(onSaved.mock.calls.map(([q]) => q.title)).toEqual(['A', 'AB']);
+  });
+
+  test('the hide-results checkbox saves the flag on its own', async () => {
+    const update = vi
+      .spyOn(api, 'updateQuestion')
+      .mockResolvedValueOnce({ ...question, resultsHidden: true });
+    const { onSaved } = renderPanel();
+    const box = screen.getByRole('checkbox', { name: /Hide results until I reveal them/ });
+    expect(box).not.toBeChecked();
+
+    fireEvent.click(box);
+    expect(box).toBeChecked();
+    await act(() => vi.advanceTimersByTimeAsync(600));
+    expect(update).toHaveBeenCalledWith('p1', 'token', 'q1', { resultsHidden: true });
+    expect(onSaved).toHaveBeenCalledWith({ ...question, resultsHidden: true });
   });
 
   test('errors that retrying cannot fix are reported', async () => {

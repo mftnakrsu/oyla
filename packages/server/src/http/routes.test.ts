@@ -157,6 +157,41 @@ describe('presentations', () => {
     );
   });
 
+  test('results can be hidden until the presenter reveals them', async () => {
+    const app = await start();
+    const { id, adminToken } = await createPresentation(app);
+    const auth = bearer(adminToken);
+    const question = (
+      await app.inject({
+        method: 'POST',
+        url: `/api/presentations/${id}/questions`,
+        headers: auth,
+        payload: { type: 'scale' },
+      })
+    ).json<QuestionDto>();
+    expect(question.resultsHidden).toBe(false);
+
+    const patch = (payload: object) =>
+      app.inject({
+        method: 'PATCH',
+        url: `/api/presentations/${id}/questions/${question.id}`,
+        headers: auth,
+        payload,
+      });
+    expect((await patch({ resultsHidden: true })).json<QuestionDto>().resultsHidden).toBe(true);
+    // Other edits leave the flag alone.
+    expect((await patch({ title: 'Rate it' })).json<QuestionDto>()).toMatchObject({
+      title: 'Rate it',
+      resultsHidden: true,
+    });
+    const fetched = (
+      await app.inject({ url: `/api/presentations/${id}`, headers: auth })
+    ).json<PresentationDto>();
+    expect(fetched.questions[0]?.resultsHidden).toBe(true);
+    expect((await patch({ resultsHidden: 'yes' })).statusCode).toBe(400);
+    expect((await patch({ resultsHidden: false })).json<QuestionDto>().resultsHidden).toBe(false);
+  });
+
   test('exports every answer with numbered participants', async () => {
     const app = await start();
     const { id, adminToken } = await createPresentation(app);

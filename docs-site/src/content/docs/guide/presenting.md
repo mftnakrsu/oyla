@@ -120,8 +120,9 @@ window on the projector.
 - The bottom bar shows how many people are connected (for example, "25 people here") and where
   you are ("1 of 4").
 
-The buttons at the bottom right are **Previous question**, **Next question**, **Reset results**,
-**Show join instructions**, **Full screen** and **Back to editor**.
+The buttons at the bottom right are **Previous question**, **Next question**, **Hide results** (or
+**Show results**), **Reset results**, **Show join instructions**, **Full screen** and **Back to
+editor**.
 
 ### Keyboard shortcuts
 
@@ -129,6 +130,7 @@ The buttons at the bottom right are **Previous question**, **Next question**, **
 |---|---|
 | <kbd>→</kbd>, <kbd>Page Down</kbd> or <kbd>Space</kbd> | Next question |
 | <kbd>←</kbd> or <kbd>Page Up</kbd> | Previous question |
+| <kbd>H</kbd> | Hide or show the results of the current question |
 | <kbd>F</kbd> | Full screen on and off |
 | <kbd>I</kbd> | Show or hide the join instructions |
 | <kbd>Esc</kbd> | Hide the join instructions |
@@ -149,6 +151,21 @@ while people find their seats. **Hide join instructions** or <kbd>Esc</kbd> clos
   height="1350"
   loading="lazy"
 />
+
+## Hide results until you reveal them
+
+For a guessing question, or to keep the first votes from swaying the rest, hide the results while
+people answer:
+
+- In the editor, tick **Hide results until I reveal them** on the question, or
+- on the presenter screen, select the eye button (**Hide results**) or press <kbd>H</kbd>.
+
+While the results are hidden, the presenter screen shows **Results are hidden** and the number of
+answers so far, which keeps counting up. Select **Show results**, the eye button or <kbd>H</kbd>
+to reveal them all at once. Voting stays open after you reveal them.
+
+The setting belongs to the question and is saved, so it is the same on every screen that presents
+it, and it stays as you left it the next time you present.
 
 ## Reset results
 
