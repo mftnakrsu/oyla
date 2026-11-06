@@ -26,6 +26,7 @@ function addQuestion(id: string, presentationId = 'p1') {
     type: 'word-cloud',
     title: id,
     config: { maxEntries: 3 },
+    resultsHidden: false,
     createdAt: 1000,
     updatedAt: 1000,
   });
@@ -231,6 +232,7 @@ describe('storage cap', () => {
       type: 'open-ended',
       title: '',
       config: { maxEntries: 1 },
+      resultsHidden: false,
       createdAt: 0,
       updatedAt: 0,
     });

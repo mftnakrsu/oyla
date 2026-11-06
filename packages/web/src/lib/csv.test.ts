@@ -24,6 +24,7 @@ const presentation: PresentationDto = {
       },
       position: 0,
       responseCount: 2,
+      resultsHidden: false,
     },
     {
       id: 'notes',
@@ -32,6 +33,7 @@ const presentation: PresentationDto = {
       config: { maxEntries: 1 },
       position: 1,
       responseCount: 1,
+      resultsHidden: false,
     },
   ],
 };

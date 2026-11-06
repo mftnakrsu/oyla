@@ -14,7 +14,6 @@ something big, so work isn't duplicated.
 - **Multi-statement scale:** rate several statements at once, show the average per statement.
 
 ### Presenting
-- Hide results until voting ends, then reveal them.
 - Show results on participants' phones after they answer.
 - Moderation for open answers and word clouds (hide an entry from the screen).
 

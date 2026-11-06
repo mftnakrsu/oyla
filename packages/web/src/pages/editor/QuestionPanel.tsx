@@ -65,11 +65,16 @@ export const QuestionPanel = forwardRef<QuestionPanelHandle, QuestionPanelProps>
     );
     const [title, setTitle] = useState(question.title);
     const [config, setConfig] = useState<unknown>(question.config);
+    const [resultsHidden, setResultsHidden] = useState(question.resultsHidden);
     const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'retrying'>('idle');
-    const latest = useRef({ title, config });
-    latest.current = { title, config };
+    const latest = useRef({ title, config, resultsHidden });
+    latest.current = { title, config, resultsHidden };
     /** What the server has confirmed; only updated after a successful save. */
-    const saved = useRef({ title: question.title, config: question.config });
+    const saved = useRef({
+      title: question.title,
+      config: question.config,
+      resultsHidden: question.resultsHidden,
+    });
     const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
     const queue = useRef<Promise<void>>(Promise.resolve());
     const failures = useRef(0);
@@ -87,10 +92,19 @@ export const QuestionPanel = forwardRef<QuestionPanelHandle, QuestionPanelProps>
         ) {
           body.config = latest.current.config;
         }
-        if (body.title === undefined && body.config === undefined) return;
+        if (latest.current.resultsHidden !== saved.current.resultsHidden) {
+          body.resultsHidden = latest.current.resultsHidden;
+        }
+        if (
+          body.title === undefined &&
+          body.config === undefined &&
+          body.resultsHidden === undefined
+        )
+          return;
         const sending = {
           title: body.title ?? saved.current.title,
           config: body.config ?? saved.current.config,
+          resultsHidden: body.resultsHidden ?? saved.current.resultsHidden,
         };
         setSaveState('saving');
         try {
@@ -118,10 +132,15 @@ export const QuestionPanel = forwardRef<QuestionPanelHandle, QuestionPanelProps>
     useImperativeHandle(ref, () => ({ flush }), [flush]);
 
     useEffect(() => {
-      if (title === saved.current.title && config === saved.current.config) return;
+      if (
+        title === saved.current.title &&
+        config === saved.current.config &&
+        resultsHidden === saved.current.resultsHidden
+      )
+        return;
       clearTimeout(timer.current);
       timer.current = setTimeout(() => void flush(), SAVE_DELAY_MS);
-    }, [title, config, flush]);
+    }, [title, config, resultsHidden, flush]);
 
     // Switching to another question unmounts this panel: save what was typed.
     useEffect(() => () => void flush(), [flush]);
@@ -177,6 +196,22 @@ export const QuestionPanel = forwardRef<QuestionPanelHandle, QuestionPanelProps>
         ) : (
           <p className="text-muted">{t('question.unavailable')}</p>
         )}
+
+        <label className="flex cursor-pointer items-start gap-3">
+          <input
+            type="checkbox"
+            checked={resultsHidden}
+            onChange={(event) => setResultsHidden(event.target.checked)}
+            aria-describedby={`${id}-hide-hint`}
+            className="mt-0.5 size-5 shrink-0 accent-brand"
+          />
+          <span className="flex flex-col">
+            <span className="font-bold">{t('editor.question.hideResults')}</span>
+            <span id={`${id}-hide-hint`} className="text-sm text-muted">
+              {t('editor.question.hideResults.hint')}
+            </span>
+          </span>
+        </label>
 
         <div className="flex flex-wrap items-center gap-2 border-t-2 border-line pt-5">
           <p className="mr-auto text-muted">

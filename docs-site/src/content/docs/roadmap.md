@@ -26,7 +26,6 @@ explains the setup.
 ### Presenting
 
 - **Results on phones.** Show participants the results after they answer.
-- **Hide results until voting ends.** Collect answers first, then reveal them on the screen.
 - **Moderation of open answers.** Let the presenter hide an entry from the screen, for open
   questions and word clouds.
 

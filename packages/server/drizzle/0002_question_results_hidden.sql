@@ -1,0 +1,1 @@
+ALTER TABLE `questions` ADD `results_hidden` integer DEFAULT false NOT NULL;

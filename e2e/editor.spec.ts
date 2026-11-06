@@ -4,7 +4,7 @@ async function addQuestion(page: Page, type: RegExp, title: string) {
   await page.getByRole('button', { name: 'Add question' }).click();
   await page.getByRole('button', { name: type }).click();
   await page.getByLabel('Question', { exact: true }).fill(title);
-  await expect(page.getByText('Saved')).toBeVisible();
+  await expect(page.getByText('Saved', { exact: true })).toBeVisible();
 }
 
 test('questions can be reordered by dragging them in the list', async ({ page }) => {
@@ -13,7 +13,7 @@ test('questions can be reordered by dragging them in the list', async ({ page })
   await page.getByRole('button', { name: 'Create presentation' }).click();
   await page.getByRole('button', { name: /Word cloud/ }).click();
   await page.getByLabel('Question', { exact: true }).fill('First');
-  await expect(page.getByText('Saved')).toBeVisible();
+  await expect(page.getByText('Saved', { exact: true })).toBeVisible();
   await addQuestion(page, /Scale/, 'Second');
   await addQuestion(page, /Open question/, 'Third');
 
