@@ -83,6 +83,7 @@ export const tr: Record<MessageKey, string> = {
   'editor.question.title.placeholder': 'Ne sormak istersiniz?',
   'editor.question.untitled': 'Başlıksız soru',
   'editor.question.moveUp': 'Yukarı taşı',
+  'editor.question.dragHint': 'Sırayı değiştirmek için sürükleyin',
   'editor.question.moveDown': 'Aşağı taşı',
   'editor.question.delete': 'Soruyu sil',
   'editor.question.reset': 'Sonuçları sıfırla',
