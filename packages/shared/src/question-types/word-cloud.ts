@@ -53,4 +53,5 @@ export const wordCloud = defineQuestionType<WordCloudConfig, WordCloudResponse, 
       .slice(0, LIMITS.wordCloudTop);
     return { words, total: responses.length };
   },
+  describeResponse: (_config, { text }) => text,
 });

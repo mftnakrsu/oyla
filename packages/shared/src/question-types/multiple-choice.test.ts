@@ -89,3 +89,10 @@ describe('multiple-choice aggregate', () => {
     expect(results).toEqual({ counts: { a: 2, b: 1 }, total: 3 });
   });
 });
+
+describe('multiple-choice describeResponse', () => {
+  test('names the chosen option, or nothing when the option was removed', () => {
+    expect(multipleChoice.describeResponse(config, { optionId: 'b' })).toBe('Blue');
+    expect(multipleChoice.describeResponse(config, { optionId: 'removed' })).toBe('');
+  });
+});

@@ -204,6 +204,26 @@ export function createStore({ db, sqlite }: DatabaseHandle) {
       deleteForQuestion(questionId: string): void {
         db.delete(responses).where(eq(responses.questionId, questionId)).run();
       },
+      /** Every answer of a presentation, oldest first, for the export. */
+      listForPresentation(presentationId: string): {
+        questionId: string;
+        participantId: string;
+        payload: unknown;
+        createdAt: number;
+      }[] {
+        return db
+          .select({
+            questionId: responses.questionId,
+            participantId: responses.participantId,
+            payload: responses.payload,
+            createdAt: responses.createdAt,
+          })
+          .from(responses)
+          .innerJoin(questions, eq(questions.id, responses.questionId))
+          .where(eq(questions.presentationId, presentationId))
+          .orderBy(asc(responses.id))
+          .all();
+      },
       countsByPresentation(presentationId: string): Map<string, number> {
         const rows = db
           .select({ questionId: responses.questionId, value: count() })

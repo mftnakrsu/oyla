@@ -37,6 +37,8 @@ export interface QuestionTypeDefinition<TConfig, TResponse, TResults> {
   maxResponses(config: TConfig): number;
   /** Turns stored answers (oldest first) into what the presenter view shows. Must be pure. */
   aggregate(config: TConfig, responses: TResponse[]): TResults;
+  /** One answer as a person reads it, e.g. the option label. Used for the CSV export. */
+  describeResponse(config: TConfig, response: TResponse): string;
   /** What participants may see of the config. Defaults to all of it. */
   toPublicConfig?(config: TConfig): unknown;
 }
@@ -113,6 +115,7 @@ export const numberQuestion = defineQuestionType<NumberConfig, NumberResponse, N
     const average = values.reduce((sum, value) => sum + value, 0) / values.length;
     return { median, average, total: values.length };
   },
+  describeResponse: (_config, { value }) => String(value),
 });
 ```
 
@@ -159,6 +162,10 @@ and the server validates and aggregates answers to it.
 - **Keep `aggregate` pure and the results small.** It runs over all answers (up to 2,000) whenever
   the presenter needs fresh results, and its output goes over the socket up to four times a second.
   Cap long lists, as the word cloud does with its top 100.
+- **`describeResponse` writes one answer as text** for the CSV export: an option's label, a typed
+  answer or a number. Return an empty string when the answer no longer fits the config (multiple
+  choice does this for removed options). The export makes the cell safe for spreadsheets, so return
+  the plain value.
 - **Use `toPublicConfig` for secrets.** Phones receive the config through it. A quiz type, for
   example, would remove the correct answer there.
 - **Configs and answers must be plain JSON.** They are stored as JSON text.
@@ -413,6 +420,10 @@ describe('number question', () => {
       average: null,
       total: 0,
     });
+  });
+
+  test('describes an answer as its number', () => {
+    expect(numberQuestion.describeResponse(config, { value: 42 })).toBe('42');
   });
 });
 ```
