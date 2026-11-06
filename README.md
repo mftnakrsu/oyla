@@ -40,6 +40,8 @@ computer or server as one Docker container, and your presentations and answers s
   right away when you change it during a session.
 - **Hide results until you reveal them,** for guessing questions or to keep early votes from
   swaying the rest; the screen shows how many people answered meanwhile.
+- **Moderation:** take a rude word or answer off the screen in two clicks; it stays hidden if
+  someone sends it again.
 - **Download the results** as a CSV file that opens in any spreadsheet app.
 - **No accounts:** creating a presentation gives you a private admin link. Optionally, the server
   owner can require a password to create presentations.
@@ -151,6 +153,8 @@ Sunumlarınız ve cevaplar sizin makinenizde kalır.
 - **Sunum temaları:** Her sunuma dört renk temasından birini verebilirsiniz (Zümrüt, İndigo,
   Lacivert ve turuncu, Klasik mavi). Sunum ekranı da telefonlar da bu temayı kullanır.
 - **Sonuçları gizleyin:** Siz gösterene kadar ekranda yalnızca cevap sayısı görünür.
+- **Denetim:** Uygunsuz bir kelimeyi ya da cevabı iki tıklamayla ekrandan kaldırın; tekrar
+  gönderilse de gizli kalır.
 - **Sonuçları indirin:** Bütün cevaplar, her tablo uygulamasında açılan bir CSV dosyası olarak.
 - **Hesap gerekmez:** Sunumu oluşturduğunuzda size özel bir yönetici linki verilir.
 - **Arayüz** Türkçe ve İngilizce, açık ve koyu modla kullanılabilir.

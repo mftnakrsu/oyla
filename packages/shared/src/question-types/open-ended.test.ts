@@ -51,3 +51,11 @@ describe('open-ended describeResponse', () => {
     );
   });
 });
+
+describe('open-ended moderation', () => {
+  test('identical answers share one key, whatever the case', () => {
+    const key = (text: string) => openEnded.moderationKey?.({ text });
+    expect(key('Too long')).toBe(key('too LONG'));
+    expect(key('Too long')).not.toBe(key('Too short'));
+  });
+});

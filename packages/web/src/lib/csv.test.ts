@@ -40,9 +40,27 @@ const presentation: PresentationDto = {
 
 const at = Date.UTC(2026, 10, 6, 9, 30, 0);
 const responses: ResponseExportDto[] = [
-  { questionId: 'notes', participant: 1, payload: { text: '=HYPERLINK("x")' }, createdAt: at },
-  { questionId: 'mc', participant: 1, payload: { optionId: 'b' }, createdAt: at + 1000 },
-  { questionId: 'mc', participant: 2, payload: { optionId: 'gone' }, createdAt: at + 2000 },
+  {
+    questionId: 'notes',
+    participant: 1,
+    payload: { text: '=HYPERLINK("x")' },
+    createdAt: at,
+    hidden: true,
+  },
+  {
+    questionId: 'mc',
+    participant: 1,
+    payload: { optionId: 'b' },
+    createdAt: at + 1000,
+    hidden: false,
+  },
+  {
+    questionId: 'mc',
+    participant: 2,
+    payload: { optionId: 'gone' },
+    createdAt: at + 2000,
+    hidden: false,
+  },
 ];
 
 describe('safeCell', () => {
@@ -70,17 +88,17 @@ describe('resultsCsv', () => {
   test('one row per answer, grouped by question, with readable answers', () => {
     const csv = resultsCsv(presentation, responses, createTranslator('en').t);
     expect(csv.split('\r\n')).toEqual([
-      '\uFEFF#,Question,Question type,Answer,Participant,Time (UTC)',
-      '1,Tea or coffee?,Multiple choice,"Coffee, black",1,2026-11-06T09:30:01.000Z',
-      '1,Tea or coffee?,Multiple choice,,2,2026-11-06T09:30:02.000Z',
-      `2,Untitled question,Open question,"'=HYPERLINK(""x"")",1,2026-11-06T09:30:00.000Z`,
+      '\uFEFF#,Question,Question type,Answer,Participant,Time (UTC),Hidden',
+      '1,Tea or coffee?,Multiple choice,"Coffee, black",1,2026-11-06T09:30:01.000Z,',
+      '1,Tea or coffee?,Multiple choice,,2,2026-11-06T09:30:02.000Z,',
+      `2,Untitled question,Open question,"'=HYPERLINK(""x"")",1,2026-11-06T09:30:00.000Z,yes`,
       '',
     ]);
   });
 
   test('headers follow the interface language', () => {
     const csv = resultsCsv(presentation, [], createTranslator('tr').t);
-    expect(csv).toBe('\uFEFF#,Soru,Soru tipi,Cevap,Katılımcı,Zaman (UTC)\r\n');
+    expect(csv).toBe('\uFEFF#,Soru,Soru tipi,Cevap,Katılımcı,Zaman (UTC),Gizlendi\r\n');
   });
 });
 

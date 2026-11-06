@@ -39,6 +39,8 @@ export interface QuestionTypeDefinition<TConfig, TResponse, TResults> {
   aggregate(config: TConfig, responses: TResponse[]): TResults;
   /** One answer as a person reads it, e.g. the option label. Used for the CSV export. */
   describeResponse(config: TConfig, response: TResponse): string;
+  /** Answers with the same key are hidden together when the presenter moderates. Optional. */
+  moderationKey?(response: TResponse): string;
   /** What participants may see of the config. Defaults to all of it. */
   toPublicConfig?(config: TConfig): unknown;
 }
@@ -68,6 +70,8 @@ export interface RespondProps<K extends QuestionTypeKey> {
 export interface ResultsProps<K extends QuestionTypeKey> {
   config: ConfigOf<K>;
   results: ResultsOf<K>;
+  /** Set while the presenter moderates; only for types with a `moderationKey`. */
+  onHide?(key: string): void;
 }
 ```
 
@@ -166,6 +170,12 @@ and the server validates and aggregates answers to it.
   answer or a number. Return an empty string when the answer no longer fits the config (multiple
   choice does this for removed options). The export makes the cell safe for spreadsheets, so return
   the plain value.
+- **Add `moderationKey` if people type free text.** The presenter can then hide answers from the
+  screen: every stored answer whose key matches is left out of `aggregate`, now and later. Word
+  cloud and open question use `groupKey(text)` from `packages/shared/src/text.ts`, so "Spam" and
+  "SPAM" hide together. Your `Results` component then receives `onHide` while the presenter
+  moderates; render a `HideButton` (from `question-types/shared.tsx`) per entry and call
+  `onHide(moderationKeyOf(type, response))`. Choice and number types leave it out.
 - **Use `toPublicConfig` for secrets.** Phones receive the config through it. A quiz type, for
   example, would remove the correct answer there.
 - **Configs and answers must be plain JSON.** They are stored as JSON text.

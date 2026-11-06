@@ -18,6 +18,11 @@ export interface RespondProps<K extends QuestionTypeKey> {
 export interface ResultsProps<K extends QuestionTypeKey> {
   config: ConfigOf<K>;
   results: ResultsOf<K>;
+  /**
+   * Set while the presenter moderates: show a hide button per answer and call this with the
+   * answer's moderation key (see `moderationKeyOf`). Only types with a `moderationKey` get it.
+   */
+  onHide?(key: string): void;
 }
 
 export interface QuestionTypeUi<K extends QuestionTypeKey> {
@@ -40,5 +45,5 @@ export interface AnyQuestionTypeUi {
     remaining: number;
     onSubmit(response: unknown): Promise<boolean>;
   }>;
-  Results: ComponentType<{ config: unknown; results: unknown }>;
+  Results: ComponentType<{ config: unknown; results: unknown; onHide?(key: string): void }>;
 }

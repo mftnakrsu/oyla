@@ -90,3 +90,12 @@ describe('word-cloud describeResponse', () => {
     expect(wordCloud.describeResponse({ maxEntries: 3 }, { text: 'İzmir' })).toBe('İzmir');
   });
 });
+
+describe('word-cloud moderation', () => {
+  test('every spelling of a word shares one key', () => {
+    const key = (text: string) => wordCloud.moderationKey?.({ text });
+    expect(key('İzmir')).toBe(key('IZMIR'));
+    expect(key('izmir')).toBe(key('İzmir'));
+    expect(key('Ankara')).not.toBe(key('İzmir'));
+  });
+});

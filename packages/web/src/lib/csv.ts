@@ -67,6 +67,7 @@ export function resultsCsv(
       describe(question.type, question.config, response.payload),
       String(response.participant),
       new Date(response.createdAt).toISOString(),
+      response.hidden ? t('csv.yes') : '',
     ]);
   return toCsv([
     [
@@ -76,6 +77,7 @@ export function resultsCsv(
       t('csv.answer'),
       t('csv.participant'),
       t('csv.time'),
+      t('csv.hidden'),
     ],
     ...rows,
   ]);

@@ -14,6 +14,9 @@ export const LIMITS = {
   responsesPerPresentation: 20000,
   wordCloudTop: 100,
   openEndedLatest: 200,
+  /** Moderation: distinct hidden answers per question, and the longest key. */
+  hiddenEntries: 500,
+  hiddenKey: 300,
 } as const;
 
 export const JOIN_CODE_LENGTH = 6;

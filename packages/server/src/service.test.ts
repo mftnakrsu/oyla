@@ -274,6 +274,7 @@ describe('live sessions', () => {
       questionId: cloud,
       results: { words: [{ text: 'hello there', count: 1 }], total: 1 },
       total: 1,
+      hidden: 0,
     });
   });
 
@@ -319,6 +320,86 @@ describe('live sessions', () => {
     service.activate(id, null);
     expect(state).toHaveBeenCalledTimes(2);
     expect(service.get(id).activeQuestionId).toBeNull();
+  });
+});
+
+describe('moderation', () => {
+  function cloudPresentation() {
+    const { id } = service.create({ title: 'Retro' });
+    const cloud = service.addQuestion(id, { type: 'word-cloud' }).id;
+    service.activate(id, cloud);
+    service.submit(id, alice, cloud, { text: 'Tea' });
+    service.submit(id, alice, cloud, { text: 'rude' });
+    service.submit(id, bob, cloud, { text: 'RUDE' });
+    return { id, cloud };
+  }
+  const words = (id: string, question: string) =>
+    (service.results(id, question).results as { words: { text: string }[] }).words.map(
+      (word) => word.text,
+    );
+
+  test('a hidden word leaves the results with every spelling, and the count says so', () => {
+    const { id, cloud } = cloudPresentation();
+    const changed = vi.fn();
+    events.on('results-changed', changed);
+    service.hideEntry(id, cloud, 'rude');
+    expect(changed).toHaveBeenCalledWith(id, cloud);
+    expect(words(id, cloud)).toEqual(['Tea']);
+    expect(service.results(id, cloud)).toMatchObject({ total: 1, hidden: 2 });
+    // Sent again later, it stays hidden; hiding twice changes nothing.
+    service.submit(id, bob, cloud, { text: 'Rude' });
+    service.hideEntry(id, cloud, 'rude');
+    expect(service.results(id, cloud)).toMatchObject({ total: 1, hidden: 3 });
+  });
+
+  test('hidden answers still use up the participant’s answers', () => {
+    const { id, cloud } = cloudPresentation();
+    service.hideEntry(id, cloud, 'rude');
+    expect(service.participantState(id, alice).remaining).toBe(1);
+  });
+
+  test('showHidden brings everything back', () => {
+    const { id, cloud } = cloudPresentation();
+    service.hideEntry(id, cloud, 'tea');
+    service.showHidden(id, cloud);
+    expect(words(id, cloud)).toEqual(['rude', 'Tea']);
+    expect(service.results(id, cloud).hidden).toBe(0);
+  });
+
+  test('reset clears the hidden list too', () => {
+    const { id, cloud } = cloudPresentation();
+    service.hideEntry(id, cloud, 'tea');
+    service.resetResults(id, cloud);
+    service.submit(id, alice, cloud, { text: 'tea' });
+    expect(words(id, cloud)).toEqual(['tea']);
+  });
+
+  test('open answers can be hidden too, multiple choice cannot', () => {
+    const { id } = service.create({ title: 'Retro' });
+    const open = service.addQuestion(id, { type: 'open-ended' }).id;
+    service.activate(id, open);
+    service.submit(id, alice, open, { text: 'Spam spam' });
+    service.hideEntry(id, open, 'spam spam');
+    expect(service.results(id, open)).toMatchObject({ total: 0, hidden: 1 });
+
+    const { id: pollId, questionId } = pollPresentation();
+    expectAppError(() => service.hideEntry(pollId, questionId, 'a'), 'VALIDATION_FAILED', 400);
+  });
+
+  test('a question holds at most 500 hidden keys', () => {
+    const { id, cloud } = cloudPresentation();
+    for (let i = 0; i < 500; i += 1) service.hideEntry(id, cloud, `word ${i}`);
+    expectAppError(() => service.hideEntry(id, cloud, 'one more'), 'VALIDATION_FAILED', 400);
+  });
+
+  test('the export marks hidden answers', () => {
+    const { id, cloud } = cloudPresentation();
+    service.hideEntry(id, cloud, 'rude');
+    expect(service.exportResponses(id).responses.map((row) => row.hidden)).toEqual([
+      false,
+      true,
+      true,
+    ]);
   });
 });
 

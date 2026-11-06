@@ -40,3 +40,15 @@ export function textField({
     .transform((value) => cleanText(value, { multiline }).trim())
     .pipe(z.string().min(min).max(max));
 }
+
+/**
+ * Case-insensitive grouping that also works for Turkish: "İzmir", "izmir" and "IZMIR" match
+ * (lower-casing İ leaves a combining dot, and ı is folded into i).
+ */
+export function groupKey(text: string): string {
+  return text
+    .normalize('NFKC')
+    .toLowerCase()
+    .replace(/\u0307/g, '')
+    .replace(/ı/g, 'i');
+}

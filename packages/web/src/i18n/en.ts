@@ -159,6 +159,14 @@ export const en = {
   'present.keys': 'Use the arrow keys to move between questions',
   'present.empty.title': 'This presentation has no questions yet',
   'present.empty.action': 'Add questions',
+  'moderate.hide': 'Hide “{text}”',
+  'moderate.answers': 'Answers',
+  'present.moderate': 'Moderate answers',
+  'present.moderation.hint': 'Select ✕ to take an answer off the screen.',
+  'present.moderation.hidden.one': '1 answer hidden',
+  'present.moderation.hidden.other': '{count} answers hidden',
+  'present.moderation.restore': 'Show them again',
+  'present.moderation.done': 'Done',
   'present.reconnecting': 'Connection lost. Reconnecting…',
 
   'join.connecting': 'Joining…',
@@ -183,6 +191,8 @@ export const en = {
   'csv.answer': 'Answer',
   'csv.participant': 'Participant',
   'csv.time': 'Time (UTC)',
+  'csv.hidden': 'Hidden',
+  'csv.yes': 'yes',
 
   'notFound.title': 'Page not found',
   'notFound.action': 'Go to the start page',

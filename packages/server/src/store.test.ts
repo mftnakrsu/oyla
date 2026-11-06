@@ -27,6 +27,7 @@ function addQuestion(id: string, presentationId = 'p1') {
     title: id,
     config: { maxEntries: 3 },
     resultsHidden: false,
+    hiddenKeys: [],
     createdAt: 1000,
     updatedAt: 1000,
   });
@@ -233,6 +234,7 @@ describe('storage cap', () => {
       title: '',
       config: { maxEntries: 1 },
       resultsHidden: false,
+      hiddenKeys: [],
       createdAt: 0,
       updatedAt: 0,
     });
