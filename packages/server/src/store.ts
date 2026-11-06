@@ -114,7 +114,12 @@ export function createStore({ db, sqlite }: DatabaseHandle) {
       update(
         presentationId: string,
         questionId: string,
-        changes: { title?: string; config?: unknown; resultsHidden?: boolean },
+        changes: {
+          title?: string;
+          config?: unknown;
+          resultsHidden?: boolean;
+          hiddenKeys?: string[];
+        },
         now: number,
       ): void {
         db.update(questions)

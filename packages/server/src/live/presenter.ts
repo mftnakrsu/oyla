@@ -1,7 +1,9 @@
 import {
   presenterActivateSchema,
+  presenterHideEntrySchema,
   presenterJoinSchema,
   presenterResetSchema,
+  presenterShowHiddenSchema,
   toThemeKey,
 } from '@oyla/shared';
 import { AppError } from '../app-error';
@@ -58,6 +60,24 @@ export function registerPresenterHandlers(socket: OylaSocket, context: LiveConte
       const presentationId = requirePresenter();
       const { questionId } = parsePayload(presenterResetSchema, payload);
       service.resetResults(presentationId, questionId);
+      return {};
+    }),
+  );
+
+  socket.on('presenter:hide-entry', (payload, ack) =>
+    handle(log, ack, () => {
+      const presentationId = requirePresenter();
+      const { questionId, key } = parsePayload(presenterHideEntrySchema, payload);
+      service.hideEntry(presentationId, questionId, key);
+      return {};
+    }),
+  );
+
+  socket.on('presenter:show-hidden', (payload, ack) =>
+    handle(log, ack, () => {
+      const presentationId = requirePresenter();
+      const { questionId } = parsePayload(presenterShowHiddenSchema, payload);
+      service.showHidden(presentationId, questionId);
       return {};
     }),
   );

@@ -24,6 +24,10 @@ export interface PresenterSession {
   results: Record<string, ResultsMessage>;
   activate(questionId: string | null): Promise<Ack>;
   reset(questionId: string): Promise<Ack>;
+  /** Moderation: hides every answer with this key. */
+  hideEntry(questionId: string, key: string): Promise<Ack>;
+  /** Moderation: brings back every hidden answer of the question. */
+  showHidden(questionId: string): Promise<Ack>;
 }
 
 const ACK_TIMEOUT_MS = 10_000;
@@ -88,7 +92,14 @@ export function usePresenterSession(
   }, [presentationId, adminToken]);
 
   const send = useCallback(
-    (event: 'presenter:activate' | 'presenter:reset', payload: object) =>
+    (
+      event:
+        | 'presenter:activate'
+        | 'presenter:reset'
+        | 'presenter:hide-entry'
+        | 'presenter:show-hidden',
+      payload: object,
+    ) =>
       new Promise<Ack>((resolve) => {
         const socket = socketRef.current;
         if (!socket?.connected) {
@@ -114,6 +125,14 @@ export function usePresenterSession(
     (questionId: string) => send('presenter:reset', { questionId }),
     [send],
   );
+  const hideEntry = useCallback(
+    (questionId: string, key: string) => send('presenter:hide-entry', { questionId, key }),
+    [send],
+  );
+  const showHidden = useCallback(
+    (questionId: string) => send('presenter:show-hidden', { questionId }),
+    [send],
+  );
 
   return {
     status,
@@ -126,5 +145,7 @@ export function usePresenterSession(
     results,
     activate,
     reset,
+    hideEntry,
+    showHidden,
   };
 }

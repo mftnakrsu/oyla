@@ -1,4 +1,10 @@
-import { getQuestionType, type PresentationDto, type QuestionDto } from '@oyla/shared';
+import {
+  type Ack,
+  canModerate,
+  getQuestionType,
+  type PresentationDto,
+  type QuestionDto,
+} from '@oyla/shared';
 import { type ReactNode, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { api, errorCodeOf } from '../api/client';
@@ -21,6 +27,7 @@ import {
   EyeOffIcon,
   FullscreenIcon,
   InviteIcon,
+  ModerateIcon,
   NextIcon,
   PeopleIcon,
   PrevIcon,
@@ -32,12 +39,15 @@ function ControlButton({
   onClick,
   disabled,
   armed = false,
+  pressed,
   children,
 }: {
   label: string;
   onClick(): void;
   disabled?: boolean;
   armed?: boolean;
+  /** For toggles: rendered as aria-pressed with a tinted background when on. */
+  pressed?: boolean;
   children: ReactNode;
 }) {
   return (
@@ -47,8 +57,13 @@ function ControlButton({
       title={label}
       onClick={onClick}
       disabled={disabled}
+      aria-pressed={pressed}
       className={`grid h-[2.6em] min-w-[2.6em] place-items-center rounded-xl px-[0.5em] disabled:opacity-30 ${
-        armed ? 'bg-danger text-on-danger' : 'text-ink hover:bg-ink/5'
+        armed
+          ? 'bg-danger text-on-danger'
+          : pressed
+            ? 'bg-brand-soft text-ink'
+            : 'text-ink hover:bg-ink/5'
       }`}
     >
       {children}
@@ -148,16 +163,48 @@ function HiddenResults({ total, onReveal }: { total: number; onReveal(): void })
   );
 }
 
+/** Above the results while moderating: what to do, how many answers are hidden, and the way out. */
+function ModerationBar({
+  hidden,
+  onShowHidden,
+  onDone,
+}: {
+  hidden: number;
+  onShowHidden(): void;
+  onDone(): void;
+}) {
+  const { t, tn } = useI18n();
+  return (
+    <div className="mb-[1em] flex flex-wrap items-center gap-x-[1.2em] gap-y-[0.5em] rounded-xl bg-brand-soft px-[1em] py-[0.6em]">
+      <p className="mr-auto font-bold">{t('present.moderation.hint')}</p>
+      {hidden > 0 ? (
+        <>
+          <span aria-live="polite">{tn('present.moderation.hidden', hidden)}</span>
+          <button type="button" onClick={onShowHidden} className={buttonClass('secondary')}>
+            {t('present.moderation.restore')}
+          </button>
+        </>
+      ) : null}
+      <button type="button" onClick={onDone} className={buttonClass('primary')}>
+        {t('present.moderation.done')}
+      </button>
+    </div>
+  );
+}
+
 function ActiveQuestion({
   question,
   results,
   total,
   onReveal,
+  onHide,
 }: {
   question: QuestionDto;
   results: unknown;
   total: number;
   onReveal(): void;
+  /** Set while moderating. */
+  onHide?(key: string): void;
 }) {
   const { t } = useI18n();
   const ui = getQuestionTypeUi(question.type);
@@ -174,7 +221,7 @@ function ActiveQuestion({
         ) : readable && results !== null ? (
           <ErrorBoundary key={question.id} fallback={unavailable}>
             <Suspense fallback={null}>
-              <ui.Results config={question.config} results={results} />
+              <ui.Results config={question.config} results={results} onHide={onHide} />
             </Suspense>
           </ErrorBoundary>
         ) : (
@@ -194,6 +241,8 @@ export function PresentPage() {
   const [loadError, setLoadError] = useState<ReturnType<typeof errorCodeOf> | null>(null);
   const [invite, setInvite] = useState(false);
   const [toggleError, setToggleError] = useState<ReturnType<typeof errorCodeOf> | null>(null);
+  /** The question being moderated; moving to another question ends moderation. */
+  const [moderatingId, setModeratingId] = useState<string | null>(null);
   const session = usePresenterSession(id, token);
   usePalette(session.theme ?? presentation?.theme);
   const autoStarted = useRef(false);
@@ -269,6 +318,20 @@ export function PresentPage() {
       .catch((error) => setToggleError(errorCodeOf(error)));
   }, [active, id, token]);
 
+  const moderatable = active ? canModerate(active.type) && !active.resultsHidden : false;
+  const moderating = moderatable && active !== undefined && moderatingId === active.id;
+  const toggleModeration = useCallback(() => {
+    if (!active || !moderatable) return;
+    setModeratingId((current) => (current === active.id ? null : active.id));
+  }, [active, moderatable]);
+
+  /** Runs a moderation command and shows its error, if any. */
+  const moderate = useCallback(async (command: Promise<Ack>) => {
+    setToggleError(null);
+    const ack = await command;
+    if (!ack.ok) setToggleError(ack.error.code);
+  }, []);
+
   const toggleFullscreen = useCallback(() => {
     if (document.fullscreenElement) void document.exitFullscreen();
     else void document.documentElement.requestFullscreen?.().catch(() => {});
@@ -297,13 +360,15 @@ export function PresentPage() {
         toggleFullscreen();
       } else if (event.key === 'h') {
         toggleHidden();
+      } else if (event.key === 'm') {
+        toggleModeration();
       } else if (event.key === 'i') {
         setInvite(true);
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [go, toggleFullscreen, toggleHidden, invite]);
+  }, [go, toggleFullscreen, toggleHidden, toggleModeration, invite]);
 
   if (!token || session.status === 'unauthorized' || loadError === 'UNAUTHORIZED') {
     return (
@@ -400,12 +465,24 @@ export function PresentPage() {
             </Link>
           </div>
         ) : active ? (
-          <ActiveQuestion
-            question={active}
-            results={results}
-            total={message?.total ?? 0}
-            onReveal={toggleHidden}
-          />
+          <>
+            {moderating ? (
+              <ModerationBar
+                hidden={message?.hidden ?? 0}
+                onShowHidden={() => void moderate(session.showHidden(active.id))}
+                onDone={() => setModeratingId(null)}
+              />
+            ) : null}
+            <ActiveQuestion
+              question={active}
+              results={results}
+              total={message?.total ?? 0}
+              onReveal={toggleHidden}
+              onHide={
+                moderating ? (key) => void moderate(session.hideEntry(active.id, key)) : undefined
+              }
+            />
+          </>
         ) : (
           <div className="flex flex-1 items-center justify-center">
             <Stamp size={120} />
@@ -442,6 +519,16 @@ export function PresentPage() {
           >
             {active?.resultsHidden ? <EyeIcon /> : <EyeOffIcon />}
           </ControlButton>
+          {active && canModerate(active.type) ? (
+            <ControlButton
+              label={t('present.moderate')}
+              onClick={toggleModeration}
+              disabled={!moderatable}
+              pressed={moderating}
+            >
+              <ModerateIcon />
+            </ControlButton>
+          ) : null}
           <ResetButton disabled={!active} onReset={() => active && void session.reset(active.id)} />
           <ControlButton label={t('present.invite')} onClick={() => setInvite(true)}>
             <InviteIcon />

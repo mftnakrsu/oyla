@@ -3,7 +3,9 @@ import { createPresentationBody, createQuestionBody, reorderQuestionsBody } from
 import {
   participantJoinSchema,
   presenterActivateSchema,
+  presenterHideEntrySchema,
   presenterJoinSchema,
+  presenterShowHiddenSchema,
   responseSubmitSchema,
 } from './protocol';
 
@@ -27,6 +29,16 @@ describe('socket payload schemas', () => {
       participantJoinSchema.safeParse({ joinCode: '123456', participantId: 'has spaces in it!!' })
         .success,
     ).toBe(false);
+  });
+
+  test('hiding an entry needs a question id and a bounded key', () => {
+    expect(presenterHideEntrySchema.safeParse({ questionId: 'q1', key: 'tea' }).success).toBe(true);
+    expect(presenterHideEntrySchema.safeParse({ questionId: 'q1', key: '' }).success).toBe(false);
+    expect(
+      presenterHideEntrySchema.safeParse({ questionId: 'q1', key: 'x'.repeat(301) }).success,
+    ).toBe(false);
+    expect(presenterShowHiddenSchema.safeParse({ questionId: 'q1' }).success).toBe(true);
+    expect(presenterShowHiddenSchema.safeParse({}).success).toBe(false);
   });
 
   test('response submit needs a question id', () => {

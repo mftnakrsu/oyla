@@ -26,8 +26,6 @@ explains the setup.
 ### Presenting
 
 - **Results on phones.** Show participants the results after they answer.
-- **Moderation of open answers.** Let the presenter hide an entry from the screen, for open
-  questions and word clouds.
 
 ### Platform
 
