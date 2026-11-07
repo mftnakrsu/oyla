@@ -1,6 +1,7 @@
-import type { Ack, ErrorCode, ResultsMessage, ThemeKey } from '@oyla/shared';
+import type { Ack, ErrorCode, Leaderboard, ResultsMessage, ThemeKey } from '@oyla/shared';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createSocket, type OylaSocket } from './socket';
+import { deadlineFrom } from './useCountdown';
 
 export type PresenterStatus =
   | 'connecting'
@@ -17,6 +18,10 @@ export interface PresenterSession {
   /** Null until the first join; follows changes made in the editor. */
   theme: ThemeKey | null;
   activeQuestionId: string | null;
+  /** Local timestamp when the active timed question closes; null for untimed ones. */
+  closesAt: number | null;
+  /** The quiz leaderboard, once loaded. */
+  leaderboard: Leaderboard | null;
   /** Increases on every state broadcast, i.e. whenever questions or the active one changed. */
   stateVersion: number;
   participants: number;
@@ -28,6 +33,8 @@ export interface PresenterSession {
   hideEntry(questionId: string, key: string): Promise<Ack>;
   /** Moderation: brings back every hidden answer of the question. */
   showHidden(questionId: string): Promise<Ack>;
+  /** Moderation: takes a nickname off the leaderboard. */
+  hideNickname(id: number): Promise<Ack>;
 }
 
 const ACK_TIMEOUT_MS = 10_000;
@@ -42,6 +49,8 @@ export function usePresenterSession(
   const [connected, setConnected] = useState(false);
   const [theme, setTheme] = useState<ThemeKey | null>(null);
   const [activeQuestionId, setActiveQuestionId] = useState<string | null>(null);
+  const [closesAt, setClosesAt] = useState<number | null>(null);
+  const [leaderboard, setLeaderboard] = useState<Leaderboard | null>(null);
   const [stateVersion, setStateVersion] = useState(0);
   const [participants, setParticipants] = useState(0);
   const [results, setResults] = useState<Record<string, ResultsMessage>>({});
@@ -59,7 +68,11 @@ export function usePresenterSession(
         if (ack.ok) {
           setTheme(ack.theme);
           setActiveQuestionId(ack.activeQuestionId);
+          setClosesAt(deadlineFrom(ack.closesIn));
           setParticipants(ack.participants);
+          socket.emit('presenter:leaderboard', {}, (board) => {
+            if (board.ok) setLeaderboard(board.leaderboard);
+          });
           if (ack.results) keep(ack.results);
           setStatus('ready');
         } else if (ack.error.code === 'UNAUTHORIZED' || ack.error.code === 'NOT_FOUND') {
@@ -75,9 +88,11 @@ export function usePresenterSession(
     socket.on('disconnect', () => setConnected(false));
     socket.on('presenter:state', (state) => {
       setActiveQuestionId(state.activeQuestionId);
+      setClosesAt(deadlineFrom(state.closesIn));
       setStateVersion((version) => version + 1);
     });
     socket.on('results', keep);
+    socket.on('leaderboard', setLeaderboard);
     socket.on('presentation', (info) => setTheme(info.theme));
     socket.on('presence', (presence) => setParticipants(presence.participants));
     socket.on('presentation:ended', () => {
@@ -97,7 +112,8 @@ export function usePresenterSession(
         | 'presenter:activate'
         | 'presenter:reset'
         | 'presenter:hide-entry'
-        | 'presenter:show-hidden',
+        | 'presenter:show-hidden'
+        | 'presenter:hide-nickname',
       payload: object,
     ) =>
       new Promise<Ack>((resolve) => {
@@ -134,12 +150,16 @@ export function usePresenterSession(
     [send],
   );
 
+  const hideNickname = useCallback((id: number) => send('presenter:hide-nickname', { id }), [send]);
+
   return {
     status,
     errorCode,
     connected,
     theme,
     activeQuestionId,
+    closesAt,
+    leaderboard,
     stateVersion,
     participants,
     results,
@@ -147,5 +167,6 @@ export function usePresenterSession(
     reset,
     hideEntry,
     showHidden,
+    hideNickname,
   };
 }

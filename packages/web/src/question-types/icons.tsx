@@ -39,6 +39,21 @@ export function ScaleIcon({ className = '' }: { className?: string }) {
   );
 }
 
+export function QuizIcon({ className = '' }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      {...base}
+      className={className}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="13" r="8" />
+      <path d="M12 9v4l2.5 2.5M10 2h4" />
+    </svg>
+  );
+}
+
 export function QaIcon({ className = '' }: { className?: string }) {
   return (
     <svg

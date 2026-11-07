@@ -1,4 +1,9 @@
-import { participantJoinSchema, responseSubmitSchema, toThemeKey } from '@oyla/shared';
+import {
+  participantJoinSchema,
+  participantNicknameSchema,
+  responseSubmitSchema,
+  toThemeKey,
+} from '@oyla/shared';
 import { AppError } from '../app-error';
 import { handle, parsePayload, rateLimited } from './handle';
 import { ANSWERS_PER_IP_PER_QUESTION } from './ip-limits';
@@ -40,6 +45,18 @@ export function registerParticipantHandlers(socket: OylaSocket, context: LiveCon
         theme: toThemeKey(presentation.theme),
         state: service.participantState(presentation.id, participantId),
       };
+    }),
+  );
+
+  socket.on('participant:nickname', (payload, ack) =>
+    handle(log, ack, () => {
+      const { role, presentationId, participantId } = socket.data;
+      if (role !== 'participant' || !presentationId || !participantId) {
+        throw new AppError('UNAUTHORIZED', 401, 'Join a presentation first');
+      }
+      if (!submits.take()) rateLimited();
+      const { nickname } = parsePayload(participantNicknameSchema, payload);
+      return { nickname: service.setNickname(presentationId, participantId, nickname) };
     }),
   );
 

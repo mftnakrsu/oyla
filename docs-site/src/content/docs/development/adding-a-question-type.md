@@ -49,6 +49,10 @@ export interface QuestionTypeDefinition<TConfig, TResponse, TResults> {
   allows?(response: TResponse, own: TResponse[]): boolean;
   /** Every phone gets live results and its own responses, and the form stays open. Optional. */
   sharedOnPhones?: boolean;
+  /** Seconds to answer, counted on the server from opening; then the full config is public. */
+  timeLimit?(config: TConfig): number;
+  /** Points for an answer, given the server-measured time it took; adds up into a leaderboard. */
+  score?(config: TConfig, response: TResponse, elapsedMs: number): number;
 }
 ```
 
@@ -81,6 +85,8 @@ export interface ResultsProps<K extends QuestionTypeKey> {
   results: ResultsOf<K>;
   /** Set while the presenter moderates; only for types with a `moderationKey`. */
   onHide?(key: string): void;
+  /** Timed types: the time is up, so the correct answer may be shown. */
+  revealed?: boolean;
 }
 ```
 
@@ -185,8 +191,13 @@ and the server validates and aggregates answers to it.
   "SPAM" hide together. Your `Results` component then receives `onHide` while the presenter
   moderates; render a `HideButton` (from `question-types/shared.tsx`) per entry and call
   `onHide(moderationKeyOf(type, response))`. Choice and number types leave it out.
-- **Use `toPublicConfig` for secrets.** Phones receive the config through it. A quiz type, for
-  example, would remove the correct answer there.
+- **Use `toPublicConfig` for secrets.** Phones receive the config through it. The quiz removes
+  the correct answer there; for types with a `timeLimit`, phones get the whole config once the
+  time is up.
+- **Timed and scored types** add `timeLimit` and `score`. The server stores when the question was
+  opened, refuses answers after the limit and stores each answer's points; phones never send how
+  fast they were. `quiz.ts` is the example, and a presentation with any scored question asks
+  phones for a leaderboard name.
 - **Reactions to other people's answers** use `isAnswer`, `allows` and `sharedOnPhones`. Q&A
   (`qa.ts`) is the example: an upvote is a response that isn't an answer, `allows` stops a second
   upvote of the same question, and `sharedOnPhones` sends every phone the live list to vote on.

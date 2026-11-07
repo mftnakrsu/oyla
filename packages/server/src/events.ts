@@ -7,6 +7,8 @@ interface LiveEventMap {
   'results-changed': [presentationId: string, questionId: string];
   'responses-cleared': [presentationId: string, questionId: string];
   'presentation-ended': [presentationId: string];
+  /** Points or nicknames changed (quiz). */
+  'leaderboard-changed': [presentationId: string];
 }
 
 export type LiveEvents = EventEmitter<LiveEventMap>;

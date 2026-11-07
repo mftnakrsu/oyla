@@ -42,6 +42,17 @@ export interface QuestionTypeDefinition<TConfig, TResponse, TResults> {
    * keeps the answer form open instead of a "thanks" screen.
    */
   sharedOnPhones?: boolean;
+  /**
+   * Seconds people have to answer, counted on the server from when the presenter opened the
+   * question. Later answers are refused. Once the time is up, phones get the whole config
+   * (`toPublicConfig` no longer applies), so the correct answer can be revealed.
+   */
+  timeLimit?(config: TConfig): number;
+  /**
+   * Points for an answer, given how long after opening it arrived (measured on the server).
+   * Scored types add up into a leaderboard across the presentation.
+   */
+  score?(config: TConfig, response: TResponse, elapsedMs: number): number;
 }
 
 export function defineQuestionType<TConfig, TResponse, TResults>(

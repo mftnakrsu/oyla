@@ -16,6 +16,11 @@ export const LIMITS = {
   openEndedLatest: 200,
   qaQuestion: 200,
   qaTop: 200,
+  nickname: 24,
+  leaderboard: 10,
+  quizSecondsMin: 5,
+  quizSecondsMax: 120,
+  quizPoints: 1000,
   /** Moderation: distinct hidden answers per question, and the longest key. */
   hiddenEntries: 500,
   hiddenKey: 300,

@@ -1,9 +1,9 @@
 ---
 title: Soru tipleri
-description: Çoktan seçmeli, kelime bulutu, açık uçlu soru, ölçek ve soru-cevap; ayarları, sınırları ve sonuçlarıyla.
+description: Çoktan seçmeli, kelime bulutu, açık uçlu soru, ölçek, soru-cevap ve bilgi yarışması; ayarları, sınırları ve sonuçlarıyla.
 ---
 
-Oyla'da beş soru tipi var. Her sorunun en fazla 200 karakterlik bir başlığı olur; diğer ayarlar
+Oyla'da altı soru tipi var. Her sorunun en fazla 200 karakterlik bir başlığı olur; diğer ayarlar
 tipe göre değişir. Tipi soruyu eklerken seçersiniz ve sonradan değiştiremezsiniz. Başka bir tipe
 ihtiyacınız olursa soruyu silip yenisini ekleyin.
 
@@ -14,6 +14,7 @@ ihtiyacınız olursa soruyu silip yenisini ekleyin.
 | [Açık uçlu soru](#açık-uçlu-soru) | 1-5 (varsayılan 1) | En yenisi başta, not kâğıdı görünümünde cevaplar |
 | [Ölçek](#ölçek) | 1 | Ortalama ve puanların sütun grafiği |
 | [Soru-Cevap](#soru-cevap) | 1-5 soru (varsayılan 3), artı oylar | En çok oy alan başta, sorular |
+| [Bilgi yarışması](#bilgi-yarışması) | Süre içinde 1 | Geri sayım, sonra doğru cevaplı çubuklar ve liderlik tablosu |
 
 ## Çoktan seçmeli
 
@@ -218,6 +219,33 @@ olsa da telefonlarda görünür; sonuçları gizlediğinizde liste telefonlardan
 En fazla 200 soru gösterilir. Moderasyon açık uçlu sorulardaki gibi çalışır: gizlenen soru oylarını
 da götürür, aynı soru yeniden sorulduğunda geri gelmez.
 
+## Bilgi yarışması
+
+Tek doğru cevabı olan süreli soru. Doğru ve hızlı cevaplar puan kazanır; liderlik tablosu
+sunumdaki bütün bilgi yarışması sorularının puanlarını toplar.
+
+**Ayarlar:** çoktan seçmelideki gibi 2 ile 10 arası **Seçenek**; doğru olanın yanındaki ✓ işaretini
+seçin. **Cevap süresi**: 10, 20, 30 ya da 60 saniye (varsayılan 20).
+
+**İsimler:** sunumda bilgi yarışması sorusu varsa telefonlar önce liderlik tablosu için bir isim
+ister; "Hızlı Kartal" gibi hazır bir öneri olduğu gibi kullanılabilir. İsimler en fazla 24
+karakterdir.
+
+**Cevaplamak:** geri sayım soruyu sunum ekranında açtığınızda başlar; soruya geri dönmek ya da
+sonuçları sıfırlamak süreyi yeniden başlatır. Tek dokunuş cevaplar; herkes bir kez cevaplar.
+Süreyi sunucu tutar: süreden (yavaş ağlar için bir saniye payla) sonra gelen cevaplar reddedilir ve
+doğru cevap süre dolmadan telefonlara hiç gitmez.
+
+**Puanlar:** yanlış cevap ya da cevapsızlık 0 alır. Doğru cevap, sunucunun soruyu açtığı andan
+cevabın geldiği ana kadar geçen süreye göre 1.000 (hemen) ile 500 (son saniyede) arasında puan
+alır.
+
+**Sonuçlar:** süre işlerken ekranda geri sayım ve cevap veren kişi sayısı görünür. Süre dolunca
+çubuklar doğru seçenek **Doğru** diye işaretlenmiş olarak açılır; her telefon doğru bilip
+bilmediğini, puanını, toplamını ve sırasını gösterir. Liderlik tablosu için kupa düğmesini seçin ya
+da <kbd>L</kbd> tuşuna basın: puanlarıyla ilk 10 kişi; eşit puanlılar aynı sırayı paylaşır.
+**İsimleri denetle** her ismin yanına bir ✕ koyar; gizlenen isim "İsimsiz" olarak görünür.
+
 ## Bütün tipler için sınırlar
 
 | Sınır | Değer |
@@ -229,6 +257,6 @@ da götürür, aynı soru yeniden sorulduğunda geri gelmez.
 
 ## Aradığınız tip yok mu?
 
-Bilgi yarışması (quiz) ve çok ifadeli ölçekler
+Çok ifadeli ölçekler
 [yol haritasında](/tr/roadmap/). Birini kendiniz geliştirmek isterseniz
 [Soru tipi eklemek](/tr/development/adding-a-question-type/) rehberiyle başlayın (İngilizce).

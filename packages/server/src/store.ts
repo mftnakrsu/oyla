@@ -1,7 +1,9 @@
-import { and, asc, count, eq, lt, sql } from 'drizzle-orm';
+import { and, asc, count, desc, eq, isNotNull, lt, sql } from 'drizzle-orm';
 import type { DatabaseHandle } from './db/client';
 import {
+  type ParticipantRow,
   type PresentationRow,
+  participants,
   presentations,
   type QuestionRow,
   questions,
@@ -123,6 +125,7 @@ export function createStore({ db, sqlite }: DatabaseHandle) {
           config?: unknown;
           resultsHidden?: boolean;
           hiddenKeys?: string[];
+          openedAt?: number | null;
         },
         now: number,
       ): void {
@@ -156,6 +159,46 @@ export function createStore({ db, sqlite }: DatabaseHandle) {
               .run();
           });
         })();
+      },
+    },
+
+    participants: {
+      list(presentationId: string): ParticipantRow[] {
+        return db
+          .select()
+          .from(participants)
+          .where(eq(participants.presentationId, presentationId))
+          .all();
+      },
+      get(presentationId: string, participantId: string): ParticipantRow | undefined {
+        return db
+          .select()
+          .from(participants)
+          .where(
+            and(
+              eq(participants.presentationId, presentationId),
+              eq(participants.participantId, participantId),
+            ),
+          )
+          .get();
+      },
+      /** Sets the nickname; a new one also clears an earlier moderation. */
+      setNickname(presentationId: string, participantId: string, nickname: string, now: number) {
+        db.insert(participants)
+          .values({ presentationId, participantId, nickname, createdAt: now })
+          .onConflictDoUpdate({
+            target: [participants.presentationId, participants.participantId],
+            set: { nickname, nicknameHidden: false },
+          })
+          .run();
+      },
+      hideNickname(presentationId: string, id: number): boolean {
+        const result = db
+          .update(participants)
+          .set({ nicknameHidden: true })
+          .where(and(eq(participants.presentationId, presentationId), eq(participants.id, id)))
+          .run();
+        return result.changes > 0;
       },
     },
 
@@ -235,8 +278,38 @@ export function createStore({ db, sqlite }: DatabaseHandle) {
           .get();
         return row?.value ?? 0;
       },
-      insert(questionId: string, participantId: string, payload: unknown, now: number): void {
-        db.insert(responses).values({ questionId, participantId, payload, createdAt: now }).run();
+      insert(
+        questionId: string,
+        participantId: string,
+        payload: unknown,
+        now: number,
+        score: number | null = null,
+      ): void {
+        db.insert(responses)
+          .values({ questionId, participantId, payload, score, createdAt: now })
+          .run();
+      },
+      /** Points per participant for one question (scored types only). */
+      scoresFor(questionId: string): Map<string, number> {
+        const rows = db
+          .select({ participantId: responses.participantId, score: responses.score })
+          .from(responses)
+          .where(and(eq(responses.questionId, questionId), isNotNull(responses.score)))
+          .all();
+        return new Map(rows.map((row) => [row.participantId, row.score ?? 0]));
+      },
+      /** Points per participant over every scored answer of a presentation, highest first. */
+      totals(presentationId: string): { participantId: string; points: number }[] {
+        const points = sql<number>`sum(${responses.score})`;
+        return db
+          .select({ participantId: responses.participantId, points })
+          .from(responses)
+          .innerJoin(questions, eq(questions.id, responses.questionId))
+          .where(and(eq(questions.presentationId, presentationId), isNotNull(responses.score)))
+          .groupBy(responses.participantId)
+          .orderBy(desc(points), asc(sql`min(${responses.id})`))
+          .all()
+          .map((row) => ({ participantId: row.participantId, points: Number(row.points) }));
       },
       deleteForQuestion(questionId: string): void {
         db.delete(responses).where(eq(responses.questionId, questionId)).run();

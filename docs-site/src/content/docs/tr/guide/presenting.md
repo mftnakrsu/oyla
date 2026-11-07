@@ -155,6 +155,7 @@ Sağ alttaki düğmeler sırasıyla **Önceki soru**, **Sonraki soru**, **Sonuç
 | <kbd>M</kbd> | Kelime bulutu ya da açık uçlu soruda denetimi başlatır ya da bitirir |
 | <kbd>F</kbd> | Tam ekranı açar ya da kapatır |
 | <kbd>I</kbd> | Katılım bilgilerini gösterir ya da gizler |
+| <kbd>L</kbd> | Bilgi yarışması liderlik tablosunu gösterir ya da gizler (bilgi yarışması olan sunumlarda) |
 | <kbd>Esc</kbd> | Katılım bilgilerini gizler |
 
 Sunum kumandalarının çoğu Page Up ve Page Down gönderdiği için onlarla da ilerleyebilirsiniz.

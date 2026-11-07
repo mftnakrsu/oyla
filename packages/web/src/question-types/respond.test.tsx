@@ -9,6 +9,9 @@ import { OpenEndedRespond } from './open-ended/Respond';
 import { OpenEndedResults } from './open-ended/Results';
 import { QaRespond } from './qa/Respond';
 import { QaResults } from './qa/Results';
+import { QuizEditor } from './quiz/Editor';
+import { QuizRespond } from './quiz/Respond';
+import { QuizResults } from './quiz/Results';
 import { ScaleRespond } from './scale/Respond';
 import { ScaleResults } from './scale/Results';
 import { WordCloudRespond } from './word-cloud/Respond';
@@ -17,6 +20,50 @@ import { WordCloudResults } from './word-cloud/Results';
 function renderEn(ui: ReactElement) {
   return render(<I18nProvider initial="en">{ui}</I18nProvider>);
 }
+
+const quizConfig = {
+  options: [
+    { id: 'a', label: 'Ankara' },
+    { id: 'b', label: 'İstanbul' },
+  ],
+  correctOptionId: 'a',
+  seconds: 20,
+};
+
+describe('quiz components', () => {
+  test('one tap sends the answer', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(true);
+    renderEn(<QuizRespond config={quizConfig} remaining={1} onSubmit={onSubmit} />);
+    await userEvent.click(screen.getByRole('button', { name: /İstanbul/ }));
+    expect(onSubmit).toHaveBeenCalledWith({ optionId: 'b' });
+  });
+
+  test('results mark the correct option only once revealed', () => {
+    const results = { counts: { a: 3, b: 1 }, total: 4 };
+    const { rerender } = renderEn(<QuizResults config={quizConfig} results={results} />);
+    expect(screen.queryByText(/Correct/)).not.toBeInTheDocument();
+    rerender(
+      <I18nProvider initial="en">
+        <QuizResults config={quizConfig} results={results} revealed />
+      </I18nProvider>,
+    );
+    expect(screen.getByText(/Correct/)).toBeInTheDocument();
+  });
+
+  test('removing the correct option moves the mark to the first one left', async () => {
+    const onChange = vi.fn();
+    renderEn(
+      <QuizEditor
+        config={{ ...quizConfig, options: [...quizConfig.options, { id: 'c', label: 'İzmir' }] }}
+        onChange={onChange}
+      />,
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Remove option 1' }));
+    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ correctOptionId: 'b' }));
+    await userEvent.click(screen.getByLabelText('Option 3 is the right answer'));
+    expect(onChange).toHaveBeenLastCalledWith(expect.objectContaining({ correctOptionId: 'c' }));
+  });
+});
 
 describe('Respond components', () => {
   test('Q&A sends a question and upvotes others, but not your own', async () => {

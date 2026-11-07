@@ -3,7 +3,7 @@ import { AppError } from './app-error';
 import { loadConfig } from './config';
 import { openDatabase } from './db/client';
 import { createLiveEvents, type LiveEvents } from './events';
-import { createPresentationService, type PresentationService } from './service';
+import { CLOSE_GRACE_MS, createPresentationService, type PresentationService } from './service';
 import { createStore, type Store } from './store';
 
 const alice = 'alice-participant-01';
@@ -459,6 +459,149 @@ describe('audience Q&A', () => {
     service.updateQuestion(id, questionId, { resultsHidden: true });
     expect(service.participantState(id, bob).results).toBeNull();
     expect(service.resultsAudience(id, questionId)).toBeNull();
+  });
+});
+
+describe('quiz', () => {
+  const carol = 'carol-participant-01';
+
+  function quizSession(seconds = 20) {
+    const created = service.create({ title: 'Pub quiz' });
+    const question = service.addQuestion(created.id, {
+      type: 'quiz',
+      title: 'Capital of Türkiye?',
+      config: {
+        options: [
+          { id: 'a', label: 'Ankara' },
+          { id: 'b', label: 'İstanbul' },
+        ],
+        correctOptionId: 'a',
+        seconds,
+      },
+    });
+    service.activate(created.id, question.id);
+    return { ...created, questionId: question.id };
+  }
+
+  test('phones count down without the answer, and get it once time is up', () => {
+    const { id } = quizSession();
+    clock += 5000;
+    const open = service.participantState(id, alice).activeQuestion;
+    expect(open?.closesIn).toBe(15_000);
+    expect(open?.config).not.toHaveProperty('correctOptionId');
+    expect(service.presenterState(id).closesIn).toBe(15_000);
+
+    clock += 15_000;
+    const closed = service.participantState(id, alice).activeQuestion;
+    expect(closed?.closesIn).toBe(0);
+    expect(closed?.config).toMatchObject({ correctOptionId: 'a' });
+  });
+
+  test('answers score by correctness and server time, and are refused after the grace period', () => {
+    const { id, questionId } = quizSession();
+    clock += 10_000;
+    service.submit(id, alice, questionId, { optionId: 'a' });
+    service.submit(id, bob, questionId, { optionId: 'b' });
+    clock += 10_000 + CLOSE_GRACE_MS;
+    // Late but within the grace period: right, at the slowest score.
+    service.submit(id, carol, questionId, { optionId: 'a' });
+    clock += 1;
+    expectAppError(
+      () => service.submit(id, 'dave-participant-001', questionId, { optionId: 'a' }),
+      'QUESTION_CLOSED',
+      409,
+    );
+
+    expect(service.leaderboard(id)).toMatchObject({
+      players: 3,
+      entries: [
+        { points: 750, rank: 1, name: null },
+        { points: 500, rank: 2 },
+        { points: 0, rank: 3 },
+      ],
+    });
+    expect(service.participantState(id, bob).score).toEqual({
+      points: 0,
+      total: 0,
+      rank: 3,
+      players: 3,
+    });
+    expect(service.participantState(id, 'dave-participant-001').score).toEqual({
+      points: null,
+      total: 0,
+      rank: null,
+      players: 3,
+    });
+  });
+
+  test('no score summary while the question is open', () => {
+    const { id, questionId } = quizSession();
+    service.submit(id, alice, questionId, { optionId: 'a' });
+    expect(service.participantState(id, alice).score).toBeUndefined();
+  });
+
+  test('points add up over questions, ties share a place', () => {
+    const { id, questionId } = quizSession();
+    service.submit(id, alice, questionId, { optionId: 'a' });
+    service.submit(id, bob, questionId, { optionId: 'a' });
+    const second = service.addQuestion(id, {
+      type: 'quiz',
+      config: {
+        options: [
+          { id: 'x', label: 'X' },
+          { id: 'y', label: 'Y' },
+        ],
+        correctOptionId: 'y',
+        seconds: 10,
+      },
+    });
+    service.activate(id, second.id);
+    service.submit(id, bob, second.id, { optionId: 'y' });
+    service.submit(id, carol, second.id, { optionId: 'y' });
+    expect(service.leaderboard(id).entries.map((e) => [e.points, e.rank])).toEqual([
+      [2000, 1],
+      [1000, 2],
+      [1000, 2],
+    ]);
+  });
+
+  test('a presentation with a quiz asks for a nickname, which the presenter can hide', () => {
+    const { id, questionId } = quizSession();
+    expect(service.participantState(id, alice)).toMatchObject({
+      askNickname: true,
+      nickname: null,
+    });
+    service.setNickname(id, alice, 'Quick Eagle');
+    expect(service.participantState(id, alice)).toMatchObject({
+      askNickname: false,
+      nickname: 'Quick Eagle',
+    });
+    service.submit(id, alice, questionId, { optionId: 'a' });
+    const [entry] = service.leaderboard(id).entries;
+    expect(entry?.name).toBe('Quick Eagle');
+
+    service.hideNickname(id, entry?.id ?? 0);
+    expect(service.leaderboard(id).entries[0]?.name).toBeNull();
+    expectAppError(() => service.hideNickname(id, 999), 'NOT_FOUND', 404);
+    // A new name clears the moderation.
+    service.setNickname(id, alice, 'Calm Owl');
+    expect(service.leaderboard(id).entries[0]?.name).toBe('Calm Owl');
+  });
+
+  test('presentations without a quiz never ask for a nickname', () => {
+    const { id } = pollPresentation();
+    expect(service.participantState(id, alice).askNickname).toBeUndefined();
+  });
+
+  test('reopening or resetting the question restarts the clock', () => {
+    const { id, questionId } = quizSession(10);
+    clock += 30_000;
+    expect(service.presenterState(id).closesIn).toBe(0);
+    service.activate(id, questionId);
+    expect(service.presenterState(id).closesIn).toBe(10_000);
+    clock += 30_000;
+    service.resetResults(id, questionId);
+    expect(service.presenterState(id).closesIn).toBe(10_000);
   });
 });
 
