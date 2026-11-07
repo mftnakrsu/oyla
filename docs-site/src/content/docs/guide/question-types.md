@@ -1,9 +1,9 @@
 ---
 title: Question types
-description: Multiple choice, word cloud, open question, scale and Q&A, with their settings, limits and results.
+description: Multiple choice, word cloud, open question, scale, Q&A and quiz, with their settings, limits and results.
 ---
 
-Oyla has five question types. Every question has a title of up to 200 characters; the settings
+Oyla has six question types. Every question has a title of up to 200 characters; the settings
 below depend on the type. You pick the type when you add a question and can't change it later, so
 delete the question and add a new one if you need a different type.
 
@@ -14,6 +14,7 @@ delete the question and add a new one if you need a different type.
 | [Open question](#open-question) | 1 to 5 (default 1) | Answers as notes, newest first |
 | [Scale](#scale) | 1 | Average and a column chart of the ratings |
 | [Q&A](#qa) | 1 to 5 questions (default 3), plus upvotes | Questions, most upvoted first |
+| [Quiz](#quiz) | 1, within the time limit | A countdown, then bars with the right answer, and a leaderboard |
 
 ## Multiple choice
 
@@ -216,6 +217,33 @@ take part; when you hide the results, the list disappears from the phones too.
 asked in. Up to 200 questions are shown. Moderation works as for open questions: hiding a question
 takes its upvotes with it, and asking it again doesn't bring it back.
 
+## Quiz
+
+A timed question with one correct answer. Right and quick answers earn points, and a leaderboard
+adds them up over every quiz question of the presentation.
+
+**Settings:** 2 to 10 **Options** like multiple choice; select ✓ next to the right one. **Time to
+answer**: 10, 20, 30 or 60 seconds (default 20).
+
+**Names:** when a presentation has a quiz question, phones first ask for a name for the
+leaderboard, with a suggestion such as "Quick Eagle" ready to keep. Names are up to 24
+characters.
+
+**Answering:** the countdown starts when you open the question on the presenter screen, and
+coming back to it or resetting it starts it again. One tap answers; each person answers once.
+The server keeps the time: answers that arrive after it (plus one second for slow networks) are
+refused, and phones never receive the correct answer before the time is up.
+
+**Points:** a wrong answer or none gets 0. A right one gets between 1,000 (straight away) and 500
+(at the last second), measured from when the server opened the question to when the answer
+arrived.
+
+**Results:** while the time runs, the screen shows the countdown and how many people answered.
+When it is up, the bars appear with the right option marked **Correct**, and each phone shows
+whether it was right, its points, its total and its place. Select the trophy button or press
+<kbd>L</kbd> for the leaderboard: the top 10 with their points; people with the same points share
+a place. **Moderate names** puts a ✕ next to each name; a hidden name shows as "Anonymous".
+
 ## Limits for every type
 
 | Limit | Value |
@@ -227,6 +255,6 @@ takes its upvotes with it, and asking it again doesn't bring it back.
 
 ## Missing a type?
 
-Quizzes and multi-statement scales are on the
+Multi-statement scales are on the
 [roadmap](/roadmap/). If you want to build one, start with
 [Adding a question type](/development/adding-a-question-type/).

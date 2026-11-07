@@ -74,7 +74,7 @@ describe('REST body schemas', () => {
 
   test('question type must be registered', () => {
     expect(createQuestionBody.safeParse({ type: 'scale' }).success).toBe(true);
-    expect(createQuestionBody.safeParse({ type: 'quiz' }).success).toBe(false);
+    expect(createQuestionBody.safeParse({ type: 'ranking' }).success).toBe(false);
   });
 
   test('reorder accepts at most 50 ids', () => {

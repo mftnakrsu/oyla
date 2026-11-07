@@ -2,6 +2,9 @@ import {
   type Ack,
   canModerate,
   getQuestionType,
+  isScored,
+  isTimed,
+  type Leaderboard,
   type PresentationDto,
   type QuestionDto,
 } from '@oyla/shared';
@@ -19,8 +22,10 @@ import { dropHash, readKeyFromHash } from '../lib/admin-key';
 import { displayHost, formatJoinCode, joinUrl } from '../lib/format';
 import { tokenFor } from '../lib/my-presentations';
 import { usePalette } from '../lib/palette';
+import { useCountdown } from '../live/useCountdown';
 import { usePresenterSession } from '../live/usePresenterSession';
 import { getQuestionTypeUi } from '../question-types/registry';
+import { HideButton } from '../question-types/shared';
 import {
   ExitIcon,
   EyeIcon,
@@ -32,6 +37,7 @@ import {
   PeopleIcon,
   PrevIcon,
   ResetIcon,
+  TrophyIcon,
 } from './present/icons';
 
 function ControlButton({
@@ -192,12 +198,117 @@ function ModerationBar({
   );
 }
 
+/** While a timed question is open: the countdown and how many answered, never the results. */
+function TimedOpen({ left, total }: { left: number; total: number }) {
+  const { t, tn } = useI18n();
+  return (
+    <div className="flex h-full flex-col items-center justify-center gap-[0.6em] text-center">
+      <p
+        className="text-[9em] font-extrabold leading-none tabular-nums"
+        role="timer"
+        aria-label={t('quiz.timeLeft')}
+      >
+        {Math.ceil(left / 1000)}
+      </p>
+      <p className="text-[1.6em] text-muted" aria-live="polite">
+        {tn('results.answers', total)}
+      </p>
+    </div>
+  );
+}
+
+/** The quiz leaderboard over the whole screen; names can be moderated. */
+function LeaderboardView({
+  board,
+  onHide,
+  onClose,
+}: {
+  board: Leaderboard | null;
+  onHide(id: number): void;
+  onClose(): void;
+}) {
+  const { t, tn } = useI18n();
+  const [moderating, setModerating] = useState(false);
+  const close = useRef<HTMLButtonElement>(null);
+  useEffect(() => close.current?.focus(), []);
+  const entries = board?.entries ?? [];
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={t('present.leaderboard')}
+      className="fixed inset-0 z-20 flex flex-col bg-page px-[2em] py-[1.5em]"
+      style={{ fontSize: 'clamp(15px, 0.85vw + 0.55vh, 32px)' }}
+    >
+      <div className="mb-[1em] flex flex-wrap items-baseline justify-between gap-[1em]">
+        <h1 className="text-[2.7em] font-extrabold tracking-tight">{t('present.leaderboard')}</h1>
+        <p className="text-[1.3em] text-muted">
+          {tn('present.leaderboard.players', board?.players ?? 0)}
+        </p>
+      </div>
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        {entries.length === 0 ? (
+          <p className="py-[2em] text-center text-[1.4em] text-muted">
+            {t('present.leaderboard.empty')}
+          </p>
+        ) : (
+          <ol className="flex flex-col gap-[0.5em]">
+            {entries.map((entry) => (
+              <li
+                key={`${entry.id}-${entry.rank}-${entry.points}`}
+                className={`slip-in flex items-center gap-[1em] rounded-xl border-2 px-[1em] py-[0.5em] text-[1.6em] ${
+                  entry.rank === 1 ? 'border-brand bg-brand-soft' : 'border-line bg-paper'
+                }`}
+              >
+                <span className="w-[2em] shrink-0 text-center font-extrabold tabular-nums">
+                  {entry.rank}
+                </span>
+                <span
+                  className={`min-w-0 flex-1 truncate font-bold ${entry.name ? '' : 'text-muted'}`}
+                >
+                  {entry.name ?? t('present.leaderboard.anonymous')}
+                </span>
+                <span className="shrink-0 tabular-nums text-muted">
+                  {t('present.leaderboard.points', { points: entry.points })}
+                </span>
+                {moderating && entry.name && entry.id > 0 ? (
+                  <HideButton text={entry.name} onHide={() => onHide(entry.id)} />
+                ) : null}
+              </li>
+            ))}
+          </ol>
+        )}
+      </div>
+      <div className="mt-[1em] flex justify-end gap-[0.6em]">
+        <button
+          type="button"
+          aria-pressed={moderating}
+          onClick={() => setModerating((on) => !on)}
+          className={buttonClass('secondary', 'lg')}
+        >
+          <ModerateIcon />
+          {t('present.leaderboard.moderate')}
+        </button>
+        <button
+          ref={close}
+          type="button"
+          onClick={onClose}
+          className={buttonClass('primary', 'lg')}
+        >
+          {t('present.leaderboard.close')}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function ActiveQuestion({
   question,
   results,
   total,
   onReveal,
   onHide,
+  left,
 }: {
   question: QuestionDto;
   results: unknown;
@@ -205,6 +316,8 @@ function ActiveQuestion({
   onReveal(): void;
   /** Set while moderating. */
   onHide?(key: string): void;
+  /** Timed questions: milliseconds left, 0 once closed; null for untimed ones. */
+  left: number | null;
 }) {
   const { t } = useI18n();
   const ui = getQuestionTypeUi(question.type);
@@ -216,12 +329,24 @@ function ActiveQuestion({
         {question.title || t('editor.question.untitled')}
       </h1>
       <div className="min-h-0 flex-1 overflow-y-auto">
-        {question.resultsHidden ? (
+        {left !== null && left > 0 ? (
+          <TimedOpen left={left} total={total} />
+        ) : question.resultsHidden ? (
           <HiddenResults total={total} onReveal={onReveal} />
         ) : readable && results !== null ? (
           <ErrorBoundary key={question.id} fallback={unavailable}>
             <Suspense fallback={null}>
-              <ui.Results config={question.config} results={results} onHide={onHide} />
+              {left === 0 ? (
+                <p className="mb-[0.6em] text-[1.3em] font-bold text-muted">
+                  {t('present.timeUp')}
+                </p>
+              ) : null}
+              <ui.Results
+                config={question.config}
+                results={results}
+                onHide={onHide}
+                revealed={left === 0}
+              />
             </Suspense>
           </ErrorBoundary>
         ) : (
@@ -243,6 +368,7 @@ export function PresentPage() {
   const [toggleError, setToggleError] = useState<ReturnType<typeof errorCodeOf> | null>(null);
   /** The question being moderated; moving to another question ends moderation. */
   const [moderatingId, setModeratingId] = useState<string | null>(null);
+  const [showBoard, setShowBoard] = useState(false);
   const session = usePresenterSession(id, token);
   usePalette(session.theme ?? presentation?.theme);
   const autoStarted = useRef(false);
@@ -282,6 +408,9 @@ export function PresentPage() {
   const questions = presentation?.questions ?? [];
   const index = questions.findIndex((q) => q.id === session.activeQuestionId);
   const active = questions[index];
+  const hasQuiz = questions.some((q) => isScored(q.type));
+  const countdown = useCountdown(session.closesAt);
+  const left = active && isTimed(active.type) ? (countdown ?? 0) : null;
 
   // Opening the presenter view starts the presentation at the first question.
   useEffect(() => {
@@ -344,6 +473,10 @@ export function PresentPage() {
         if (event.key === 'Escape' || event.key === 'i') setInvite(false);
         return;
       }
+      if (showBoard) {
+        if (event.key === 'Escape' || event.key === 'l') setShowBoard(false);
+        return;
+      }
       // Leave typing and focused controls alone (Space or Enter on a button activates it).
       if (
         event.target instanceof HTMLElement &&
@@ -364,11 +497,13 @@ export function PresentPage() {
         toggleModeration();
       } else if (event.key === 'i') {
         setInvite(true);
+      } else if (event.key === 'l' && hasQuiz) {
+        setShowBoard(true);
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [go, toggleFullscreen, toggleHidden, toggleModeration, invite]);
+  }, [go, toggleFullscreen, toggleHidden, toggleModeration, invite, showBoard, hasQuiz]);
 
   if (!token || session.status === 'unauthorized' || loadError === 'UNAUTHORIZED') {
     return (
@@ -481,6 +616,7 @@ export function PresentPage() {
               onHide={
                 moderating ? (key) => void moderate(session.hideEntry(active.id, key)) : undefined
               }
+              left={left}
             />
           </>
         ) : (
@@ -529,6 +665,11 @@ export function PresentPage() {
               <ModerateIcon />
             </ControlButton>
           ) : null}
+          {hasQuiz ? (
+            <ControlButton label={t('present.leaderboard')} onClick={() => setShowBoard(true)}>
+              <TrophyIcon />
+            </ControlButton>
+          ) : null}
           <ResetButton disabled={!active} onReset={() => active && void session.reset(active.id)} />
           <ControlButton label={t('present.invite')} onClick={() => setInvite(true)}>
             <InviteIcon />
@@ -543,6 +684,13 @@ export function PresentPage() {
       </footer>
 
       {invite ? <Invite code={code} onClose={() => setInvite(false)} /> : null}
+      {showBoard ? (
+        <LeaderboardView
+          board={session.leaderboard}
+          onHide={(id) => void moderate(session.hideNickname(id))}
+          onClose={() => setShowBoard(false)}
+        />
+      ) : null}
     </div>
   );
 }

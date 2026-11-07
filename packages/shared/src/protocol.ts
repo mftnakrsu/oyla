@@ -2,6 +2,7 @@ import { z } from 'zod';
 import type { ErrorCode } from './errors';
 import { LIMITS } from './limits';
 import type { QuestionTypeKey } from './question-types/registry';
+import { textField } from './text';
 import type { ThemeKey } from './themes';
 
 export type AckError = { ok: false; error: { code: ErrorCode } };
@@ -16,6 +17,11 @@ export interface PublicQuestion {
   /** 0-based position, for "question 2 of 5". */
   index: number;
   total: number;
+  /**
+   * Timed questions only: milliseconds until answers close, as of when the message was sent (0
+   * once closed). Clients count down from their own receive time, never from a server clock.
+   */
+  closesIn?: number;
 }
 
 export interface ParticipantState {
@@ -33,6 +39,37 @@ export interface ParticipantState {
    * that are `sharedOnPhones` (Q&A: which questions they asked and upvoted).
    */
   mine?: unknown[];
+  /** The presentation has a quiz and this participant hasn't picked a leaderboard name yet. */
+  askNickname?: boolean;
+  /** This participant's leaderboard name, once picked. */
+  nickname?: string | null;
+  /** Scored questions only, once the time is up: how this participant did. */
+  score?: ScoreSummary;
+}
+
+export interface ScoreSummary {
+  /** Points for the active question; null when they didn't answer it. */
+  points: number | null;
+  /** Points over every scored question of the presentation. */
+  total: number;
+  /** 1-based place on the leaderboard (ties share a place); null without any answer. */
+  rank: number | null;
+  /** People on the leaderboard. */
+  players: number;
+}
+
+export interface LeaderboardEntry {
+  /** Opaque number for moderation; never the participant id. */
+  id: number;
+  /** Null when the presenter hid the nickname or none was picked. */
+  name: string | null;
+  points: number;
+  rank: number;
+}
+
+export interface Leaderboard {
+  entries: LeaderboardEntry[];
+  players: number;
 }
 
 /** What every screen of a presentation shows around the questions. */
@@ -86,6 +123,14 @@ export const presenterShowHiddenSchema = z.object({
   questionId: entityId,
 });
 
+export const participantNicknameSchema = z.object({
+  nickname: textField({ min: 1, max: LIMITS.nickname }),
+});
+
+export const presenterHideNicknameSchema = z.object({
+  id: z.number().int().positive(),
+});
+
 export type ParticipantJoinAck = Ack<{
   presentationId: string;
   title: string;
@@ -97,9 +142,13 @@ export type PresenterJoinAck = Ack<{
   title: string;
   theme: ThemeKey;
   activeQuestionId: string | null;
+  /** See `PublicQuestion.closesIn`; absent for untimed questions. */
+  closesIn?: number;
   participants: number;
   results: ResultsMessage | null;
 }>;
+export type NicknameAck = Ack<{ nickname: string }>;
+export type LeaderboardAck = Ack<{ leaderboard: Leaderboard }>;
 
 /**
  * Payloads are typed `unknown` on purpose: they come from untrusted clients and every handler
@@ -115,12 +164,20 @@ export interface ClientToServerEvents {
   'presenter:hide-entry': (payload: unknown, ack: (result: Ack) => void) => void;
   /** Brings back every hidden answer of a question. */
   'presenter:show-hidden': (payload: unknown, ack: (result: Ack) => void) => void;
+  /** Picks the participant's leaderboard name for this presentation. */
+  'participant:nickname': (payload: unknown, ack: (result: NicknameAck) => void) => void;
+  /** The top of the quiz leaderboard. */
+  'presenter:leaderboard': (payload: unknown, ack: (result: LeaderboardAck) => void) => void;
+  /** Moderation: takes a nickname off the leaderboard. */
+  'presenter:hide-nickname': (payload: unknown, ack: (result: Ack) => void) => void;
 }
 
 export interface ServerToClientEvents {
   state: (state: ParticipantState) => void;
-  'presenter:state': (state: { activeQuestionId: string | null }) => void;
+  'presenter:state': (state: { activeQuestionId: string | null; closesIn?: number }) => void;
   results: (message: ResultsMessage) => void;
+  /** Presenters only: the quiz leaderboard changed. */
+  leaderboard: (leaderboard: Leaderboard) => void;
   presence: (presence: { participants: number }) => void;
   /** The title or theme changed; sent to participants and presenters. */
   presentation: (info: PresentationInfo) => void;

@@ -23,6 +23,7 @@ describe('question type registry', () => {
       'open-ended',
       'scale',
       'qa',
+      'quiz',
     ]);
   });
 
@@ -41,7 +42,7 @@ describe('question type registry', () => {
 
   test('isQuestionTypeKey narrows strings', () => {
     expect(isQuestionTypeKey('scale')).toBe(true);
-    expect(isQuestionTypeKey('quiz')).toBe(false);
+    expect(isQuestionTypeKey('ranking')).toBe(false);
     expect(isQuestionTypeKey('toString')).toBe(false);
   });
 
@@ -53,6 +54,19 @@ describe('question type registry', () => {
     expect(canModerate('qa')).toBe(true);
     expect(moderationKeyOf('word-cloud', { text: 'Tea' })).toBe('tea');
     expect(moderationKeyOf('scale', { value: 3 })).toBeNull();
+  });
+
+  test('publicConfig hides the quiz answer until the question is closed', () => {
+    const config = {
+      options: [
+        { id: 'a', label: 'A' },
+        { id: 'b', label: 'B' },
+      ],
+      correctOptionId: 'b',
+      seconds: 20,
+    };
+    expect(publicConfig('quiz', config)).toEqual({ options: config.options, seconds: 20 });
+    expect(publicConfig('quiz', config, true)).toEqual(config);
   });
 
   test('publicConfig returns the config when a type does not hide anything', () => {

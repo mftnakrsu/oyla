@@ -10,11 +10,19 @@ and versions follow [Semantic Versioning](https://semver.org/).
 - **Q&A question type:** participants ask questions and upvote each other's; the presenter
   screen lists them most upvoted first. Each person upvotes a question once and not their own.
   Every phone sees the live list, and moderation hides a question with its upvotes.
+- **Quiz question type:** a timed question with a correct answer. The server keeps the time and
+  refuses late answers, and the correct answer reaches phones only when the time is up. Right
+  answers earn 500 to 1,000 points depending on speed, measured on the server. Phones ask for a
+  leaderboard name (with a suggestion) and show right or wrong, points and place after each
+  question; the presenter screen shows a countdown, then the answer, and a leaderboard
+  (<kbd>L</kbd>) whose names can be moderated. Closes [#7].
 
 ### Changed
 
-- Question types gain three optional hooks for reactions: `isAnswer`, `allows` and
-  `sharedOnPhones`. `ParticipantState` gains `mine`, and `RespondProps` gains `results` and
+- Question types gain optional hooks for reactions (`isAnswer`, `allows`, `sharedOnPhones`) and
+  for timed, scored types (`timeLimit`, `score`).
+- Database migration `0005` adds `questions.opened_at`, `responses.score` and a `participants`
+  table for leaderboard names. It runs on start. `ParticipantState` gains `mine`, and `RespondProps` gains `results` and
   `mine`, for types that use them.
 
 ## 0.2.0 - 2026-11-07
@@ -59,3 +67,4 @@ Socket.IO; four colour themes; English and Turkish; no accounts; one Docker cont
 [#3]: https://github.com/mftnakrsu/oyla/pull/3
 [#4]: https://github.com/mftnakrsu/oyla/pull/4
 [#5]: https://github.com/mftnakrsu/oyla/pull/5
+[#7]: https://github.com/mftnakrsu/oyla/issues/7

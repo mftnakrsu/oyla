@@ -1,7 +1,14 @@
-import type { ErrorCode, ParticipantState, ResponseSubmitAck, ThemeKey } from '@oyla/shared';
+import type {
+  ErrorCode,
+  NicknameAck,
+  ParticipantState,
+  ResponseSubmitAck,
+  ThemeKey,
+} from '@oyla/shared';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { getParticipantId } from '../lib/participant';
 import { createSocket, type OylaSocket } from './socket';
+import { deadlineFrom } from './useCountdown';
 
 export type ParticipantStatus = 'connecting' | 'ready' | 'not-found' | 'ended' | 'error';
 
@@ -13,9 +20,13 @@ export interface ParticipantSession {
   /** Null until joined; follows changes the presenter makes. */
   theme: ThemeKey | null;
   state: ParticipantState | null;
+  /** Local timestamp when the active timed question closes; null for untimed ones. */
+  closesAt: number | null;
   submit(questionId: string, response: unknown): Promise<ResponseSubmitAck>;
   /** Marks the question as fully answered (the server said no answers are left). */
   markAnswered(questionId: string): void;
+  /** Picks the leaderboard name (quiz). */
+  setNickname(nickname: string): Promise<NicknameAck>;
 }
 
 const ACK_TIMEOUT_MS = 10_000;
@@ -32,6 +43,12 @@ export function useParticipantSession(joinCode: string | null): ParticipantSessi
   const [title, setTitle] = useState('');
   const [theme, setTheme] = useState<ThemeKey | null>(null);
   const [state, setState] = useState<ParticipantState | null>(null);
+  const [closesAt, setClosesAt] = useState<number | null>(null);
+  // Every state from the server carries a fresh "closes in"; turn it into a local deadline.
+  const receive = useCallback((next: ParticipantState) => {
+    setState(next);
+    setClosesAt(deadlineFrom(next.activeQuestion?.closesIn));
+  }, []);
 
   useEffect(() => {
     if (joinCode === null) return;
@@ -45,7 +62,7 @@ export function useParticipantSession(joinCode: string | null): ParticipantSessi
         if (ack.ok) {
           setTitle(ack.title);
           setTheme(ack.theme);
-          setState(ack.state);
+          receive(ack.state);
           setStatus('ready');
         } else if (ack.error.code === 'JOIN_CODE_NOT_FOUND') {
           setStatus('not-found');
@@ -57,7 +74,7 @@ export function useParticipantSession(joinCode: string | null): ParticipantSessi
       });
     });
     socket.on('disconnect', () => setConnected(false));
-    socket.on('state', setState);
+    socket.on('state', receive);
     // Live results for phones that answered (only sent when the presentation shares them).
     socket.on('results', (message) =>
       setState((current) =>
@@ -79,7 +96,7 @@ export function useParticipantSession(joinCode: string | null): ParticipantSessi
       socket.disconnect();
       socketRef.current = null;
     };
-  }, [joinCode]);
+  }, [joinCode, receive]);
 
   const submit = useCallback(
     (questionId: string, response: unknown) =>
@@ -117,5 +134,36 @@ export function useParticipantSession(joinCode: string | null): ParticipantSessi
     );
   }, []);
 
-  return { status, errorCode, connected, title, theme, state, submit, markAnswered };
+  const setNickname = useCallback(
+    (nickname: string) =>
+      new Promise<NicknameAck>((resolve) => {
+        const socket = socketRef.current;
+        if (!socket?.connected) {
+          resolve({ ok: false, error: { code: 'INTERNAL' } });
+          return;
+        }
+        socket.timeout(ACK_TIMEOUT_MS).emit('participant:nickname', { nickname }, (error, ack) => {
+          if (!error && ack.ok) {
+            setState((current) =>
+              current ? { ...current, askNickname: false, nickname: ack.nickname } : current,
+            );
+          }
+          resolve(error ? { ok: false, error: { code: 'INTERNAL' } } : ack);
+        });
+      }),
+    [],
+  );
+
+  return {
+    status,
+    errorCode,
+    connected,
+    title,
+    theme,
+    state,
+    closesAt,
+    submit,
+    markAnswered,
+    setNickname,
+  };
 }

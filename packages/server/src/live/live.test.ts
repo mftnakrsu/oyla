@@ -292,6 +292,66 @@ describe('a live poll', () => {
     await upvoted;
   });
 
+  test('a quiz closes on its own and reveals the answer, scores and leaderboard', async () => {
+    const { built, url } = await start();
+    const created = built.service.create({ title: 'Pub quiz' });
+    const { id: questionId } = built.service.addQuestion(created.id, {
+      type: 'quiz',
+      config: {
+        options: [
+          { id: 'a', label: 'Ankara' },
+          { id: 'b', label: 'İstanbul' },
+        ],
+        correctOptionId: 'a',
+        seconds: 5,
+      },
+    });
+    built.service.activate(created.id, questionId);
+
+    const presenter = await client(url);
+    const join = await emit<PresenterJoinAck>(presenter, 'presenter:join', {
+      presentationId: created.id,
+      adminToken: created.adminToken,
+    });
+    expect(join.ok && join.closesIn).toBeGreaterThan(4000);
+
+    const phone = await client(url);
+    const joined = await emit<ParticipantJoinAck>(phone, 'participant:join', {
+      joinCode: created.joinCode,
+      participantId: participant(1),
+    });
+    expect(joined.ok && joined.state.askNickname).toBe(true);
+    expect(joined.ok && joined.state.activeQuestion?.config).not.toHaveProperty('correctOptionId');
+    expect(await emit(phone, 'participant:nickname', { nickname: ' Quick Eagle ' })).toEqual({
+      ok: true,
+      nickname: 'Quick Eagle',
+    });
+
+    const board = next(presenter, 'leaderboard', (lb) => lb.players === 1);
+    await emit(phone, 'response:submit', { questionId, response: { optionId: 'a' } });
+    const [leaderboard] = await board;
+    expect(leaderboard.entries[0]).toMatchObject({ name: 'Quick Eagle', rank: 1 });
+
+    const revealed = next(
+      phone,
+      'state',
+      (state: ParticipantState) => state.activeQuestion?.closesIn === 0,
+      8000,
+    );
+    const closed = next(presenter, 'presenter:state', (state) => state.closesIn === 0, 8000);
+    const [state] = await revealed;
+    await closed;
+    expect(state.activeQuestion?.config).toMatchObject({ correctOptionId: 'a' });
+    expect(state.score).toMatchObject({ rank: 1, players: 1 });
+    expect(state.score?.points).toBeGreaterThanOrEqual(500);
+
+    const late = await emit<ResponseSubmitAck>(phone, 'response:submit', {
+      questionId,
+      response: { optionId: 'b' },
+    });
+    expect(late).toEqual({ ok: false, error: { code: 'RESPONSE_LIMIT_REACHED' } });
+  }, 12_000);
+
   test('a reconnecting participant keeps their answers', async () => {
     const { built, url } = await start();
     const { id, joinCode, questionId } = await setupPoll(built);

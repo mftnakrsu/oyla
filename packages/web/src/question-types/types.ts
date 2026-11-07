@@ -29,6 +29,8 @@ export interface ResultsProps<K extends QuestionTypeKey> {
    * answer's moderation key (see `moderationKeyOf`). Only types with a `moderationKey` get it.
    */
   onHide?(key: string): void;
+  /** Timed types: the time is up, so the correct answer may be shown. */
+  revealed?: boolean;
 }
 
 export interface QuestionTypeUi<K extends QuestionTypeKey> {
@@ -53,5 +55,10 @@ export interface AnyQuestionTypeUi {
     results?: unknown;
     mine?: unknown[];
   }>;
-  Results: ComponentType<{ config: unknown; results: unknown; onHide?(key: string): void }>;
+  Results: ComponentType<{
+    config: unknown;
+    results: unknown;
+    onHide?(key: string): void;
+    revealed?: boolean;
+  }>;
 }
