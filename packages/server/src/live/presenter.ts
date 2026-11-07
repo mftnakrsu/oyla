@@ -1,6 +1,7 @@
 import {
   presenterActivateSchema,
   presenterHideEntrySchema,
+  presenterHideNicknameSchema,
   presenterJoinSchema,
   presenterResetSchema,
   presenterShowHiddenSchema,
@@ -37,7 +38,7 @@ export function registerPresenterHandlers(socket: OylaSocket, context: LiveConte
       return {
         title: presentation.title,
         theme: toThemeKey(presentation.theme),
-        activeQuestionId: presentation.activeQuestionId,
+        ...service.presenterState(presentationId),
         participants: broadcaster.participantCount(presentationId),
         results: presentation.activeQuestionId
           ? service.results(presentationId, presentation.activeQuestionId)
@@ -69,6 +70,19 @@ export function registerPresenterHandlers(socket: OylaSocket, context: LiveConte
       const presentationId = requirePresenter();
       const { questionId, key } = parsePayload(presenterHideEntrySchema, payload);
       service.hideEntry(presentationId, questionId, key);
+      return {};
+    }),
+  );
+
+  socket.on('presenter:leaderboard', (_payload, ack) =>
+    handle(log, ack, () => ({ leaderboard: service.leaderboard(requirePresenter()) })),
+  );
+
+  socket.on('presenter:hide-nickname', (payload, ack) =>
+    handle(log, ack, () => {
+      const presentationId = requirePresenter();
+      const { id } = parsePayload(presenterHideNicknameSchema, payload);
+      service.hideNickname(presentationId, id);
       return {};
     }),
   );

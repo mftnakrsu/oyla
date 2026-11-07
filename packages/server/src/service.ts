@@ -5,6 +5,8 @@ import {
   DEFAULT_THEME,
   getQuestionType,
   isQuestionTypeKey,
+  isScored,
+  type Leaderboard,
   LIMITS,
   type ParticipantState,
   type PresentationDto,
@@ -16,6 +18,7 @@ import {
   type ResponsesExportDto,
   type ResultsMessage,
   randomId,
+  type ScoreSummary,
   toThemeKey,
   type UpdatePresentationBody,
   type UpdateQuestionBody,
@@ -45,6 +48,18 @@ export interface ServiceDeps {
 }
 
 export type PresentationService = ReturnType<typeof createPresentationService>;
+
+/** Answers still count this long after a timed question closes, for network delay. */
+export const CLOSE_GRACE_MS = 1000;
+
+/** Places for a list sorted by points, highest first; ties share a place (1, 1, 3). */
+function withRanks<T extends { points: number }>(rows: T[]): (T & { rank: number })[] {
+  let rank = 0;
+  return rows.map((row, index) => {
+    if (index === 0 || row.points !== rows[index - 1]?.points) rank = index + 1;
+    return { ...row, rank };
+  });
+}
 
 /** Business rules shared by the REST API and the live layer. */
 export function createPresentationService({ store, events, config, now = Date.now }: ServiceDeps) {
@@ -98,9 +113,15 @@ export function createPresentationService({ store, events, config, now = Date.no
     const index = activeId ? ids.indexOf(activeId) : -1;
     const row = activeId && index >= 0 ? store.questions.get(presentationId, activeId) : undefined;
     const question = row ? resolve(row) : null;
+    const names = nicknameStates(presentationId, participantIds);
     if (!question) {
       for (const id of participantIds) {
-        states.set(id, { activeQuestion: null, remaining: 0, results: null });
+        states.set(id, {
+          activeQuestion: null,
+          remaining: 0,
+          results: null,
+          ...(names?.get(id) ?? {}),
+        });
       }
       return states;
     }
@@ -126,14 +147,18 @@ export function createPresentationService({ store, events, config, now = Date.no
           )
         : store.responses.countsByParticipant(question.row.id);
     const allowed = type.maxResponses(question.config);
+    const closesIn = closesInOf(question);
+    const closed = closesIn === 0;
     const activeQuestion = {
       id: question.row.id,
       type: question.key,
       title: question.row.title,
-      config: publicConfig(question.key, question.config),
+      config: publicConfig(question.key, question.config, closed),
       index,
       total: ids.length,
+      ...(closesIn === undefined ? {} : { closesIn }),
     };
+    const scores = type.score && closed ? scoreSummaries(presentationId, question.row.id) : null;
     // Phones that answered see the results, if the presenter allows it and hasn't hidden them.
     // Types that are shared on phones show them to everyone: people answer by upvoting.
     const share = (presentation.resultsOnPhones || shared) && !question.row.resultsHidden;
@@ -148,9 +173,52 @@ export function createPresentationService({ store, events, config, now = Date.no
         remaining: Math.max(0, allowed - count),
         results: sees ? (sharedResults ?? null) : null,
         ...(shared ? { mine } : {}),
+        ...(scores ? { score: scores(id) } : {}),
+        ...(names?.get(id) ?? {}),
       });
     }
     return states;
+  }
+
+  /** Milliseconds until a timed question closes (0 once closed); undefined for untimed ones. */
+  function closesInOf(question: ResolvedQuestion): number | undefined {
+    const limit = question.type.timeLimit?.(question.config);
+    if (limit === undefined) return undefined;
+    const opened = question.row.openedAt ?? now();
+    return Math.max(0, opened + limit * 1000 - now());
+  }
+
+  /** How each participant did on a scored question, with their place over the presentation. */
+  function scoreSummaries(presentationId: string, questionId: string) {
+    const points = store.responses.scoresFor(questionId);
+    const ranked = withRanks(store.responses.totals(presentationId));
+    const byParticipant = new Map(ranked.map((row) => [row.participantId, row]));
+    return (participantId: string): ScoreSummary => {
+      const overall = byParticipant.get(participantId);
+      return {
+        points: points.get(participantId) ?? null,
+        total: overall?.points ?? 0,
+        rank: overall?.rank ?? null,
+        players: ranked.length,
+      };
+    };
+  }
+
+  /** Leaderboard names: who picked one, and whether the presentation needs them at all. */
+  function nicknameStates(presentationId: string, participantIds: string[]) {
+    const needed = store.questions
+      .list(presentationId)
+      .some((row) => isQuestionTypeKey(row.type) && isScored(row.type));
+    if (!needed) return null;
+    const names = new Map(
+      store.participants.list(presentationId).map((row) => [row.participantId, row.nickname]),
+    );
+    return new Map(
+      participantIds.map((id) => {
+        const nickname = names.get(id) ?? null;
+        return [id, { askNickname: nickname === null, nickname }];
+      }),
+    );
   }
 
   /** Whether a stored payload is an answer, not a reaction such as an upvote (see `isAnswer`). */
@@ -314,6 +382,7 @@ export function createPresentationService({ store, events, config, now = Date.no
         config: body.config === undefined ? type.defaultConfig() : parseConfig(type, body.config),
         resultsHidden: false,
         hiddenKeys: [],
+        openedAt: null,
         createdAt: time,
         updatedAt: time,
       });
@@ -367,6 +436,7 @@ export function createPresentationService({ store, events, config, now = Date.no
         store.questions.delete(presentationId, questionId);
       });
       events.emit('state-changed', presentationId);
+      events.emit('leaderboard-changed', presentationId);
     },
 
     reorder(presentationId: string, ids: string[]): PresentationDto {
@@ -385,13 +455,22 @@ export function createPresentationService({ store, events, config, now = Date.no
     },
 
     resetResults(presentationId: string, questionId: string): void {
-      requirePresentation(presentationId);
+      const presentation = requirePresentation(presentationId);
       requireQuestion(presentationId, questionId);
+      const time = now();
       store.transaction(() => {
         store.responses.deleteForQuestion(questionId);
-        // Starting over: nothing is left to hide.
-        store.questions.update(presentationId, questionId, { hiddenKeys: [] }, now());
+        // Starting over: nothing is left to hide, and an open timed question gets its time back.
+        store.questions.update(
+          presentationId,
+          questionId,
+          presentation.activeQuestionId === questionId
+            ? { hiddenKeys: [], openedAt: time }
+            : { hiddenKeys: [] },
+          time,
+        );
       });
+      events.emit('leaderboard-changed', presentationId);
       store.presentations.touch(presentationId, now());
       events.emit('responses-cleared', presentationId, questionId);
       events.emit('results-changed', presentationId, questionId);
@@ -403,12 +482,64 @@ export function createPresentationService({ store, events, config, now = Date.no
       if (questionId !== null) {
         requireQuestion(presentationId, questionId);
       }
-      store.presentations.setActiveQuestion(presentationId, questionId, now());
+      const time = now();
+      store.transaction(() => {
+        store.presentations.setActiveQuestion(presentationId, questionId, time);
+        // Timed questions count down from here, also when the presenter comes back to one.
+        if (questionId !== null)
+          store.questions.update(presentationId, questionId, { openedAt: time }, time);
+      });
       events.emit('state-changed', presentationId);
     },
 
     activeQuestionId(presentationId: string): string | null {
       return requirePresentation(presentationId).activeQuestionId;
+    },
+
+    /** What presenter screens follow: the active question and, if it is timed, its countdown. */
+    presenterState(presentationId: string): { activeQuestionId: string | null; closesIn?: number } {
+      const activeQuestionId = requirePresentation(presentationId).activeQuestionId;
+      const row = activeQuestionId ? store.questions.get(presentationId, activeQuestionId) : null;
+      const question = row ? resolve(row) : null;
+      const closesIn = question ? closesInOf(question) : undefined;
+      return closesIn === undefined ? { activeQuestionId } : { activeQuestionId, closesIn };
+    },
+
+    /** The top of the quiz leaderboard; hidden or missing nicknames come back as null. */
+    leaderboard(presentationId: string): Leaderboard {
+      requirePresentation(presentationId);
+      const ranked = withRanks(store.responses.totals(presentationId));
+      const people = new Map(
+        store.participants.list(presentationId).map((row) => [row.participantId, row]),
+      );
+      return {
+        players: ranked.length,
+        entries: ranked.slice(0, LIMITS.leaderboard).map((row) => {
+          const person = people.get(row.participantId);
+          return {
+            id: person?.id ?? 0,
+            name: person && !person.nicknameHidden ? person.nickname : null,
+            points: row.points,
+            rank: row.rank,
+          };
+        }),
+      };
+    },
+
+    setNickname(presentationId: string, participantId: string, nickname: string): string {
+      requirePresentation(presentationId);
+      store.participants.setNickname(presentationId, participantId, nickname, now());
+      events.emit('leaderboard-changed', presentationId);
+      return nickname;
+    },
+
+    /** Moderation: shows this person without a name on the leaderboard. */
+    hideNickname(presentationId: string, id: number): void {
+      requirePresentation(presentationId);
+      if (!store.participants.hideNickname(presentationId, id)) {
+        throw new AppError('NOT_FOUND', 404, 'No such participant');
+      }
+      events.emit('leaderboard-changed', presentationId);
     },
 
     joinByCode(joinCode: string): PresentationRow {
@@ -477,12 +608,25 @@ export function createPresentationService({ store, events, config, now = Date.no
           throw new AppError('PRESENTATION_FULL', 409, 'This presentation has too many answers');
         }
         const time = now();
-        store.responses.insert(questionId, participantId, parsed.data, time);
+        const limit = type.timeLimit?.(question.config);
+        const elapsed = time - (question.row.openedAt ?? time);
+        if (limit !== undefined && elapsed > limit * 1000 + CLOSE_GRACE_MS) {
+          throw new AppError('QUESTION_CLOSED', 409, 'Time is up');
+        }
+        // Measured on the server: phones never say how fast they were.
+        const score = type.score
+          ? type.score(question.config, parsed.data, Math.min(elapsed, (limit ?? 0) * 1000))
+          : null;
+        store.responses.insert(questionId, participantId, parsed.data, time, score);
         store.presentations.touch(presentationId, time);
-        return { remaining: Math.max(0, allowed - used - (counts ? 1 : 0)) };
+        return {
+          remaining: Math.max(0, allowed - used - (counts ? 1 : 0)),
+          scored: score !== null,
+        };
       });
       events.emit('results-changed', presentationId, questionId);
-      return result;
+      if (result.scored) events.emit('leaderboard-changed', presentationId);
+      return { remaining: result.remaining };
     },
 
     /**

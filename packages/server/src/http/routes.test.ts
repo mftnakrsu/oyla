@@ -275,7 +275,7 @@ describe('presentations', () => {
       method: 'POST',
       url: `/api/presentations/${id}/questions`,
       headers: bearer(adminToken),
-      payload: { type: 'quiz' },
+      payload: { type: 'ranking' },
     });
     expect(badType.statusCode).toBe(400);
   });

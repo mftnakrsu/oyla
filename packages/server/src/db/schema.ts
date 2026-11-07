@@ -1,4 +1,4 @@
-import { index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { index, integer, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
 
 export const presentations = sqliteTable(
   'presentations',
@@ -33,6 +33,8 @@ export const questions = sqliteTable(
     resultsHidden: integer('results_hidden', { mode: 'boolean' }).notNull().default(false),
     /** Moderation keys of answers the presenter hid from the results. */
     hiddenKeys: text('hidden_keys', { mode: 'json' }).$type<string[]>().notNull().default([]),
+    /** When the question was last made active; timed questions (quiz) count down from it. */
+    openedAt: integer('opened_at'),
     createdAt: integer('created_at').notNull(),
     updatedAt: integer('updated_at').notNull(),
   },
@@ -48,6 +50,8 @@ export const responses = sqliteTable(
       .references(() => questions.id, { onDelete: 'cascade' }),
     participantId: text('participant_id').notNull(),
     payload: text('payload', { mode: 'json' }).$type<unknown>().notNull(),
+    /** Points the server gave this answer (quiz). Null for types without scoring. */
+    score: integer('score'),
     createdAt: integer('created_at').notNull(),
   },
   (table) => [
@@ -55,5 +59,29 @@ export const responses = sqliteTable(
   ],
 );
 
+/** Nicknames for the quiz leaderboard. Only exists for participants who picked one. */
+export const participants = sqliteTable(
+  'participants',
+  {
+    /** Shown to the presenter instead of the participant id, which must stay secret. */
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    presentationId: text('presentation_id')
+      .notNull()
+      .references(() => presentations.id, { onDelete: 'cascade' }),
+    participantId: text('participant_id').notNull(),
+    nickname: text('nickname').notNull(),
+    /** The presenter took the nickname off the leaderboard (moderation). */
+    nicknameHidden: integer('nickname_hidden', { mode: 'boolean' }).notNull().default(false),
+    createdAt: integer('created_at').notNull(),
+  },
+  (table) => [
+    uniqueIndex('participants_presentation_participant_idx').on(
+      table.presentationId,
+      table.participantId,
+    ),
+  ],
+);
+
 export type PresentationRow = typeof presentations.$inferSelect;
 export type QuestionRow = typeof questions.$inferSelect;
+export type ParticipantRow = typeof participants.$inferSelect;

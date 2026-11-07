@@ -1,7 +1,7 @@
 import type { FastifyBaseLogger } from 'fastify';
 import { AppError } from '../app-error';
 import type { LiveEvents } from '../events';
-import type { PresentationService } from '../service';
+import { CLOSE_GRACE_MS, type PresentationService } from '../service';
 import { type OylaServer, type OylaSocket, rooms } from './types';
 
 const RESULTS_THROTTLE_MS = 250;
@@ -99,11 +99,45 @@ export function createBroadcaster(
         const state = socket.data.participantId ? states.get(socket.data.participantId) : undefined;
         if (state) socket.emit('state', state);
       }
-      io.to(rooms.presenters(presentationId)).emit('presenter:state', { activeQuestionId });
+      const presenterState = service.presenterState(presentationId);
+      io.to(rooms.presenters(presentationId)).emit('presenter:state', presenterState);
       if (activeQuestionId) {
         sendResults(presentationId, activeQuestionId);
       }
+      scheduleClose(presentationId, presenterState.closesIn);
     });
+  }
+
+  /**
+   * A timed question closes on its own: one more state broadcast when the time is up reveals
+   * the answer on phones and screens. Replaces any earlier countdown of the presentation.
+   */
+  function scheduleClose(presentationId: string, closesIn: number | undefined) {
+    const key = `close:${presentationId}`;
+    const existing = timers.get(key);
+    if (existing) {
+      clearTimeout(existing);
+      timers.delete(key);
+    }
+    if (closesIn === undefined || closesIn <= 0) return;
+    // Past the server's grace period, so the reveal never races a late answer.
+    later(key, closesIn + CLOSE_GRACE_MS + 50, () => onStateChanged(presentationId));
+  }
+
+  function sendLeaderboard(presentationId: string) {
+    ignoreMissing(() => {
+      if (!hasPresenters(presentationId)) return;
+      io.to(rooms.presenters(presentationId)).emit(
+        'leaderboard',
+        service.leaderboard(presentationId),
+      );
+    });
+  }
+
+  function onLeaderboardChanged(presentationId: string) {
+    later(`leaderboard:${presentationId}`, RESULTS_THROTTLE_MS, () =>
+      sendLeaderboard(presentationId),
+    );
   }
 
   function sendPresence(presentationId: string) {
@@ -157,6 +191,7 @@ export function createBroadcaster(
   events.on('results-changed', onResultsChanged);
   events.on('presentation-changed', onPresentationChanged);
   events.on('presentation-ended', onPresentationEnded);
+  events.on('leaderboard-changed', onLeaderboardChanged);
 
   return {
     participantCount,
@@ -188,6 +223,7 @@ export function createBroadcaster(
       events.off('results-changed', onResultsChanged);
       events.off('presentation-changed', onPresentationChanged);
       events.off('presentation-ended', onPresentationEnded);
+      events.off('leaderboard-changed', onLeaderboardChanged);
       for (const timer of timers.values()) clearTimeout(timer);
       timers.clear();
     },

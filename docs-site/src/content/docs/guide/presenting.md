@@ -155,6 +155,7 @@ The buttons at the bottom right are **Previous question**, **Next question**, **
 | <kbd>M</kbd> | Start or stop moderating a word cloud or open question |
 | <kbd>F</kbd> | Full screen on and off |
 | <kbd>I</kbd> | Show or hide the join instructions |
+| <kbd>L</kbd> | Show or hide the quiz leaderboard (presentations with a quiz) |
 | <kbd>Esc</kbd> | Hide the join instructions |
 
 Most presentation clickers send Page Up and Page Down, so they work too.

@@ -3,7 +3,7 @@ title: Roadmap
 description: What Oyla does today and the features that are open for contributions.
 ---
 
-Oyla covers the core: five question types, live results, presentation themes, presenter tools
+Oyla covers the core: six question types, live results, presentation themes, presenter tools
 (hiding and revealing results, moderation, results on phones, CSV export, drag-and-drop ordering),
 English and Turkish, no accounts and one container. Everything below is open for contributions and marked "help wanted".
 
@@ -15,8 +15,6 @@ explains the setup.
 
 ### New question types
 
-- **Quiz.** Timed questions with a correct answer, points per participant and a leaderboard. The
-  shared `toPublicConfig` hook already exists so the correct answer can stay hidden from phones.
 - **Multi-statement scales.** Rate several statements in one question, with an average per
   statement.
 

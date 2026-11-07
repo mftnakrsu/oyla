@@ -2,6 +2,7 @@ import type { QuestionTypeDefinition } from './define';
 import { multipleChoice } from './multiple-choice';
 import { openEnded } from './open-ended';
 import { qa } from './qa';
+import { quiz } from './quiz';
 import { scale } from './scale';
 import { wordCloud } from './word-cloud';
 
@@ -15,6 +16,7 @@ export const questionTypes = {
   'open-ended': openEnded,
   scale,
   qa,
+  quiz,
 } as const;
 
 export type QuestionTypeKey = keyof typeof questionTypes;
@@ -56,7 +58,21 @@ export function isSharedOnPhones(key: QuestionTypeKey): boolean {
   return getQuestionType(key).sharedOnPhones === true;
 }
 
-export function publicConfig(key: QuestionTypeKey, config: unknown): unknown {
+/**
+ * What participants may see of the config. Once a timed question is closed they get all of it,
+ * so the correct answer can be shown.
+ */
+export function publicConfig(key: QuestionTypeKey, config: unknown, closed = false): unknown {
   const type = getQuestionType(key);
-  return type.toPublicConfig ? type.toPublicConfig(config) : config;
+  return type.toPublicConfig && !closed ? type.toPublicConfig(config) : config;
+}
+
+/** Whether answers to this type close after a time limit (see `timeLimit`). */
+export function isTimed(key: QuestionTypeKey): boolean {
+  return getQuestionType(key).timeLimit !== undefined;
+}
+
+/** Whether answers to this type earn points for the leaderboard (see `score`). */
+export function isScored(key: QuestionTypeKey): boolean {
+  return getQuestionType(key).score !== undefined;
 }
