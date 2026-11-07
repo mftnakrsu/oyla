@@ -112,6 +112,8 @@ export const tr: Record<MessageKey, string> = {
   'type.open-ended.description': 'Cevaplar ekranda not kâğıtları olarak görünür.',
   'type.scale.label': 'Ölçek',
   'type.scale.description': 'Katılımcılar bir ifadeyi düşükten yükseğe puanlar.',
+  'type.qa.label': 'Soru-Cevap',
+  'type.qa.description': 'Katılımcılar soru sorar, cevaplanmasını istediklerini oylar.',
 
   'mc.options': 'Seçenekler',
   'mc.option.placeholder': '{n}. seçenek',
@@ -127,6 +129,19 @@ export const tr: Record<MessageKey, string> = {
   'oe.respond.placeholder': 'Cevabınızı yazın',
   'oe.respond.label': 'Cevabınız',
   'oe.respond.submit': 'Gönder',
+  'qa.entries.label': 'Kişi başı soru sayısı',
+  'qa.respond.label': 'Sorunuz',
+  'qa.respond.placeholder': 'Ne sormak istersiniz?',
+  'qa.respond.submit': 'Soruyu gönder',
+  'qa.respond.noneLeft':
+    'Tüm sorularınızı sordunuz. Başkalarının sorularını oylamaya devam edebilirsiniz.',
+  'qa.respond.list': 'Şu ana kadarki sorular',
+  'qa.respond.empty': 'Henüz soru yok. İlk soruyu siz sorun.',
+  'qa.respond.hidden': 'Sunum yapan kişi soruları şimdilik gizliyor.',
+  'qa.respond.yours': '(sizin)',
+  'qa.respond.upvote': 'Oyla: {text}',
+  'qa.results.questions.one': '1 soru',
+  'qa.results.questions.other': '{count} soru',
 
   'scale.min.label': 'En düşük',
   'scale.max.label': 'En yüksek',

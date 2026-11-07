@@ -70,11 +70,16 @@ export function createBroadcaster(
       const watching = hasPresenters(presentationId);
       // Phones get results only after answering, and only when the presentation shares them.
       const audience = service.resultsAudience(presentationId, questionId);
-      const phones = audience && audience.size > 0 ? phonesOf(presentationId, audience) : [];
+      const everyone = audience === 'everyone';
+      const phones =
+        audience instanceof Set && audience.size > 0 ? phonesOf(presentationId, audience) : [];
+      const phonesHere =
+        (io.sockets.adapter.rooms.get(rooms.participants(presentationId))?.size ?? 0) > 0;
       // Aggregating can be costly (thousands of answers); skip it when nobody is watching.
-      if (!watching && phones.length === 0) return;
+      if (!watching && phones.length === 0 && !(everyone && phonesHere)) return;
       const message = service.results(presentationId, questionId);
       if (watching) io.to(rooms.presenters(presentationId)).emit('results', message);
+      if (everyone) io.to(rooms.participants(presentationId)).emit('results', message);
       for (const phone of phones) phone.emit('results', message);
     });
   }

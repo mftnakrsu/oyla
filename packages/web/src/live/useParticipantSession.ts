@@ -96,7 +96,12 @@ export function useParticipantSession(joinCode: string | null): ParticipantSessi
               // The ack carries the new allowance; no state broadcast follows for one participant.
               setState((current) =>
                 current?.activeQuestion?.id === questionId
-                  ? { ...current, remaining: ack.remaining }
+                  ? {
+                      ...current,
+                      remaining: ack.remaining,
+                      // Types shared on phones list this participant's own responses.
+                      ...(current.mine ? { mine: [...current.mine, response] } : {}),
+                    }
                   : current,
               );
             }

@@ -170,6 +170,34 @@ export function createStore({ db, sqlite }: DatabaseHandle) {
           .all()
           .map((row) => row.payload);
       },
+      /** One participant's payloads for one question, oldest first. */
+      payloadsOf(questionId: string, participantId: string): unknown[] {
+        return db
+          .select({ payload: responses.payload })
+          .from(responses)
+          .where(
+            and(eq(responses.questionId, questionId), eq(responses.participantId, participantId)),
+          )
+          .orderBy(asc(responses.id))
+          .all()
+          .map((row) => row.payload);
+      },
+      /** Payloads of one question grouped by participant, each oldest first, in one query. */
+      payloadsByParticipant(questionId: string): Map<string, unknown[]> {
+        const rows = db
+          .select({ participantId: responses.participantId, payload: responses.payload })
+          .from(responses)
+          .where(eq(responses.questionId, questionId))
+          .orderBy(asc(responses.id))
+          .all();
+        const grouped = new Map<string, unknown[]>();
+        for (const row of rows) {
+          const list = grouped.get(row.participantId);
+          if (list) list.push(row.payload);
+          else grouped.set(row.participantId, [row.payload]);
+        }
+        return grouped;
+      },
       countForQuestion(questionId: string): number {
         const row = db
           .select({ value: count() })

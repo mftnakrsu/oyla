@@ -1,9 +1,9 @@
 ---
 title: Question types
-description: Multiple choice, word cloud, open question and scale, with their settings, limits and results.
+description: Multiple choice, word cloud, open question, scale and Q&A, with their settings, limits and results.
 ---
 
-Oyla has four question types. Every question has a title of up to 200 characters; the settings
+Oyla has five question types. Every question has a title of up to 200 characters; the settings
 below depend on the type. You pick the type when you add a question and can't change it later, so
 delete the question and add a new one if you need a different type.
 
@@ -13,6 +13,7 @@ delete the question and add a new one if you need a different type.
 | [Word cloud](#word-cloud) | 1 to 5 (default 3) | Words that grow with the number of people who gave them |
 | [Open question](#open-question) | 1 to 5 (default 1) | Answers as notes, newest first |
 | [Scale](#scale) | 1 | Average and a column chart of the ratings |
+| [Q&A](#qa) | 1 to 5 questions (default 3), plus upvotes | Questions, most upvoted first |
 
 ## Multiple choice
 
@@ -196,6 +197,25 @@ People rate a statement from low to high.
 how many people picked it. If you change the range after people answered, ratings outside the new
 range stop counting.
 
+## Q&A
+
+Participants ask questions and upvote the ones they want answered. The presenter sees the most
+upvoted questions first.
+
+**Settings:** **Questions per person**, from 1 to 5 (default 3). Upvotes don't count toward it.
+
+**Asking:** up to 200 characters per question. The same question asked twice, ignoring upper and
+lower case, is shown once.
+
+**Upvoting:** every phone shows the questions asked so far, most upvoted first, whether or not it
+has asked anything itself. Each person can upvote a question once and can't upvote their own.
+Phones show the questions even when **Show results on phones** is off, since upvoting is how people
+take part; when you hide the results, the list disappears from the phones too.
+
+**Results:** the questions with their upvotes, most upvoted first; ties keep the order they were
+asked in. Up to 200 questions are shown. Moderation works as for open questions: hiding a question
+takes its upvotes with it, and asking it again doesn't bring it back.
+
 ## Limits for every type
 
 | Limit | Value |
@@ -207,6 +227,6 @@ range stop counting.
 
 ## Missing a type?
 
-Quizzes, audience Q&A with upvotes and multi-statement scales are on the
+Quizzes and multi-statement scales are on the
 [roadmap](/roadmap/). If you want to build one, start with
 [Adding a question type](/development/adding-a-question-type/).

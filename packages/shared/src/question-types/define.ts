@@ -26,6 +26,22 @@ export interface QuestionTypeDefinition<TConfig, TResponse, TResults> {
   moderationKey?(response: TResponse): string;
   /** What participants may see of the config. Defaults to all of it. */
   toPublicConfig?(config: TConfig): unknown;
+  /**
+   * Whether a response is an answer of its own. Responses that aren't (an upvote of someone
+   * else's question) don't count toward `maxResponses` or the answer totals. Defaults to true.
+   */
+  isAnswer?(response: TResponse): boolean;
+  /**
+   * Extra rule for one participant, given their earlier responses to the question (oldest
+   * first), e.g. "upvote a question once". Defaults to allowing everything.
+   */
+  allows?(response: TResponse, own: TResponse[]): boolean;
+  /**
+   * People answer by reacting to everyone else's answers (Q&A upvotes): every phone gets the
+   * live results and its own earlier responses, whatever the presentation's phone setting, and
+   * keeps the answer form open instead of a "thanks" screen.
+   */
+  sharedOnPhones?: boolean;
 }
 
 export function defineQuestionType<TConfig, TResponse, TResults>(
