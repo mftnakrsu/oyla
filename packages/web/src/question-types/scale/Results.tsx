@@ -18,7 +18,7 @@ export function ScaleResults({ config, results }: ResultsProps<'scale'>) {
         });
 
   return (
-    <div className="flex h-full flex-col justify-center gap-[2em] pb-[1em] sm:flex-row sm:items-end sm:justify-start">
+    <div className="flex h-full flex-col justify-center-safe gap-[2em] pb-[1em] sm:flex-row sm:items-end sm:justify-start">
       <div className="shrink-0 sm:w-[9em] sm:self-center">
         <p className="text-[5em] font-extrabold leading-none">{average}</p>
         <p className="mt-[0.3em] text-[1.3em] font-bold">{t('scale.results.average')}</p>
