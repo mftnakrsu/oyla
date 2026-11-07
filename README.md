@@ -54,6 +54,7 @@ computer or server as one Docker container, and your presentations and answers s
 |---|---|
 | <img src="docs/media/screenshots/present-mc-en-light.png" alt="Multiple-choice results as horizontal bars" width="560"> | <img src="docs/media/screenshots/phone-mc-en-light.png" alt="A phone showing four answer options" width="200"> |
 | <img src="docs/media/screenshots/present-cloud-en-light.png" alt="A word cloud of answers" width="560"> | <img src="docs/media/screenshots/phone-thanks-en-light.png" alt="A 'voted' stamp after sending an answer" width="200"> |
+| <img src="docs/media/screenshots/present-moderate-en-light.png" alt="Moderating a word cloud: every word has a red ✕ to take it off the screen" width="560"> | <img src="docs/media/screenshots/phone-results-en-light.png" alt="Live results on a phone after voting" width="200"> |
 
 ## Run it yourself
 

@@ -109,6 +109,15 @@ phones, tick **Show results on phones after people answer** under the theme in t
   stay hidden on phones too, and answers you take off the screen while moderating are left out.
 - Turning the setting on or off reaches connected phones right away.
 
+<img
+  class="shot phone"
+  src="/screenshots/phone-results-en-light.png"
+  alt="A phone after voting: the Voted stamp, 'Answer sent' and a Live results card with four bars"
+  width="1170"
+  height="2670"
+  loading="lazy"
+/>
+
 ## Present
 
 Select **Present** in the editor header (it is available once the presentation has a question).
@@ -118,7 +127,7 @@ window on the projector.
 <img
   class="shot"
   src="/screenshots/present-mc-en-light.png"
-  alt="The presenter screen with 'Go to oyla.example.com and enter 859 847' at the top, a QR code, bar chart results and controls at the bottom"
+  alt="The presenter screen with 'Go to oyla.example.com and enter' a six-digit code at the top, a QR code, bar chart results and controls at the bottom"
   width="2160"
   height="1350"
   loading="lazy"
@@ -159,7 +168,7 @@ while people find their seats. **Hide join instructions** or <kbd>Esc</kbd> clos
 <img
   class="shot"
   src="/screenshots/present-invite-en-light.png"
-  alt="Full-screen join instructions: 'Go to oyla.example.com', the code 859 847 in very large digits and a QR code"
+  alt="Full-screen join instructions: 'Go to oyla.example.com', the six-digit code in very large digits and a QR code"
   width="2160"
   height="1350"
   loading="lazy"
@@ -172,6 +181,15 @@ people answer:
 
 - In the editor, tick **Hide results until I reveal them** on the question, or
 - on the presenter screen, select the eye button (**Hide results**) or press <kbd>H</kbd>.
+
+<img
+  class="shot"
+  src="/screenshots/present-hidden-en-light.png"
+  alt="The presenter screen with a crossed-out eye, 'Results are hidden', '18 answers' and a Show results button"
+  width="2160"
+  height="1350"
+  loading="lazy"
+/>
 
 While the results are hidden, the presenter screen shows **Results are hidden** and the number of
 answers so far, which keeps counting up. Select **Show results**, the eye button or <kbd>H</kbd>
@@ -190,6 +208,15 @@ answer from the screen:
    moderate, so nothing moves while you aim.
 2. Select ✕ next to the answer. It disappears from the screen right away.
 3. Select **Done** (or press <kbd>M</kbd> again) to go back to the normal view.
+
+<img
+  class="shot"
+  src="/screenshots/present-moderate-en-light.png"
+  alt="Moderating a word cloud: a bar reading 'Select ✕ to take an answer off the screen', '1 answer hidden', Show them again and Done, above the words as chips with red ✕ buttons"
+  width="2160"
+  height="1350"
+  loading="lazy"
+/>
 
 Hiding works on the text, not on one answer: hiding "spam" also hides "Spam" and "SPAM", and
 anyone who sends it again later stays hidden too. The bar shows how many answers are hidden, and

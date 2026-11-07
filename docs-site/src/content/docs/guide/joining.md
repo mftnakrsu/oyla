@@ -20,7 +20,7 @@ Use one of these:
   <img
     class="shot phone"
     src="/screenshots/phone-home-en-light.png"
-    alt="A phone on the Oyla start page with the code 859 847 typed into the join field and a Join button"
+    alt="A phone on the Oyla start page with a six-digit code typed into the join field and a Join button"
     width="1170"
     height="1992"
     loading="lazy"
