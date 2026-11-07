@@ -17,7 +17,7 @@ export function EntriesEditor({
   const id = useId();
   return (
     <div className="flex items-center gap-3">
-      <label htmlFor={id} className="font-bold">
+      <label htmlFor={id} className="font-medium">
         {t(labelKey)}
       </label>
       <select

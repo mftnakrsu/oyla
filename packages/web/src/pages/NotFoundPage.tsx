@@ -7,7 +7,7 @@ export function NotFoundPage() {
   const { t } = useI18n();
   return (
     <Shell>
-      <h1 className="mb-6 text-4xl font-extrabold">{t('notFound.title')}</h1>
+      <h1 className="mb-6 text-4xl font-semibold">{t('notFound.title')}</h1>
       <Link to="/" className={buttonClass('primary', 'lg')}>
         {t('notFound.action')}
       </Link>

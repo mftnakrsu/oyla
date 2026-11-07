@@ -21,6 +21,7 @@ import { Button } from '../../components/Button';
 import { ConfirmButton } from '../../components/ConfirmButton';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { useI18n } from '../../i18n/I18nProvider';
+import { ArrowDownIcon, ArrowUpIcon } from '../../question-types/icons';
 import { getQuestionTypeUi } from '../../question-types/registry';
 import { inputClass } from '../../question-types/shared';
 
@@ -160,7 +161,7 @@ export const QuestionPanel = forwardRef<QuestionPanelHandle, QuestionPanelProps>
         className="flex flex-col gap-6 rounded-3xl bg-paper p-5 sm:p-8"
       >
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 id={`${id}-heading`} className="flex items-center gap-2 text-lg font-extrabold">
+          <h2 id={`${id}-heading`} className="flex items-center gap-2 text-lg font-semibold">
             <ui.Icon className="size-6 text-series" />
             {index + 1}. {t(ui.labelKey)}
           </h2>
@@ -173,13 +174,13 @@ export const QuestionPanel = forwardRef<QuestionPanelHandle, QuestionPanelProps>
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor={`${id}-title`} className="font-bold">
+          <label htmlFor={`${id}-title`} className="font-medium">
             {t('editor.question.title.label')}
           </label>
           <textarea
             id={`${id}-title`}
             rows={2}
-            className={`${inputClass} resize-y text-2xl font-bold`}
+            className={`${inputClass} resize-y text-2xl font-medium`}
             value={title}
             maxLength={LIMITS.questionTitle}
             placeholder={t('editor.question.title.placeholder')}
@@ -206,7 +207,7 @@ export const QuestionPanel = forwardRef<QuestionPanelHandle, QuestionPanelProps>
             className="mt-0.5 size-5 shrink-0 accent-brand"
           />
           <span className="flex flex-col">
-            <span className="font-bold">{t('editor.question.hideResults')}</span>
+            <span className="font-medium">{t('editor.question.hideResults')}</span>
             <span id={`${id}-hide-hint`} className="text-sm text-muted">
               {t('editor.question.hideResults.hint')}
             </span>
@@ -234,7 +235,7 @@ export const QuestionPanel = forwardRef<QuestionPanelHandle, QuestionPanelProps>
             aria-label={t('editor.question.moveUp')}
             title={t('editor.question.moveUp')}
           >
-            ↑
+            <ArrowUpIcon className="size-5" />
           </Button>
           <Button
             variant="quiet"
@@ -243,7 +244,7 @@ export const QuestionPanel = forwardRef<QuestionPanelHandle, QuestionPanelProps>
             aria-label={t('editor.question.moveDown')}
             title={t('editor.question.moveDown')}
           >
-            ↓
+            <ArrowDownIcon className="size-5" />
           </Button>
           <ConfirmButton
             onConfirm={onDelete}

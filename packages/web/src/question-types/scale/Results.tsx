@@ -20,8 +20,8 @@ export function ScaleResults({ config, results }: ResultsProps<'scale'>) {
   return (
     <div className="flex h-full flex-col justify-center-safe gap-[2em] pb-[1em] sm:flex-row sm:items-end sm:justify-start">
       <div className="shrink-0 sm:w-[9em] sm:self-center">
-        <p className="text-[5em] font-extrabold leading-none">{average}</p>
-        <p className="mt-[0.3em] text-[1.3em] font-bold">{t('scale.results.average')}</p>
+        <p className="text-[5em] font-semibold leading-none">{average}</p>
+        <p className="mt-[0.3em] text-[1.3em] font-medium">{t('scale.results.average')}</p>
         <p className="text-[1.15em] text-muted">{tn('results.answers', results.total)}</p>
       </div>
       <div className="flex min-w-0 flex-1 flex-col sm:self-center">
@@ -33,9 +33,9 @@ export function ScaleResults({ config, results }: ResultsProps<'scale'>) {
               className="flex flex-1 flex-col items-center justify-end gap-[0.3em]"
               title={`${value}: ${count}`}
             >
-              <span className="text-[1.3em] font-bold">{count}</span>
+              <span className="text-[1.3em] font-medium">{count}</span>
               <div
-                className="w-full rounded-t-[4px] bg-series transition-[height] duration-500 ease-out"
+                className="w-full rounded-t bg-series transition-[height] duration-500 ease-out"
                 style={{ height: count === 0 ? '2px' : `calc((100% - 2em) * ${count / max})` }}
               />
             </div>
@@ -43,7 +43,7 @@ export function ScaleResults({ config, results }: ResultsProps<'scale'>) {
         </div>
         <div className="flex gap-[0.6em] border-t-2 border-ink/20 pt-[0.3em]">
           {columns.map(({ value }) => (
-            <span key={value} className="flex-1 text-center text-[1.35em] font-bold text-muted">
+            <span key={value} className="flex-1 text-center text-[1.35em] font-medium text-muted">
               {value}
             </span>
           ))}

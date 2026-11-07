@@ -54,10 +54,10 @@ export function NewPresentationPage() {
 
   return (
     <Shell>
-      <h1 className="mb-8 text-4xl font-extrabold tracking-tight">{t('new.title')}</h1>
+      <h1 className="mb-8 text-4xl font-semibold tracking-tight">{t('new.title')}</h1>
       <form onSubmit={submit} className="flex flex-col gap-6">
         <div className="flex flex-col gap-2">
-          <label htmlFor={`${id}-title`} className="font-bold">
+          <label htmlFor={`${id}-title`} className="font-medium">
             {t('new.name.label')}
           </label>
           <input
@@ -72,7 +72,7 @@ export function NewPresentationPage() {
         </div>
         {needsPassword ? (
           <div className="flex flex-col gap-2">
-            <label htmlFor={`${id}-password`} className="font-bold">
+            <label htmlFor={`${id}-password`} className="font-medium">
               {t('new.password.label')}
             </label>
             <input

@@ -13,7 +13,7 @@ export function LanguageSwitcher() {
           aria-pressed={language === code}
           title={LANGUAGES[code]}
           onClick={() => setLanguage(code)}
-          className={`min-h-10 min-w-10 rounded-md px-2.5 text-sm font-bold ${
+          className={`min-h-10 min-w-10 rounded-md px-2.5 text-sm font-medium ${
             language === code ? 'bg-brand text-on-brand' : 'text-muted hover:text-ink'
           }`}
         >

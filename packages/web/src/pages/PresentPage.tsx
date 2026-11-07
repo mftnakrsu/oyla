@@ -101,7 +101,7 @@ function ResetButton({ onReset, disabled }: { onReset(): void; disabled: boolean
       }}
     >
       {armed ? (
-        <span className="text-[0.85em] font-bold">{t('common.confirmReset')}</span>
+        <span className="text-[0.85em] font-medium">{t('common.confirmReset')}</span>
       ) : (
         <ResetIcon />
       )}
@@ -121,7 +121,7 @@ function Invite({ code, onClose }: { code: string; onClose(): void }) {
       className="fixed inset-0 z-20 grid place-items-center bg-page p-[2em]"
     >
       <div className="flex flex-col items-center gap-[1.5em] text-center">
-        <p className="text-[2em] font-bold text-muted">
+        <p className="text-[2em] font-medium text-muted">
           {tRich('present.goTo', {
             host: (
               <strong key="host" className="text-ink">
@@ -130,7 +130,7 @@ function Invite({ code, onClose }: { code: string; onClose(): void }) {
             ),
           })}
         </p>
-        <p className="text-[7em] font-extrabold leading-none tracking-[0.08em]">
+        <p className="text-[7em] font-semibold leading-none tracking-[0.08em]">
           {formatJoinCode(code)}
         </p>
         <QrCode value={joinUrl(code)} size={300} label={joinUrl(code)} />
@@ -153,7 +153,7 @@ function HiddenResults({ total, onReveal }: { total: number; onReveal(): void })
   return (
     <div className="flex h-full flex-col items-center justify-center gap-[1em] text-center">
       <EyeOffIcon className="size-[4em] text-muted" />
-      <p className="text-[2em] font-extrabold">{t('present.hidden.title')}</p>
+      <p className="text-[2em] font-semibold">{t('present.hidden.title')}</p>
       <p className="text-[1.4em] text-muted" aria-live="polite">
         {tn('results.answers', total)}
       </p>
@@ -182,7 +182,7 @@ function ModerationBar({
   const { t, tn } = useI18n();
   return (
     <div className="mb-[1em] flex flex-wrap items-center gap-x-[1.2em] gap-y-[0.5em] rounded-xl bg-brand-soft px-[1em] py-[0.6em]">
-      <p className="mr-auto font-bold">{t('present.moderation.hint')}</p>
+      <p className="mr-auto font-medium">{t('present.moderation.hint')}</p>
       {hidden > 0 ? (
         <>
           <span aria-live="polite">{tn('present.moderation.hidden', hidden)}</span>
@@ -204,7 +204,7 @@ function TimedOpen({ left, total }: { left: number; total: number }) {
   return (
     <div className="flex h-full flex-col items-center justify-center gap-[0.6em] text-center">
       <p
-        className="text-[9em] font-extrabold leading-none tabular-nums"
+        className="text-[9em] font-semibold leading-none tabular-nums"
         role="timer"
         aria-label={t('quiz.timeLeft')}
       >
@@ -241,7 +241,7 @@ function LeaderboardView({
       style={{ fontSize: 'clamp(15px, 0.85vw + 0.55vh, 32px)' }}
     >
       <div className="mb-[1em] flex flex-wrap items-baseline justify-between gap-[1em]">
-        <h1 className="text-[2.7em] font-extrabold tracking-tight">{t('present.leaderboard')}</h1>
+        <h1 className="text-[2.7em] font-semibold tracking-tight">{t('present.leaderboard')}</h1>
         <p className="text-[1.3em] text-muted">
           {tn('present.leaderboard.players', board?.players ?? 0)}
         </p>
@@ -256,15 +256,21 @@ function LeaderboardView({
             {entries.map((entry) => (
               <li
                 key={`${entry.id}-${entry.rank}-${entry.points}`}
-                className={`slip-in flex items-center gap-[1em] rounded-xl border-2 px-[1em] py-[0.5em] text-[1.6em] ${
-                  entry.rank === 1 ? 'border-brand bg-brand-soft' : 'border-line bg-paper'
-                }`}
+                className="slip-in flex items-center gap-[1em] rounded-xl border-2 border-line bg-paper px-[1em] py-[0.5em] text-[1.6em]"
               >
-                <span className="w-[2em] shrink-0 text-center font-extrabold tabular-nums">
-                  {entry.rank}
+                {/* The stamp marks first place, the one decided result on this screen. */}
+                <span className="grid w-[2em] shrink-0 place-items-center font-semibold tabular-nums">
+                  {entry.rank === 1 ? (
+                    <>
+                      <Stamp size={40} className="size-[1.6em]" />
+                      <span className="sr-only">{entry.rank}</span>
+                    </>
+                  ) : (
+                    entry.rank
+                  )}
                 </span>
                 <span
-                  className={`min-w-0 flex-1 truncate font-bold ${entry.name ? '' : 'text-muted'}`}
+                  className={`min-w-0 flex-1 truncate font-medium ${entry.name ? '' : 'text-muted'}`}
                 >
                   {entry.name ?? t('present.leaderboard.anonymous')}
                 </span>
@@ -325,7 +331,7 @@ function ActiveQuestion({
   const readable = getQuestionType(question.type).configSchema.safeParse(question.config).success;
   return (
     <>
-      <h1 className="mb-[0.8em] text-balance text-[2.7em] font-extrabold leading-[1.1] tracking-tight">
+      <h1 className="mb-[0.8em] text-balance text-[2.7em] font-semibold leading-[1.1] tracking-tight">
         {question.title || t('editor.question.untitled')}
       </h1>
       <div className="min-h-0 flex-1 overflow-y-auto">
@@ -336,11 +342,6 @@ function ActiveQuestion({
         ) : readable && results !== null ? (
           <ErrorBoundary key={question.id} fallback={unavailable}>
             <Suspense fallback={null}>
-              {left === 0 ? (
-                <p className="mb-[0.6em] text-[1.3em] font-bold text-muted">
-                  {t('present.timeUp')}
-                </p>
-              ) : null}
               <ui.Results
                 config={question.config}
                 results={results}
@@ -508,7 +509,7 @@ export function PresentPage() {
   if (!token || session.status === 'unauthorized' || loadError === 'UNAUTHORIZED') {
     return (
       <Shell>
-        <h1 className="mb-4 text-3xl font-extrabold">{t('editor.missingKey.title')}</h1>
+        <h1 className="mb-4 text-3xl font-semibold">{t('editor.missingKey.title')}</h1>
         <p className="text-lg text-muted">{t('editor.missingKey.body')}</p>
       </Shell>
     );
@@ -516,7 +517,7 @@ export function PresentPage() {
   if (session.status === 'ended' || session.status === 'not-found' || loadError === 'NOT_FOUND') {
     return (
       <Shell>
-        <h1 className="text-3xl font-extrabold">{t('error.NOT_FOUND')}</h1>
+        <h1 className="text-3xl font-semibold">{t('error.NOT_FOUND')}</h1>
       </Shell>
     );
   }
@@ -576,7 +577,7 @@ export function PresentPage() {
       </header>
 
       {!session.connected && session.status !== 'connecting' ? (
-        <p role="status" className="bg-danger-soft px-[1.5em] py-[0.4em] font-bold">
+        <p role="status" className="bg-danger-soft px-[1.5em] py-[0.4em] font-medium">
           {t('present.reconnecting')}
         </p>
       ) : null}
@@ -594,7 +595,7 @@ export function PresentPage() {
         {questions.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-[1em] text-center">
             <Stamp size={96} />
-            <h1 className="text-[2em] font-extrabold">{t('present.empty.title')}</h1>
+            <h1 className="text-[2em] font-semibold">{t('present.empty.title')}</h1>
             <Link to={`/edit/${id}`} className={buttonClass('primary', 'lg')}>
               {t('present.empty.action')}
             </Link>
@@ -628,7 +629,7 @@ export function PresentPage() {
 
       <footer className="flex items-center justify-between gap-[1em] px-[1.5em] py-[0.5em] text-[0.95em]">
         <div className="flex items-center gap-[1.2em] text-muted">
-          <span className="flex items-center gap-[0.4em] font-bold text-ink" aria-live="polite">
+          <span className="flex items-center gap-[0.4em] font-medium text-ink" aria-live="polite">
             <PeopleIcon />
             {tn('present.participants', session.participants)}
           </span>
