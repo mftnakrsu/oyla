@@ -257,6 +257,41 @@ describe('a live poll', () => {
     await hidden;
   });
 
+  test('Q&A questions and upvotes reach every phone', async () => {
+    const { built, url } = await start();
+    const created = built.service.create({ title: 'All hands' });
+    const { id: questionId } = built.service.addQuestion(created.id, { type: 'qa' });
+    built.service.activate(created.id, questionId);
+
+    const alice = await client(url);
+    const bob = await client(url);
+    await emit(alice, 'participant:join', {
+      joinCode: created.joinCode,
+      participantId: participant(1),
+    });
+    const bobJoin = await emit<ParticipantJoinAck>(bob, 'participant:join', {
+      joinCode: created.joinCode,
+      participantId: participant(2),
+    });
+    expect(bobJoin.ok && bobJoin.state.mine).toEqual([]);
+
+    // Bob hasn't asked anything and still sees Alice's question.
+    const asked = next(bob, 'results', (message) => message.total === 1);
+    await emit(alice, 'response:submit', { questionId, response: { text: 'Why?' } });
+    await asked;
+
+    const upvoted = next(alice, 'results', (message) => {
+      const results = message.results as { entries: { votes: number }[] };
+      return results.entries[0]?.votes === 1;
+    });
+    const ack = await emit<ResponseSubmitAck>(bob, 'response:submit', {
+      questionId,
+      response: { upvote: 'why?' },
+    });
+    expect(ack).toEqual({ ok: true, remaining: 3 });
+    await upvoted;
+  });
+
   test('a reconnecting participant keeps their answers', async () => {
     const { built, url } = await start();
     const { id, joinCode, questionId } = await setupPoll(built);

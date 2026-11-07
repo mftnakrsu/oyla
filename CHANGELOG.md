@@ -3,6 +3,20 @@
 All notable changes to Oyla. The format follows [Keep a Changelog](https://keepachangelog.com/),
 and versions follow [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Added
+
+- **Q&A question type:** participants ask questions and upvote each other's; the presenter
+  screen lists them most upvoted first. Each person upvotes a question once and not their own.
+  Every phone sees the live list, and moderation hides a question with its upvotes.
+
+### Changed
+
+- Question types gain three optional hooks for reactions: `isAnswer`, `allows` and
+  `sharedOnPhones`. `ParticipantState` gains `mine`, and `RespondProps` gains `results` and
+  `mine`, for types that use them.
+
 ## 0.2.0 - 2026-11-07
 
 Presenter tools: everything in the roadmap's "Presenting" group.

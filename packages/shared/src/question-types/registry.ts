@@ -1,6 +1,7 @@
 import type { QuestionTypeDefinition } from './define';
 import { multipleChoice } from './multiple-choice';
 import { openEnded } from './open-ended';
+import { qa } from './qa';
 import { scale } from './scale';
 import { wordCloud } from './word-cloud';
 
@@ -13,6 +14,7 @@ export const questionTypes = {
   'word-cloud': wordCloud,
   'open-ended': openEnded,
   scale,
+  qa,
 } as const;
 
 export type QuestionTypeKey = keyof typeof questionTypes;
@@ -47,6 +49,11 @@ export function canModerate(key: QuestionTypeKey): boolean {
 export function moderationKeyOf(key: QuestionTypeKey, response: unknown): string | null {
   const type = getQuestionType(key);
   return type.moderationKey ? type.moderationKey(response) : null;
+}
+
+/** Whether every phone sees the live results while answering (see `sharedOnPhones`). */
+export function isSharedOnPhones(key: QuestionTypeKey): boolean {
+  return getQuestionType(key).sharedOnPhones === true;
 }
 
 export function publicConfig(key: QuestionTypeKey, config: unknown): unknown {

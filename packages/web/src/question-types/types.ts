@@ -13,6 +13,12 @@ export interface RespondProps<K extends QuestionTypeKey> {
   remaining: number;
   /** Resolves true when the server accepted the answer. */
   onSubmit(response: ResponseOf<K>): Promise<boolean>;
+  /**
+   * Types that are `sharedOnPhones` only: the live results (null while the presenter hides
+   * them) and this participant's earlier responses.
+   */
+  results?: ResultsOf<K> | null;
+  mine?: ResponseOf<K>[];
 }
 
 export interface ResultsProps<K extends QuestionTypeKey> {
@@ -44,6 +50,8 @@ export interface AnyQuestionTypeUi {
     config: unknown;
     remaining: number;
     onSubmit(response: unknown): Promise<boolean>;
+    results?: unknown;
+    mine?: unknown[];
   }>;
   Results: ComponentType<{ config: unknown; results: unknown; onHide?(key: string): void }>;
 }

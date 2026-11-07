@@ -382,6 +382,86 @@ describe('results on phones', () => {
   });
 });
 
+describe('audience Q&A', () => {
+  function qaSession() {
+    const created = service.create({ title: 'All hands' });
+    const question = service.addQuestion(created.id, {
+      type: 'qa',
+      title: 'Ask us anything',
+      config: { maxEntries: 2 },
+    });
+    service.activate(created.id, question.id);
+    return { ...created, questionId: question.id };
+  }
+
+  test('every phone sees the questions and its own responses, answered or not', () => {
+    const { id, questionId } = qaSession();
+    service.submit(id, alice, questionId, { text: 'Why Tuesdays?' });
+    const states = service.participantStates(id, [alice, bob]);
+    expect(states.get(bob)).toMatchObject({
+      remaining: 2,
+      mine: [],
+      results: { results: { entries: [{ key: 'why tuesdays?', votes: 0 }], total: 1 } },
+    });
+    expect(states.get(alice)).toMatchObject({ remaining: 1, mine: [{ text: 'Why Tuesdays?' }] });
+    expect(service.resultsAudience(id, questionId)).toBe('everyone');
+    // The single-participant path gives the same answer.
+    expect(service.participantState(id, alice)).toEqual(states.get(alice));
+  });
+
+  test('upvotes are free, once per question, and not for your own', () => {
+    const { id, questionId } = qaSession();
+    service.submit(id, alice, questionId, { text: 'Why Tuesdays?' });
+    expect(service.submit(id, bob, questionId, { upvote: 'why tuesdays?' })).toEqual({
+      remaining: 2,
+    });
+    expectAppError(
+      () => service.submit(id, bob, questionId, { upvote: 'why tuesdays?' }),
+      'VALIDATION_FAILED',
+      400,
+    );
+    expectAppError(
+      () => service.submit(id, alice, questionId, { upvote: 'why tuesdays?' }),
+      'VALIDATION_FAILED',
+      400,
+    );
+    const message = service.results(id, questionId);
+    expect(message.total).toBe(1);
+    expect(message.results).toEqual({
+      entries: [{ key: 'why tuesdays?', text: 'Why Tuesdays?', votes: 1 }],
+      total: 1,
+    });
+  });
+
+  test('the question limit counts questions only', () => {
+    const { id, questionId } = qaSession();
+    service.submit(id, bob, questionId, { text: 'One?' });
+    service.submit(id, alice, questionId, { upvote: 'one?' });
+    service.submit(id, alice, questionId, { text: 'Two?' });
+    expect(service.submit(id, alice, questionId, { text: 'Three?' })).toEqual({ remaining: 0 });
+    expectAppError(
+      () => service.submit(id, alice, questionId, { text: 'Four?' }),
+      'RESPONSE_LIMIT_REACHED',
+      409,
+    );
+  });
+
+  test('hiding a question hides its upvotes, and hidden results stay off phones', () => {
+    const { id, questionId } = qaSession();
+    service.submit(id, alice, questionId, { text: 'Rude?' });
+    service.submit(id, bob, questionId, { upvote: 'rude?' });
+    service.hideEntry(id, questionId, 'rude?');
+    expect(service.results(id, questionId)).toMatchObject({
+      results: { entries: [], total: 0 },
+      total: 0,
+      hidden: 1,
+    });
+    service.updateQuestion(id, questionId, { resultsHidden: true });
+    expect(service.participantState(id, bob).results).toBeNull();
+    expect(service.resultsAudience(id, questionId)).toBeNull();
+  });
+});
+
 describe('moderation', () => {
   function cloudPresentation() {
     const { id } = service.create({ title: 'Retro' });

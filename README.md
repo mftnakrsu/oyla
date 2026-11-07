@@ -31,7 +31,7 @@ computer or server as one Docker container, and your presentations and answers s
 
 ## Features
 
-- **Four question types:** multiple choice, word cloud, open question and scale.
+- **Five question types:** multiple choice, word cloud, open question, scale and Q&A with upvotes.
 - **Join in seconds:** participants open the site, type the code or scan the QR code. No sign-up.
 - **Live results** on the presenter screen, built for projectors: large type, high contrast,
   keyboard navigation (← →), full screen.
@@ -151,7 +151,7 @@ güncellenir. Hesap, uygulama ya da abonelik gerekmez.
 Oyla'yı kendi sunucunuzda çalıştırırsınız; üye olabileceğiniz hazır bir Oyla servisi yok.
 Sunumlarınız ve cevaplar sizin makinenizde kalır.
 
-- **Dört soru tipi var:** çoktan seçmeli, kelime bulutu, açık uçlu soru ve ölçek.
+- **Beş soru tipi var:** çoktan seçmeli, kelime bulutu, açık uçlu soru, ölçek ve oylanabilen soru-cevap.
 - **Sunum temaları:** Her sunuma dört renk temasından birini verebilirsiniz (Zümrüt, İndigo,
   Lacivert ve turuncu, Klasik mavi). Sunum ekranı da telefonlar da bu temayı kullanır.
 - **Telefonda sonuçlar:** İsterseniz her telefon, cevap verdikten sonra canlı grafiği görür.

@@ -1,4 +1,10 @@
-import type { ErrorCode, PublicQuestion, QuestionTypeKey, ResultsMessage } from '@oyla/shared';
+import {
+  type ErrorCode,
+  isSharedOnPhones,
+  type PublicQuestion,
+  type QuestionTypeKey,
+  type ResultsMessage,
+} from '@oyla/shared';
 import { type ReactNode, Suspense, useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { buttonClass } from '../components/Button';
@@ -52,6 +58,64 @@ function PhoneResults({
   );
 }
 
+type Submit = (
+  questionId: string,
+  response: unknown,
+) => Promise<{ ok: true } | { ok: false; error: { code: ErrorCode } }>;
+
+function QuestionHeading({ question }: { question: PublicQuestion }) {
+  const { t } = useI18n();
+  return (
+    <div>
+      <p className="mb-2 text-sm font-bold text-muted">
+        {t('join.position', { index: question.index + 1, total: question.total })}
+      </p>
+      <h1 className="text-3xl font-extrabold leading-tight">
+        {question.title || t('editor.question.untitled')}
+      </h1>
+    </div>
+  );
+}
+
+/**
+ * For types shared on phones (Q&A): the form stays open with everyone's answers under it, since
+ * people keep reacting to them. There is no "thanks" screen.
+ */
+function SharedAnswer({
+  question,
+  remaining,
+  results,
+  mine,
+  submit,
+}: {
+  question: PublicQuestion;
+  remaining: number;
+  results: ResultsMessage | null;
+  mine: unknown[];
+  submit: Submit;
+}) {
+  const [error, setError] = useState<ErrorCode | null>(null);
+  const ui = getQuestionTypeUi(question.type as QuestionTypeKey);
+  return (
+    <div className="flex flex-col gap-6 py-6">
+      <QuestionHeading question={question} />
+      {error ? <ErrorNotice code={error} /> : null}
+      <ui.Respond
+        config={question.config}
+        remaining={remaining}
+        results={results?.results ?? null}
+        mine={mine}
+        onSubmit={async (response) => {
+          setError(null);
+          const ack = await submit(question.id, response);
+          if (!ack.ok) setError(ack.error.code);
+          return ack.ok;
+        }}
+      />
+    </div>
+  );
+}
+
 function Answer({
   question,
   remaining,
@@ -62,10 +126,7 @@ function Answer({
   question: PublicQuestion;
   remaining: number;
   results: ResultsMessage | null;
-  submit(
-    questionId: string,
-    response: unknown,
-  ): Promise<{ ok: true } | { ok: false; error: { code: ErrorCode } }>;
+  submit: Submit;
   markAnswered(questionId: string): void;
 }) {
   const { t, tn } = useI18n();
@@ -117,14 +178,7 @@ function Answer({
 
   return (
     <div className="flex flex-col gap-6 py-6">
-      <div>
-        <p className="mb-2 text-sm font-bold text-muted">
-          {t('join.position', { index: question.index + 1, total: question.total })}
-        </p>
-        <h1 className="text-3xl font-extrabold leading-tight">
-          {question.title || t('editor.question.untitled')}
-        </h1>
-      </div>
+      <QuestionHeading question={question} />
       {error ? <ErrorNotice code={error} /> : null}
       <ui.Respond
         config={question.config}
@@ -224,7 +278,18 @@ export function JoinPage() {
           </Centered>
         ) : null}
 
-        {status === 'ready' && question && session.state ? (
+        {status === 'ready' && question && session.state && isSharedOnPhones(question.type) ? (
+          <SharedAnswer
+            key={question.id}
+            question={question}
+            remaining={session.state.remaining}
+            results={session.state.results}
+            mine={session.state.mine ?? []}
+            submit={session.submit}
+          />
+        ) : null}
+
+        {status === 'ready' && question && session.state && !isSharedOnPhones(question.type) ? (
           <Answer
             key={question.id}
             question={question}

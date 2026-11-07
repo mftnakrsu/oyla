@@ -24,9 +24,15 @@ export interface ParticipantState {
   remaining: number;
   /**
    * Live results of the active question, once this participant answered it and only when the
-   * presentation shares results with phones and they aren't hidden. Null otherwise.
+   * presentation shares results with phones and they aren't hidden. Null otherwise. Types that
+   * are `sharedOnPhones` get them on every phone, answered or not, unless they are hidden.
    */
   results: ResultsMessage | null;
+  /**
+   * This participant's earlier responses to the active question, oldest first. Only for types
+   * that are `sharedOnPhones` (Q&A: which questions they asked and upvoted).
+   */
+  mine?: unknown[];
 }
 
 /** What every screen of a presentation shows around the questions. */

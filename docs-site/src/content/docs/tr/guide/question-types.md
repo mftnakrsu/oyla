@@ -1,9 +1,9 @@
 ---
 title: Soru tipleri
-description: Çoktan seçmeli, kelime bulutu, açık uçlu soru ve ölçek; ayarları, sınırları ve sonuçlarıyla.
+description: Çoktan seçmeli, kelime bulutu, açık uçlu soru, ölçek ve soru-cevap; ayarları, sınırları ve sonuçlarıyla.
 ---
 
-Oyla'da dört soru tipi var. Her sorunun en fazla 200 karakterlik bir başlığı olur; diğer ayarlar
+Oyla'da beş soru tipi var. Her sorunun en fazla 200 karakterlik bir başlığı olur; diğer ayarlar
 tipe göre değişir. Tipi soruyu eklerken seçersiniz ve sonradan değiştiremezsiniz. Başka bir tipe
 ihtiyacınız olursa soruyu silip yenisini ekleyin.
 
@@ -13,6 +13,7 @@ ihtiyacınız olursa soruyu silip yenisini ekleyin.
 | [Kelime bulutu](#kelime-bulutu) | 1-5 (varsayılan 3) | Ne kadar çok kişi yazdıysa o kadar büyüyen kelimeler |
 | [Açık uçlu soru](#açık-uçlu-soru) | 1-5 (varsayılan 1) | En yenisi başta, not kâğıdı görünümünde cevaplar |
 | [Ölçek](#ölçek) | 1 | Ortalama ve puanların sütun grafiği |
+| [Soru-Cevap](#soru-cevap) | 1-5 soru (varsayılan 3), artı oylar | En çok oy alan başta, sorular |
 
 ## Çoktan seçmeli
 
@@ -197,6 +198,26 @@ Katılımcılar bir ifadeyi düşükten yükseğe puanlar.
 gösteren birer sütun. Cevaplar geldikten sonra aralığı değiştirirseniz yeni aralığın dışında kalan
 puanlar artık sayılmaz.
 
+## Soru-Cevap
+
+Katılımcılar soru sorar ve cevaplanmasını istedikleri soruları oylar. Sunum ekranında en çok oy
+alan sorular başta görünür.
+
+**Ayarlar:** **Kişi başı soru sayısı**, 1 ile 5 arası (varsayılan 3). Oylar bu sayıya dahil
+değildir.
+
+**Soru sormak:** soru başına en fazla 200 karakter. Büyük-küçük harf farkı dışında aynı olan
+sorular tek soru olarak görünür.
+
+**Oylamak:** her telefon, kendisi soru sormuş olsun ya da olmasın, şu ana kadar sorulan soruları en
+çok oy alandan başlayarak gösterir. Herkes bir soruyu bir kez oylayabilir, kendi sorusunu
+oylayamaz. Katılım oylayarak olduğu için sorular, **Sonuçları telefonlarda göster** ayarı kapalı
+olsa da telefonlarda görünür; sonuçları gizlediğinizde liste telefonlardan da kalkar.
+
+**Sonuçlar:** sorular oylarıyla birlikte, en çok oy alan başta; eşit oyda önce sorulan önce gelir.
+En fazla 200 soru gösterilir. Moderasyon açık uçlu sorulardaki gibi çalışır: gizlenen soru oylarını
+da götürür, aynı soru yeniden sorulduğunda geri gelmez.
+
 ## Bütün tipler için sınırlar
 
 | Sınır | Değer |
@@ -208,6 +229,6 @@ puanlar artık sayılmaz.
 
 ## Aradığınız tip yok mu?
 
-Bilgi yarışması (quiz), oylanabilen soru-cevap ve çok ifadeli ölçekler
+Bilgi yarışması (quiz) ve çok ifadeli ölçekler
 [yol haritasında](/tr/roadmap/). Birini kendiniz geliştirmek isterseniz
 [Soru tipi eklemek](/tr/development/adding-a-question-type/) rehberiyle başlayın (İngilizce).

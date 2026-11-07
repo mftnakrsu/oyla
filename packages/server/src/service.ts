@@ -104,8 +104,20 @@ export function createPresentationService({ store, events, config, now = Date.no
       }
       return states;
     }
-    const used =
-      participantIds.length === 1
+    const type = question.type;
+    const shared = type.sharedOnPhones === true;
+    // Types with reactions (or that show phones their own answers) need the payloads, not counts.
+    const own =
+      type.isAnswer || shared
+        ? participantIds.length === 1
+          ? new Map(
+              participantIds.map((id) => [id, store.responses.payloadsOf(question.row.id, id)]),
+            )
+          : store.responses.payloadsByParticipant(question.row.id)
+        : null;
+    const used = own
+      ? null
+      : participantIds.length === 1
         ? new Map(
             participantIds.map((id) => [
               id,
@@ -113,7 +125,7 @@ export function createPresentationService({ store, events, config, now = Date.no
             ]),
           )
         : store.responses.countsByParticipant(question.row.id);
-    const allowed = question.type.maxResponses(question.config);
+    const allowed = type.maxResponses(question.config);
     const activeQuestion = {
       id: question.row.id,
       type: question.key,
@@ -123,19 +135,38 @@ export function createPresentationService({ store, events, config, now = Date.no
       total: ids.length,
     };
     // Phones that answered see the results, if the presenter allows it and hasn't hidden them.
-    const share = presentation.resultsOnPhones && !question.row.resultsHidden;
-    let shared: ResultsMessage | undefined;
+    // Types that are shared on phones show them to everyone: people answer by upvoting.
+    const share = (presentation.resultsOnPhones || shared) && !question.row.resultsHidden;
+    let sharedResults: ResultsMessage | undefined;
     for (const id of participantIds) {
-      const count = used.get(id) ?? 0;
-      const sees = share && count > 0;
-      if (sees && !shared) shared = resultsOf(question, question.row.id);
+      const mine = own?.get(id) ?? [];
+      const count = own ? answersIn(question, mine) : (used?.get(id) ?? 0);
+      const sees = share && (shared || count > 0);
+      if (sees && !sharedResults) sharedResults = resultsOf(question, question.row.id);
       states.set(id, {
         activeQuestion,
         remaining: Math.max(0, allowed - count),
-        results: sees ? (shared ?? null) : null,
+        results: sees ? (sharedResults ?? null) : null,
+        ...(shared ? { mine } : {}),
       });
     }
     return states;
+  }
+
+  /** Whether a stored payload is an answer, not a reaction such as an upvote (see `isAnswer`). */
+  function isAnswer(question: ResolvedQuestion | null, payload: unknown): boolean {
+    const check = question?.type.isAnswer;
+    if (!check) return true;
+    try {
+      return check(payload);
+    } catch {
+      return true; // an answer of an older shape
+    }
+  }
+
+  function answersIn(question: ResolvedQuestion | null, payloads: unknown[]): number {
+    if (!question?.type.isAnswer) return payloads.length;
+    return payloads.filter((payload) => isAnswer(question, payload)).length;
   }
 
   /** Aggregated results without the answers the presenter hid. */
@@ -143,11 +174,12 @@ export function createPresentationService({ store, events, config, now = Date.no
     const payloads = store.responses.payloads(questionId);
     const isHidden = question ? hiddenCheck(question) : null;
     const shown = isHidden ? payloads.filter((payload) => !isHidden(payload)) : payloads;
+    const total = answersIn(question, shown);
     return {
       questionId,
       results: question ? question.type.aggregate(question.config, shown) : null,
-      total: shown.length,
-      hidden: payloads.length - shown.length,
+      total,
+      hidden: answersIn(question, payloads) - total,
     };
   }
 
@@ -419,9 +451,21 @@ export function createPresentationService({ store, events, config, now = Date.no
         if (!parsed.success) {
           throw new AppError('VALIDATION_FAILED', 400, 'Invalid answer');
         }
-        const used = store.responses.countForParticipant(questionId, participantId);
-        const allowed = question.type.maxResponses(question.config);
-        if (used >= allowed) {
+        const { type } = question;
+        let used: number;
+        if (type.isAnswer || type.allows) {
+          const own = store.responses.payloadsOf(questionId, participantId);
+          if (type.allows && !type.allows(parsed.data, own)) {
+            throw new AppError('VALIDATION_FAILED', 400, 'This answer is not allowed');
+          }
+          used = answersIn(question, own);
+        } else {
+          used = store.responses.countForParticipant(questionId, participantId);
+        }
+        const allowed = type.maxResponses(question.config);
+        // Reactions (upvotes) don't use up answers.
+        const counts = isAnswer(question, parsed.data);
+        if (counts && used >= allowed) {
           throw new AppError('RESPONSE_LIMIT_REACHED', 409, 'No answers left');
         }
         if (store.responses.countForQuestion(questionId) >= LIMITS.responsesPerQuestion) {
@@ -435,7 +479,7 @@ export function createPresentationService({ store, events, config, now = Date.no
         const time = now();
         store.responses.insert(questionId, participantId, parsed.data, time);
         store.presentations.touch(presentationId, time);
-        return { remaining: allowed - used - 1 };
+        return { remaining: Math.max(0, allowed - used - (counts ? 1 : 0)) };
       });
       events.emit('results-changed', presentationId, questionId);
       return result;
@@ -479,14 +523,16 @@ export function createPresentationService({ store, events, config, now = Date.no
     /**
      * Participants whose phones should get live results for this question: those who answered
      * it, while it is active, its results aren't hidden and the presentation shares results.
-     * Null when no phone should get them.
+     * 'everyone' for types shared on phones (Q&A). Null when no phone should get them.
      */
-    resultsAudience(presentationId: string, questionId: string): Set<string> | null {
+    resultsAudience(presentationId: string, questionId: string): Set<string> | 'everyone' | null {
       const presentation = requirePresentation(presentationId);
-      if (!presentation.resultsOnPhones || presentation.activeQuestionId !== questionId)
-        return null;
+      if (presentation.activeQuestionId !== questionId) return null;
       const row = store.questions.get(presentationId, questionId);
       if (!row || row.resultsHidden) return null;
+      if (isQuestionTypeKey(row.type) && getQuestionType(row.type).sharedOnPhones)
+        return 'everyone';
+      if (!presentation.resultsOnPhones) return null;
       return new Set(store.responses.countsByParticipant(questionId).keys());
     },
 
