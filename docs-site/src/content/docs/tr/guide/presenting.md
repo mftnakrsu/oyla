@@ -109,6 +109,15 @@ göster** kutusunu işaretleyin.
   telefonlarda da gizli kalır; denetim sırasında ekrandan kaldırdığınız cevaplar da gösterilmez.
 - Ayarı açıp kapattığınızda bağlı telefonlar bunu hemen görür.
 
+<img
+  class="shot phone"
+  src="/screenshots/phone-results-tr-light.png"
+  alt="Oy verdikten sonra telefon: Oylandı damgası, 'Cevabınız gönderildi' ve dört çubuklu Canlı sonuçlar kartı"
+  width="1170"
+  height="2670"
+  loading="lazy"
+/>
+
 ## Sunun
 
 Düzenleyicinin üst çubuğundaki **Sunumu başlat** düğmesini seçin (sunumda en az bir soru olduğunda
@@ -174,6 +183,15 @@ verirken gizleyebilirsiniz:
 - Düzenleyicide soruda **Ben gösterene kadar sonuçları gizle** kutusunu işaretleyin ya da
 - sunum ekranında göz düğmesini (**Sonuçları gizle**) seçin veya <kbd>H</kbd> tuşuna basın.
 
+<img
+  class="shot"
+  src="/screenshots/present-hidden-tr-light.png"
+  alt="Sunum ekranı: üstü çizili bir göz, 'Sonuçlar gizli', '18 cevap' ve Sonuçları göster düğmesi"
+  width="2160"
+  height="1350"
+  loading="lazy"
+/>
+
 Sonuçlar gizliyken sunum ekranında **Sonuçlar gizli** yazısı ve o ana kadar gelen cevap sayısı
 görünür; sayı artmaya devam eder. Sonuçları tek seferde açmak için **Sonuçları göster**'i, göz
 düğmesini ya da <kbd>H</kbd> tuşunu kullanın. Sonuçları açtıktan sonra da oylama devam eder.
@@ -191,6 +209,15 @@ kaldırmak için:
    bir kelime listesine dönüşür; böylece siz seçerken hiçbir şey yer değiştirmez.
 2. Cevabın yanındaki ✕ düğmesini seçin. Cevap ekrandan hemen kalkar.
 3. Normal görünüme dönmek için **Bitti**'yi seçin (ya da yeniden <kbd>M</kbd> tuşuna basın).
+
+<img
+  class="shot"
+  src="/screenshots/present-moderate-tr-light.png"
+  alt="Kelime bulutunu denetleme: 'Bir cevabı ekrandan kaldırmak için ✕ düğmesini seçin', '1 cevap gizlendi', Geri getir ve Bitti yazan çubuğun altında kırmızı ✕ düğmeli kelimeler"
+  width="2160"
+  height="1350"
+  loading="lazy"
+/>
 
 Gizleme tek bir cevaba değil, metne uygulanır: "spam" gizlenince "Spam" ve "SPAM" de gizlenir;
 sonradan aynı şeyi gönderenlerin cevabı da gizli kalır. Çubuk kaç cevabın gizlendiğini gösterir ve

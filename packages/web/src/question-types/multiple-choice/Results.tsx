@@ -8,7 +8,7 @@ export function MultipleChoiceResults({ config, results }: ResultsProps<'multipl
   const max = Math.max(1, ...Object.values(results.counts));
 
   return (
-    <div className="flex h-full flex-col justify-center gap-[1.3em] pb-[1em]">
+    <div className="flex h-full flex-col justify-center-safe gap-[1.3em] pb-[1em]">
       {config.options.map((option, index) => {
         const count = results.counts[option.id] ?? 0;
         const label = option.label || t('mc.option.placeholder', { n: index + 1 });

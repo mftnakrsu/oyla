@@ -2,8 +2,12 @@
 /**
  * Captures the screenshots used by the README, the docs site and the demo video.
  *
- *   npm run build && PORT=3100 OYLA_DB_PATH=:memory: npm start   # in one terminal
- *   node scripts/capture-screenshots.mjs [outDir]                 # in another
+ *   npm run build
+ *   PORT=3100 OYLA_DB_PATH=:memory: OYLA_RATE_LIMIT_CREATE_PER_HOUR=100 npm start  # one terminal
+ *   node scripts/capture-screenshots.mjs [outDir]                                  # another
+ *
+ * It creates 11 presentations, more than the default limit of 10 per hour, hence the variable.
+ * Copy the `*-light.png` files the docs site uses into docs-site/public/screenshots afterwards.
  *
  * The browser maps oyla.example.com to the local server so the screens show a plausible address
  * of a self-hosted server.
@@ -269,6 +273,12 @@ async function capture(language, scheme, { phoneShots = true, desktopShots = tru
       await page.keyboard.press('ArrowRight');
       await page.waitForTimeout(500);
     }
+    const hiddenCard = page.getByText(/^(Results are hidden|Sonuçlar gizli)$/);
+    // The scale question collects its answers hidden first, then gets revealed.
+    if (question.type === 'scale') {
+      await page.keyboard.press('h');
+      await hiddenCard.waitFor();
+    }
     if (phoneShots) {
       await phone.getByRole('heading', { name: question.title }).waitFor();
       if (question.type === 'multiple-choice')
@@ -284,11 +294,36 @@ async function capture(language, scheme, { phoneShots = true, desktopShots = tru
     // Round-robin over 24 phones keeps everyone inside their answer allowance.
     await people.answer(questionId, responsesFor(question));
     await page.waitForTimeout(1200);
+    if (question.type === 'scale') {
+      await page.screenshot({ path: join(outDir, `present-hidden-${suffix}.png`) });
+      await page.keyboard.press('h');
+      await hiddenCard.waitFor({ state: 'detached' });
+      await page.waitForTimeout(800);
+    }
     await page.screenshot({ path: join(outDir, `present-${kinds[q]}-${suffix}.png`) });
+    if (question.type === 'word-cloud') {
+      // Moderation: take one of the single-vote words off the screen.
+      const [word] = Object.entries(question.words).find(([, count]) => count === 1) ?? [];
+      await page.keyboard.press('m');
+      await page.getByRole('button', { name: new RegExp(`“${word}”`) }).click();
+      await page.getByText(/^(1 answer hidden|1 cevap gizlendi)$/).waitFor();
+      await page.evaluate(() => /** @type {HTMLElement} */ (document.activeElement)?.blur());
+      await page.waitForTimeout(300);
+      await page.screenshot({ path: join(outDir, `present-moderate-${suffix}.png`) });
+      await page.keyboard.press('m');
+      await page.waitForTimeout(300);
+    }
     if (phoneShots && q === 0) {
       await phone.getByRole('button', { name: /Send vote|Oyu gönder/ }).click();
       await phone.waitForTimeout(600);
       await phone.screenshot({ path: join(outDir, `phone-thanks-${suffix}.png`) });
+      // The same phone once the presenter shares results with phones.
+      await rest('PATCH', `/presentations/${created.id}`, created.adminToken, {
+        resultsOnPhones: true,
+      });
+      await phone.getByRole('heading', { name: /Live results|Canlı sonuçlar/ }).waitFor();
+      await phone.waitForTimeout(800);
+      await phone.screenshot({ path: join(outDir, `phone-results-${suffix}.png`), fullPage: true });
     }
   }
 

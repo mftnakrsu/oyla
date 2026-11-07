@@ -40,7 +40,8 @@ function PhoneResults({
       <h2 id="phone-results" className="text-base font-extrabold">
         {t('join.results.title')}
       </h2>
-      <div className="h-64 overflow-y-auto">
+      {/* The word cloud lays itself out in the space it gets; the other types size to fit. */}
+      <div className={question.type === 'word-cloud' ? 'h-64' : undefined}>
         <ErrorBoundary key={question.id} fallback={null}>
           <Suspense fallback={null}>
             <ui.Results config={question.config} results={message.results} />
