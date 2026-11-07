@@ -26,7 +26,7 @@ export function ScaleRespond({ config, onSubmit }: RespondProps<'scale'>) {
           {values.map((n) => (
             <label
               key={n}
-              className={`grid min-h-14 cursor-pointer place-items-center rounded-xl border-2 text-xl font-bold has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-focus ${
+              className={`grid min-h-14 cursor-pointer place-items-center rounded-xl border-2 text-xl font-medium has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-focus ${
                 value === n
                   ? 'border-brand bg-brand text-on-brand'
                   : 'border-line bg-paper hover:border-muted'

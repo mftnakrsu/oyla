@@ -1,4 +1,5 @@
 import { useI18n } from '../../i18n/I18nProvider';
+import { UpvoteIcon } from '../icons';
 import { EmptyResults, HideButton } from '../shared';
 import type { ResultsProps } from '../types';
 
@@ -19,10 +20,8 @@ export function QaResults({ results, onHide }: ResultsProps<'qa'>) {
               className="grid min-w-[2.6em] shrink-0 place-items-center rounded-lg bg-brand-soft px-[0.4em] py-[0.2em] text-center leading-tight"
               title={tn('results.votes', entry.votes)}
             >
-              <span aria-hidden="true" className="text-[0.8em]">
-                ▲
-              </span>
-              <span className="text-[1.3em] font-extrabold">{entry.votes}</span>
+              <UpvoteIcon className="size-[1.1em] text-muted" />
+              <span className="text-[1.3em] font-semibold">{entry.votes}</span>
               <span className="sr-only">{tn('results.votes', entry.votes)}</span>
             </span>
             <span className="min-w-0 flex-1 break-words text-[1.4em] leading-snug">

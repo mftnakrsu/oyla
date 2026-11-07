@@ -16,7 +16,7 @@ const sizes: Record<Size, string> = {
 };
 
 export function buttonClass(variant: Variant = 'primary', size: Size = 'md', extra = '') {
-  return `inline-flex items-center justify-center gap-2 rounded-xl font-bold transition-[opacity,border-color,background-color] disabled:cursor-not-allowed ${variants[variant]} ${sizes[size]} ${extra}`;
+  return `inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-[opacity,border-color,background-color] disabled:cursor-not-allowed ${variants[variant]} ${sizes[size]} ${extra}`;
 }
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {

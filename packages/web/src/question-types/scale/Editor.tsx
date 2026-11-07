@@ -12,7 +12,7 @@ export function ScaleEditor({ config, onChange }: EditorProps<'scale'>) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-4">
-        <label className="flex items-center gap-2 font-bold">
+        <label className="flex items-center gap-2 font-medium">
           {t('scale.min.label')}
           <select
             className={selectClass}
@@ -25,7 +25,7 @@ export function ScaleEditor({ config, onChange }: EditorProps<'scale'>) {
             <option value={1}>1</option>
           </select>
         </label>
-        <label className="flex items-center gap-2 font-bold">
+        <label className="flex items-center gap-2 font-medium">
           {t('scale.max.label')}
           <select
             className={selectClass}
@@ -42,7 +42,7 @@ export function ScaleEditor({ config, onChange }: EditorProps<'scale'>) {
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1">
-          <label htmlFor={`${id}-min`} className="font-bold">
+          <label htmlFor={`${id}-min`} className="font-medium">
             {t('scale.minLabel.label')}
           </label>
           <input
@@ -55,7 +55,7 @@ export function ScaleEditor({ config, onChange }: EditorProps<'scale'>) {
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label htmlFor={`${id}-max`} className="font-bold">
+          <label htmlFor={`${id}-max`} className="font-medium">
             {t('scale.maxLabel.label')}
           </label>
           <input

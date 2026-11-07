@@ -15,15 +15,15 @@ export function MultipleChoiceResults({ config, results }: ResultsProps<'multipl
         return (
           <div key={option.id} title={`${label}: ${tn('results.votes', count)}`}>
             <div className="mb-[0.3em] flex items-baseline justify-between gap-4">
-              <span className="text-[1.6em] font-bold leading-tight">{label}</span>
+              <span className="text-[1.6em] font-medium leading-tight">{label}</span>
               <span className="shrink-0 text-[1.45em] text-muted">
-                <span className="font-bold text-ink">{percent(count, results.total)}%</span>{' '}
+                <span className="font-medium text-ink">{percent(count, results.total)}%</span>{' '}
                 <span className="text-[0.85em]">({count})</span>
               </span>
             </div>
             <div className="h-[1.6em] w-full">
               <div
-                className="h-full rounded-r-[4px] bg-series transition-[width] duration-500 ease-out"
+                className="h-full rounded-r bg-series transition-[width] duration-500 ease-out"
                 style={{ width: count === 0 ? '2px' : `${(count / max) * 100}%` }}
               />
             </div>

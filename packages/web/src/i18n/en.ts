@@ -157,7 +157,7 @@ export const en = {
   'quiz.locked.body': 'The right answer appears when the time is up.',
   'quiz.missed.title': 'Time’s up',
   'quiz.missed.body': 'You didn’t answer this one.',
-  'quiz.right.title': 'Correct!',
+  'quiz.right.title': 'Correct',
   'quiz.wrong.title': 'Not this time',
   'quiz.answer': 'The answer: {answer}',
   'quiz.points': '+{points} points',

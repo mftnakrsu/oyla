@@ -48,7 +48,7 @@ function TitleField({ value, onSave }: { value: string; onSave(title: string): v
       onKeyDown={(event) => {
         if (event.key === 'Enter') event.currentTarget.blur();
       }}
-      className="min-h-11 min-w-0 flex-1 rounded-lg border-2 border-transparent bg-transparent px-2 text-xl font-extrabold hover:border-line focus:border-brand focus:bg-paper focus:outline-none"
+      className="min-h-11 min-w-0 flex-1 rounded-lg border-2 border-transparent bg-transparent px-2 text-xl font-semibold hover:border-line focus:border-brand focus:bg-paper focus:outline-none"
     />
   );
 }
@@ -72,7 +72,7 @@ function AdminLinkBanner({ link, onDismiss }: { link: string; onDismiss(): void 
   return (
     <div className="mx-auto mt-4 max-w-6xl px-4">
       <section className="flex flex-col gap-3 rounded-2xl border-2 border-brand/40 bg-brand-soft p-5">
-        <h2 className="text-lg font-extrabold">{t('editor.adminLink.title')}</h2>
+        <h2 className="text-lg font-semibold">{t('editor.adminLink.title')}</h2>
         <p>{t('editor.adminLink.body')}</p>
         <code className="block overflow-x-auto rounded-lg bg-paper px-3 py-2 text-sm">{link}</code>
         <div className="flex flex-wrap gap-2">
@@ -150,7 +150,7 @@ export function EditorPage() {
   if (!token || loadError === 'UNAUTHORIZED' || loadError === 'NOT_FOUND') {
     return (
       <Shell>
-        <h1 className="mb-4 text-3xl font-extrabold">
+        <h1 className="mb-4 text-3xl font-semibold">
           {loadError === 'NOT_FOUND' ? t('error.NOT_FOUND') : t('editor.missingKey.title')}
         </h1>
         {loadError === 'NOT_FOUND' ? null : (
@@ -302,7 +302,7 @@ export function EditorPage() {
               )
             }
           />
-          <p className="font-bold text-muted">
+          <p className="font-medium text-muted">
             {t('editor.joinCode', { code: formatJoinCode(presentation.joinCode) })}
           </p>
           <Button variant="secondary" onClick={() => copyJoin(joinUrl(presentation.joinCode))}>
@@ -321,7 +321,7 @@ export function EditorPage() {
 
       <div className="mx-auto grid max-w-6xl gap-6 px-4 py-6 lg:grid-cols-[300px_1fr]">
         <aside aria-labelledby="questions-heading" className="flex flex-col gap-3">
-          <h2 id="questions-heading" className="text-lg font-extrabold">
+          <h2 id="questions-heading" className="text-lg font-semibold">
             {t('editor.questions')}
           </h2>
           {questions.length > 0 ? (
@@ -356,10 +356,10 @@ export function EditorPage() {
                     className={`group relative ${drag?.from === index ? 'opacity-40' : ''}`}
                   >
                     {lineAt(index) ? (
-                      <span className="pointer-events-none absolute inset-x-2 -top-[4px] h-1 rounded-full bg-brand" />
+                      <span className="pointer-events-none absolute inset-x-2 -top-1 h-1 rounded-full bg-brand" />
                     ) : null}
                     {index === questions.length - 1 && lineAt(index + 1) ? (
-                      <span className="pointer-events-none absolute inset-x-2 -bottom-[4px] h-1 rounded-full bg-brand" />
+                      <span className="pointer-events-none absolute inset-x-2 -bottom-1 h-1 rounded-full bg-brand" />
                     ) : null}
                     <button
                       type="button"
@@ -372,11 +372,11 @@ export function EditorPage() {
                         current ? 'border-brand bg-paper' : 'border-transparent hover:bg-paper'
                       }`}
                     >
-                      <span className="w-6 shrink-0 text-right font-bold text-muted">
+                      <span className="w-6 shrink-0 text-right font-medium text-muted">
                         {index + 1}
                       </span>
                       <ui.Icon className="size-5 shrink-0 text-series" />
-                      <span className={`truncate ${question.title ? 'font-bold' : 'text-muted'}`}>
+                      <span className={`truncate ${question.title ? 'font-medium' : 'text-muted'}`}>
                         {question.title || t('editor.question.untitled')}
                       </span>
                       <GripIcon className="ml-auto size-4 shrink-0 cursor-grab text-muted opacity-0 group-hover:opacity-100" />
@@ -402,7 +402,7 @@ export function EditorPage() {
                 className="mt-0.5 size-5 shrink-0 accent-brand"
               />
               <span className="flex flex-col">
-                <span className="font-bold">{t('editor.resultsOnPhones')}</span>
+                <span className="font-medium">{t('editor.resultsOnPhones')}</span>
                 <span id="results-on-phones-hint" className="text-sm text-muted">
                   {t('editor.resultsOnPhones.hint')}
                 </span>
@@ -421,7 +421,7 @@ export function EditorPage() {
           ) : null}
           {picking || questions.length === 0 ? (
             <section aria-labelledby="picker-heading" className="flex flex-col gap-4">
-              <h2 id="picker-heading" className="text-2xl font-extrabold">
+              <h2 id="picker-heading" className="text-2xl font-semibold">
                 {questions.length === 0 ? t('editor.empty.title') : t('editor.chooseType')}
               </h2>
               {questions.length === 0 ? (
