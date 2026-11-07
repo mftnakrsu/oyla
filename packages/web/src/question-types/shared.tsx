@@ -1,6 +1,7 @@
 import { type FormEvent, type ReactNode, useState } from 'react';
 import { Button } from '../components/Button';
 import { useI18n } from '../i18n/I18nProvider';
+import { CloseIcon } from './icons';
 
 export const inputClass =
   'w-full rounded-xl border-2 border-line bg-paper px-4 py-3 text-lg text-ink placeholder:text-muted/70 focus:border-brand focus:outline-none';
@@ -57,7 +58,7 @@ export function percent(part: number, total: number): number {
   return total === 0 ? 0 : Math.round((part / total) * 100);
 }
 
-/** The × that hides an answer from the screen while the presenter moderates. */
+/** The ✕ button that hides an answer from the screen while the presenter moderates. */
 export function HideButton({ text, onHide }: { text: string; onHide(): void }) {
   const { t } = useI18n();
   const short = text.length > 60 ? `${text.slice(0, 59)}…` : text;
@@ -68,9 +69,9 @@ export function HideButton({ text, onHide }: { text: string; onHide(): void }) {
       onClick={onHide}
       aria-label={label}
       title={label}
-      className="grid size-[1.7em] shrink-0 place-items-center rounded-full bg-danger text-[0.75em] font-bold leading-none text-on-danger hover:opacity-90"
+      className="grid size-[1.7em] shrink-0 place-items-center rounded-full bg-danger text-[0.75em] font-medium leading-none text-on-danger hover:opacity-90"
     >
-      <span aria-hidden="true">✕</span>
+      <CloseIcon className="size-[0.95em]" />
     </button>
   );
 }

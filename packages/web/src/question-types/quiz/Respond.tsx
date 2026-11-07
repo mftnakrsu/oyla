@@ -23,7 +23,7 @@ export function QuizRespond({ config, onSubmit }: RespondProps<'quiz'>) {
               setSending(null);
             }
           }}
-          className={`flex min-h-16 items-center gap-4 rounded-xl border-2 bg-paper px-4 py-3 text-left text-lg font-bold transition-colors disabled:cursor-default ${
+          className={`flex min-h-16 items-center gap-4 rounded-xl border-2 bg-paper px-4 py-3 text-left text-lg font-medium transition-colors disabled:cursor-default ${
             sending === option.id ? 'border-brand' : 'border-line hover:border-muted'
           }`}
         >

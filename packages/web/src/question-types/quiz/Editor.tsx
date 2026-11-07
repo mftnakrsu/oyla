@@ -2,6 +2,7 @@ import { LIMITS, QUIZ_SECONDS, randomId } from '@oyla/shared';
 import { useId } from 'react';
 import { Button } from '../../components/Button';
 import { useI18n } from '../../i18n/I18nProvider';
+import { CheckIcon, CloseIcon } from '../icons';
 import { inputClass } from '../shared';
 import type { EditorProps } from '../types';
 
@@ -28,7 +29,7 @@ export function QuizEditor({ config, onChange }: EditorProps<'quiz'>) {
   return (
     <div className="flex flex-col gap-6">
       <fieldset className="flex flex-col gap-3">
-        <legend className="mb-1 font-bold">{t('mc.options')}</legend>
+        <legend className="mb-1 font-medium">{t('mc.options')}</legend>
         <p className="mb-1 text-sm text-muted">{t('quiz.correct.hint')}</p>
         {options.map((option, index) => {
           const correct = option.id === correctOptionId;
@@ -48,9 +49,7 @@ export function QuizEditor({ config, onChange }: EditorProps<'quiz'>) {
                   aria-label={t('quiz.correct.mark', { n: index + 1 })}
                   onChange={() => onChange({ ...config, correctOptionId: option.id })}
                 />
-                <span aria-hidden="true" className="text-lg font-bold">
-                  ✓
-                </span>
+                <CheckIcon className="size-5" />
               </label>
               <input
                 className={inputClass}
@@ -65,9 +64,9 @@ export function QuizEditor({ config, onChange }: EditorProps<'quiz'>) {
                 aria-label={t('mc.option.remove', { n: index + 1 })}
                 disabled={options.length <= LIMITS.optionsMin}
                 onClick={() => remove(option.id)}
-                className="shrink-0 text-2xl leading-none text-muted"
+                className="shrink-0 text-muted"
               >
-                ×
+                <CloseIcon className="size-5" />
               </Button>
             </div>
           );
@@ -85,7 +84,7 @@ export function QuizEditor({ config, onChange }: EditorProps<'quiz'>) {
         </div>
       </fieldset>
       <div className="flex items-center gap-3">
-        <label htmlFor={`${id}-seconds`} className="font-bold">
+        <label htmlFor={`${id}-seconds`} className="font-medium">
           {t('quiz.seconds.label')}
         </label>
         <select

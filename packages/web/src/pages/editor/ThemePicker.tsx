@@ -12,7 +12,7 @@ export function ThemePicker({
   const { t } = useI18n();
   return (
     <fieldset className="flex flex-col gap-2">
-      <legend className="text-lg font-extrabold">{t('editor.theme.label')}</legend>
+      <legend className="text-lg font-semibold">{t('editor.theme.label')}</legend>
       <p className="text-sm text-muted">{t('editor.theme.hint')}</p>
       <div className="mt-1 grid grid-cols-2 gap-2">
         {THEMES.map((theme) => (
@@ -35,7 +35,9 @@ export function ThemePicker({
               <span className="size-5 rounded-full border-2 border-paper bg-brand" />
               <span className="size-5 rounded-full border-2 border-paper bg-series" />
             </span>
-            <span className="text-sm font-bold leading-tight text-ink">{t(`theme.${theme}`)}</span>
+            <span className="text-sm font-medium leading-tight text-ink">
+              {t(`theme.${theme}`)}
+            </span>
           </label>
         ))}
       </div>

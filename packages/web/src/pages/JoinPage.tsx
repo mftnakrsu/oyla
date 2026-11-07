@@ -49,7 +49,7 @@ function PhoneResults({
       aria-labelledby="phone-results"
       className="mt-2 flex w-full flex-col gap-3 rounded-2xl bg-paper p-4 text-left text-sm"
     >
-      <h2 id="phone-results" className="text-base font-extrabold">
+      <h2 id="phone-results" className="text-base font-semibold">
         {t('join.results.title')}
       </h2>
       {/* The word cloud lays itself out in the space it gets; the other types size to fit. */}
@@ -73,10 +73,10 @@ function QuestionHeading({ question }: { question: PublicQuestion }) {
   const { t } = useI18n();
   return (
     <div>
-      <p className="mb-2 text-sm font-bold text-muted">
+      <p className="mb-2 text-sm font-medium text-muted">
         {t('join.position', { index: question.index + 1, total: question.total })}
       </p>
-      <h1 className="text-3xl font-extrabold leading-tight">
+      <h1 className="text-3xl font-semibold leading-tight">
         {question.title || t('editor.question.untitled')}
       </h1>
     </div>
@@ -118,12 +118,12 @@ function NicknameForm({
       }}
     >
       <div>
-        <h1 className="text-3xl font-extrabold leading-tight">{t('nickname.title')}</h1>
+        <h1 className="text-3xl font-semibold leading-tight">{t('nickname.title')}</h1>
         <p className="mt-2 text-lg text-muted">{t('nickname.body')}</p>
       </div>
       {error ? <ErrorNotice code={error} /> : null}
       <div className="flex flex-col gap-2">
-        <label htmlFor={id} className="font-bold">
+        <label htmlFor={id} className="font-medium">
           {t('nickname.label')}
         </label>
         <div className="flex gap-2">
@@ -176,7 +176,7 @@ function Countdown({ left, total }: { left: number; total: number }) {
           style={{ width: `${total > 0 ? (left / total) * 100 : 0}%` }}
         />
       </div>
-      <span className="min-w-12 text-right text-2xl font-extrabold tabular-nums">
+      <span className="min-w-12 text-right text-2xl font-semibold tabular-nums">
         {t('quiz.secondsLeft', { count: seconds })}
       </span>
     </div>
@@ -206,17 +206,17 @@ function QuizReveal({
   return (
     <Centered>
       {points !== null && points > 0 ? <Stamp size={110} press /> : null}
-      <h1 tabIndex={-1} className="text-3xl font-extrabold">
+      <h1 tabIndex={-1} className="text-3xl font-semibold">
         {title}
       </h1>
       {points === null ? <p className="text-lg text-muted">{t('quiz.missed.body')}</p> : null}
       {answer ? (
-        <p className="text-xl font-bold">{t('quiz.answer', { answer: answerLabel })}</p>
+        <p className="text-xl font-medium">{t('quiz.answer', { answer: answerLabel })}</p>
       ) : null}
       {score ? (
         <div className="mt-2 flex w-full flex-col gap-1 rounded-2xl bg-paper p-4 text-lg">
           {points !== null ? (
-            <p className="text-2xl font-extrabold">{t('quiz.points', { points })}</p>
+            <p className="text-2xl font-semibold">{t('quiz.points', { points })}</p>
           ) : null}
           <p>{t('quiz.total', { points: score.total })}</p>
           {score.rank !== null ? (
@@ -263,7 +263,7 @@ function TimedAnswer({
           </div>
         ) : null}
         {remaining === 0 ? <Stamp size={110} label={t('stamp.voted')} press /> : null}
-        <h1 className="text-3xl font-extrabold">
+        <h1 className="text-3xl font-semibold">
           {remaining === 0 ? t('quiz.locked.title') : t('quiz.missed.title')}
         </h1>
         <p className="max-w-xs text-lg text-muted">{t('quiz.locked.body')}</p>
@@ -367,7 +367,7 @@ function Answer({
     return (
       <Centered>
         <Stamp size={results ? 96 : 150} label={t('stamp.voted')} press={justAnswered} />
-        <h1 ref={thanks} tabIndex={-1} className="mt-4 text-3xl font-extrabold focus:outline-none">
+        <h1 ref={thanks} tabIndex={-1} className="mt-4 text-3xl font-semibold focus:outline-none">
           {t('join.thanks.title')}
         </h1>
         <p className="max-w-xs text-lg text-muted">
@@ -436,7 +436,7 @@ export function JoinPage() {
       </header>
       {status === 'ready' && session.title ? (
         <div className="flex items-baseline justify-between gap-3 border-b-2 border-line pb-3">
-          <p className="truncate font-bold text-muted">{session.title}</p>
+          <p className="truncate font-medium text-muted">{session.title}</p>
           {session.state?.nickname ? (
             <p className="shrink-0 truncate text-sm text-muted">
               {t('nickname.playingAs', { name: session.state.nickname })}
@@ -445,7 +445,7 @@ export function JoinPage() {
         </div>
       ) : null}
       {status === 'ready' && !session.connected ? (
-        <p role="status" className="mt-3 rounded-xl bg-danger-soft px-4 py-2 text-sm font-bold">
+        <p role="status" className="mt-3 rounded-xl bg-danger-soft px-4 py-2 text-sm font-medium">
           {t('join.reconnecting')}
         </p>
       ) : null}
@@ -459,7 +459,7 @@ export function JoinPage() {
 
         {status === 'not-found' ? (
           <Centered>
-            <h1 className="text-3xl font-extrabold">{t('join.notFound.title')}</h1>
+            <h1 className="text-3xl font-semibold">{t('join.notFound.title')}</h1>
             <p className="text-lg text-muted">
               {t('join.notFound.body', { code: formatJoinCode(code) })}
             </p>
@@ -472,7 +472,7 @@ export function JoinPage() {
         {status === 'ended' ? (
           <Centered>
             <Stamp size={96} />
-            <h1 className="text-3xl font-extrabold">{t('join.ended.title')}</h1>
+            <h1 className="text-3xl font-semibold">{t('join.ended.title')}</h1>
             <p className="text-lg text-muted">{t('join.ended.body')}</p>
           </Centered>
         ) : null}
@@ -498,7 +498,7 @@ export function JoinPage() {
         {status === 'ready' && !session.state?.askNickname && !question ? (
           <Centered>
             <Stamp size={72} className="opacity-90" />
-            <h1 className="text-3xl font-extrabold">{t('join.waiting.title')}</h1>
+            <h1 className="text-3xl font-semibold">{t('join.waiting.title')}</h1>
             <p className="max-w-xs text-lg text-muted">{t('join.waiting.body')}</p>
           </Centered>
         ) : null}

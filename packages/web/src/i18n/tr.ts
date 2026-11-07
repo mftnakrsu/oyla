@@ -158,7 +158,7 @@ export const tr: Record<MessageKey, string> = {
   'quiz.locked.body': 'Doğru cevap süre dolunca görünecek.',
   'quiz.missed.title': 'Süre doldu',
   'quiz.missed.body': 'Bu soruyu cevaplamadınız.',
-  'quiz.right.title': 'Doğru!',
+  'quiz.right.title': 'Doğru',
   'quiz.wrong.title': 'Bu sefer olmadı',
   'quiz.answer': 'Doğru cevap: {answer}',
   'quiz.points': '+{points} puan',

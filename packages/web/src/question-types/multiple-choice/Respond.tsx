@@ -42,7 +42,7 @@ export function MultipleChoiceRespond({ config, onSubmit }: RespondProps<'multip
               >
                 {checked ? <span className="size-2.5 rounded-full bg-on-brand" /> : null}
               </span>
-              <span className="font-bold">
+              <span className="font-medium">
                 {option.label || t('mc.option.placeholder', { n: index + 1 })}
               </span>
             </label>

@@ -1,6 +1,7 @@
 import { cleanText, groupKey, isQaAsk, LIMITS } from '@oyla/shared';
 import { useId, useState } from 'react';
 import { useI18n } from '../../i18n/I18nProvider';
+import { UpvoteIcon } from '../icons';
 import { CharCount, inputClass, RespondForm } from '../shared';
 import type { RespondProps } from '../types';
 
@@ -36,7 +37,7 @@ export function QaRespond({ remaining, onSubmit, results, mine = [] }: RespondPr
           }}
         >
           <div className="flex flex-col gap-2">
-            <label htmlFor={id} className="font-bold">
+            <label htmlFor={id} className="font-medium">
               {t('qa.respond.label')}
             </label>
             <textarea
@@ -56,7 +57,7 @@ export function QaRespond({ remaining, onSubmit, results, mine = [] }: RespondPr
       )}
 
       <section aria-labelledby={`${id}-list`} className="flex flex-col gap-3">
-        <h2 id={`${id}-list`} className="text-lg font-extrabold">
+        <h2 id={`${id}-list`} className="text-lg font-semibold">
           {t('qa.respond.list')}
         </h2>
         {results === null ? (
@@ -85,11 +86,11 @@ export function QaRespond({ remaining, onSubmit, results, mine = [] }: RespondPr
                     aria-pressed={done}
                     aria-label={t('qa.respond.upvote', { text: entry.text })}
                     onClick={() => void upvote(entry.key)}
-                    className={`flex min-h-11 min-w-14 shrink-0 items-center justify-center gap-1 rounded-lg border-2 px-2 font-bold ${
+                    className={`flex min-h-11 min-w-14 shrink-0 items-center justify-center gap-1 rounded-lg border-2 px-2 font-medium ${
                       done ? 'border-brand bg-brand text-on-brand' : 'border-line'
                     } disabled:cursor-default ${own ? 'opacity-50' : ''}`}
                   >
-                    <span aria-hidden="true">▲</span>
+                    <UpvoteIcon className="size-5" />
                     <span>{entry.votes}</span>
                   </button>
                 </li>

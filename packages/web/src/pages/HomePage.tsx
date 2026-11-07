@@ -5,6 +5,7 @@ import { Shell } from '../components/Shell';
 import { useI18n } from '../i18n/I18nProvider';
 import { formatJoinCode } from '../lib/format';
 import { forgetMine, listMine, type MyPresentation } from '../lib/my-presentations';
+import { CloseIcon } from '../question-types/icons';
 
 export const SOURCE_URL = 'https://github.com/mftnakrsu/oyla';
 
@@ -44,14 +45,14 @@ function JoinForm() {
           placeholder="123 456"
           aria-invalid={invalid}
           aria-describedby={invalid ? `${id}-error` : undefined}
-          className="min-h-16 w-full rounded-2xl border-2 border-line bg-paper px-5 text-center text-4xl font-extrabold tracking-[0.12em] placeholder:text-line focus:border-brand focus:outline-none sm:w-72 sm:text-left"
+          className="min-h-16 w-full rounded-2xl border-2 border-line bg-paper px-5 text-center text-4xl font-semibold tracking-[0.12em] placeholder:text-line focus:border-brand focus:outline-none sm:w-72 sm:text-left"
         />
         <button type="submit" className={buttonClass('primary', 'lg', 'min-h-16 sm:px-8')}>
           {t('home.join.submit')}
         </button>
       </div>
       {invalid ? (
-        <p id={`${id}-error`} className="font-bold text-danger">
+        <p id={`${id}-error`} className="font-medium text-danger">
           {t('home.join.invalid')}
         </p>
       ) : null}
@@ -70,7 +71,7 @@ function MyPresentations() {
       {items.map((item) => (
         <li key={item.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 py-3">
           <div className="min-w-0 flex-1">
-            <p className="truncate font-bold">{item.title}</p>
+            <p className="truncate font-medium">{item.title}</p>
             <p className="text-sm text-muted">{formatJoinCode(item.joinCode)}</p>
           </div>
           <div className="flex items-center gap-1">
@@ -94,9 +95,9 @@ function MyPresentations() {
                 forgetMine(item.id);
                 setItems(listMine());
               }}
-              className={buttonClass('quiet', 'md', 'min-h-10 px-3 text-xl text-muted')}
+              className={buttonClass('quiet', 'md', 'min-h-10 px-3 text-muted')}
             >
-              ×
+              <CloseIcon className="size-5" />
             </button>
           </div>
         </li>
@@ -108,12 +109,13 @@ function MyPresentations() {
 export function HomePage() {
   const { t } = useI18n();
   return (
-    <Shell wide>
-      <div className="grid gap-12 md:grid-cols-[1.25fr_1fr] md:gap-16">
-        <section aria-labelledby="join-title" className="flex flex-col gap-5 md:pt-6">
+    <Shell wide fill>
+      {/* Centred in the first screen on desktop, so the page has no empty lower half. */}
+      <div className="grid gap-12 md:my-auto md:grid-cols-[1.25fr_1fr] md:items-center md:gap-16">
+        <section aria-labelledby="join-title" className="flex flex-col gap-5">
           <h1
             id="join-title"
-            className="text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl"
+            className="text-4xl font-semibold leading-tight tracking-tight sm:text-5xl"
           >
             {t('home.join.title')}
           </h1>
@@ -123,7 +125,7 @@ export function HomePage() {
           aria-labelledby="present-title"
           className="flex flex-col gap-4 rounded-3xl bg-paper p-6 sm:p-8"
         >
-          <h2 id="present-title" className="text-2xl font-extrabold">
+          <h2 id="present-title" className="text-2xl font-semibold">
             {t('home.present.title')}
           </h2>
           <p className="text-muted">{t('home.present.body')}</p>
@@ -132,13 +134,13 @@ export function HomePage() {
               {t('home.present.create')}
             </Link>
           </div>
-          <h3 className="mt-4 text-lg font-extrabold">{t('home.mine.title')}</h3>
+          <h3 className="mt-4 text-lg font-semibold">{t('home.mine.title')}</h3>
           <MyPresentations />
         </section>
       </div>
-      <footer className="mt-16 text-sm text-muted">
+      <footer className="mt-16 text-sm text-muted md:mt-12">
         {t('home.footer')}{' '}
-        <a href={SOURCE_URL} className="font-bold text-ink underline underline-offset-4">
+        <a href={SOURCE_URL} className="font-medium text-ink underline underline-offset-4">
           {t('home.footer.source')}
         </a>
       </footer>

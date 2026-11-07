@@ -17,7 +17,7 @@ export function TypePicker({ onPick }: { onPick(type: QuestionTypeKey): void }) 
           >
             <ui.Icon className="mt-0.5 size-7 shrink-0 text-series" />
             <span>
-              <span className="block text-lg font-extrabold">{t(ui.labelKey)}</span>
+              <span className="block text-lg font-semibold">{t(ui.labelKey)}</span>
               <span className="block text-muted">{t(ui.descriptionKey)}</span>
             </span>
           </button>

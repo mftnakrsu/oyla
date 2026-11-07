@@ -132,7 +132,7 @@ export function WordCloudResults({ results, onHide }: ResultsProps<'word-cloud'>
           {results.words.map((word) => (
             <li
               key={word.text}
-              className="flex items-center gap-[0.5em] rounded-full border-2 border-line bg-paper py-[0.3em] pr-[0.4em] pl-[0.9em] text-[1.3em] font-bold"
+              className="flex items-center gap-[0.5em] rounded-full border-2 border-line bg-paper py-[0.3em] pr-[0.4em] pl-[0.9em] text-[1.3em] font-medium"
             >
               <span>{word.text}</span>
               <span className="text-[0.8em] font-normal text-muted">{word.count}</span>
@@ -156,7 +156,7 @@ export function WordCloudResults({ results, onHide }: ResultsProps<'word-cloud'>
           {results.words.map((word) => (
             <li
               key={word.text}
-              className={`font-extrabold ${tierTextClass[tierOf(word.count, max)]}`}
+              className={`font-semibold ${tierTextClass[tierOf(word.count, max)]}`}
               style={{ fontSize: `${1 + Math.min(word.count, 6) * 0.35}em` }}
             >
               {word.text}

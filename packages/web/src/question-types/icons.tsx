@@ -68,3 +68,53 @@ export function QaIcon({ className = '' }: { className?: string }) {
     </svg>
   );
 }
+
+/** Small inline icons sized to the text they sit in (1em), for buttons and labels. */
+const inline = {
+  viewBox: '0 0 24 24',
+  fill: 'none',
+  stroke: 'currentColor',
+  strokeWidth: 2.25,
+  strokeLinecap: 'round',
+  strokeLinejoin: 'round',
+} as const;
+
+export function UpvoteIcon({ className = 'size-[1em]' }: { className?: string }) {
+  return (
+    <svg aria-hidden="true" {...inline} className={className}>
+      <path d="M6 15l6-6 6 6" />
+    </svg>
+  );
+}
+
+export function CheckIcon({ className = 'size-[1em]' }: { className?: string }) {
+  return (
+    <svg aria-hidden="true" {...inline} className={className}>
+      <path d="M5 12.5l4.5 4.5L19 7.5" />
+    </svg>
+  );
+}
+
+export function CloseIcon({ className = 'size-[1em]' }: { className?: string }) {
+  return (
+    <svg aria-hidden="true" {...inline} className={className}>
+      <path d="M6.5 6.5l11 11M17.5 6.5l-11 11" />
+    </svg>
+  );
+}
+
+export function ArrowUpIcon({ className = 'size-[1em]' }: { className?: string }) {
+  return (
+    <svg aria-hidden="true" {...inline} className={className}>
+      <path d="M12 19V5M6 11l6-6 6 6" />
+    </svg>
+  );
+}
+
+export function ArrowDownIcon({ className = 'size-[1em]' }: { className?: string }) {
+  return (
+    <svg aria-hidden="true" {...inline} className={className}>
+      <path d="M12 5v14M6 13l6 6 6-6" />
+    </svg>
+  );
+}
