@@ -1,8 +1,9 @@
 import type { QuestionTypeKey } from '@oyla/shared';
 import { lazy } from 'react';
-import { BarsIcon, CloudIcon, NoteIcon, ScaleIcon } from './icons';
+import { BarsIcon, CloudIcon, NoteIcon, QaIcon, ScaleIcon } from './icons';
 import { MultipleChoiceRespond } from './multiple-choice/Respond';
 import { OpenEndedRespond } from './open-ended/Respond';
+import { QaRespond } from './qa/Respond';
 import { ScaleRespond } from './scale/Respond';
 import type { AnyQuestionTypeUi, QuestionTypeUi } from './types';
 import { WordCloudRespond } from './word-cloud/Respond';
@@ -51,6 +52,14 @@ export const questionTypeUis: { [K in QuestionTypeKey]: QuestionTypeUi<K> } = {
     Editor: lazy(() => import('./scale/Editor').then((m) => ({ default: m.ScaleEditor }))),
     Respond: ScaleRespond,
     Results: lazy(() => import('./scale/Results').then((m) => ({ default: m.ScaleResults }))),
+  },
+  qa: {
+    labelKey: 'type.qa.label',
+    descriptionKey: 'type.qa.description',
+    Icon: QaIcon,
+    Editor: lazy(() => import('./qa/Editor').then((m) => ({ default: m.QaEditor }))),
+    Respond: QaRespond,
+    Results: lazy(() => import('./qa/Results').then((m) => ({ default: m.QaResults }))),
   },
 };
 

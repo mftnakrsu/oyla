@@ -43,6 +43,12 @@ export interface QuestionTypeDefinition<TConfig, TResponse, TResults> {
   moderationKey?(response: TResponse): string;
   /** What participants may see of the config. Defaults to all of it. */
   toPublicConfig?(config: TConfig): unknown;
+  /** False for reactions (an upvote) that don't use up answers or count in totals. Optional. */
+  isAnswer?(response: TResponse): boolean;
+  /** Extra rule given the participant's earlier responses, e.g. "upvote once". Optional. */
+  allows?(response: TResponse, own: TResponse[]): boolean;
+  /** Every phone gets live results and its own responses, and the form stays open. Optional. */
+  sharedOnPhones?: boolean;
 }
 ```
 
@@ -65,6 +71,9 @@ export interface RespondProps<K extends QuestionTypeKey> {
   remaining: number;
   /** Resolves true when the server accepted the answer. */
   onSubmit(response: ResponseOf<K>): Promise<boolean>;
+  /** Only for types that are `sharedOnPhones`: live results and this phone's own responses. */
+  results?: ResultsOf<K> | null;
+  mine?: ResponseOf<K>[];
 }
 
 export interface ResultsProps<K extends QuestionTypeKey> {
@@ -178,6 +187,11 @@ and the server validates and aggregates answers to it.
   `onHide(moderationKeyOf(type, response))`. Choice and number types leave it out.
 - **Use `toPublicConfig` for secrets.** Phones receive the config through it. A quiz type, for
   example, would remove the correct answer there.
+- **Reactions to other people's answers** use `isAnswer`, `allows` and `sharedOnPhones`. Q&A
+  (`qa.ts`) is the example: an upvote is a response that isn't an answer, `allows` stops a second
+  upvote of the same question, and `sharedOnPhones` sends every phone the live list to vote on.
+  Its `Respond` component gets `results` and `mine` and stays on screen instead of the "thanks"
+  stamp.
 - **Configs and answers must be plain JSON.** They are stored as JSON text.
 
 ## 2. Add the components in web

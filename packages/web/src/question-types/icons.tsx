@@ -38,3 +38,18 @@ export function ScaleIcon({ className = '' }: { className?: string }) {
     </svg>
   );
 }
+
+export function QaIcon({ className = '' }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      {...base}
+      className={className}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M4 5h16v10H10l-4 4v-4H4z" />
+      <path d="M12 12V8M9.5 10.5 12 8l2.5 2.5" />
+    </svg>
+  );
+}

@@ -7,6 +7,8 @@ import { MultipleChoiceRespond } from './multiple-choice/Respond';
 import { MultipleChoiceResults } from './multiple-choice/Results';
 import { OpenEndedRespond } from './open-ended/Respond';
 import { OpenEndedResults } from './open-ended/Results';
+import { QaRespond } from './qa/Respond';
+import { QaResults } from './qa/Results';
 import { ScaleRespond } from './scale/Respond';
 import { ScaleResults } from './scale/Results';
 import { WordCloudRespond } from './word-cloud/Respond';
@@ -17,6 +19,60 @@ function renderEn(ui: ReactElement) {
 }
 
 describe('Respond components', () => {
+  test('Q&A sends a question and upvotes others, but not your own', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(true);
+    renderEn(
+      <QaRespond
+        config={{ maxEntries: 1 }}
+        remaining={1}
+        onSubmit={onSubmit}
+        results={{
+          entries: [
+            { key: 'why?', text: 'Why?', votes: 2 },
+            { key: 'mine?', text: 'Mine?', votes: 0 },
+            { key: 'done?', text: 'Done?', votes: 1 },
+          ],
+          total: 3,
+        }}
+        mine={[{ text: ' Mine? ' }, { upvote: 'done?' }]}
+      />,
+    );
+    expect(screen.getByRole('button', { name: 'Upvote: Mine?' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Upvote: Done?' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Upvote: Why?' }));
+    expect(onSubmit).toHaveBeenCalledWith({ upvote: 'why?' });
+
+    await userEvent.type(screen.getByLabelText('Your question'), 'When?');
+    await userEvent.click(screen.getByRole('button', { name: 'Send question' }));
+    expect(onSubmit).toHaveBeenLastCalledWith({ text: 'When?' });
+  });
+
+  test('Q&A keeps upvoting open when no questions are left, and says when they are hidden', () => {
+    renderEn(
+      <QaRespond config={{ maxEntries: 1 }} remaining={0} onSubmit={vi.fn()} results={null} />,
+    );
+    expect(screen.queryByLabelText('Your question')).not.toBeInTheDocument();
+    expect(screen.getByText(/still upvote/)).toBeInTheDocument();
+    expect(screen.getByText(/hiding the questions/)).toBeInTheDocument();
+  });
+
+  test('Q&A results show votes and a hide button while moderating', async () => {
+    const onHide = vi.fn();
+    renderEn(
+      <QaResults
+        config={{ maxEntries: 1 }}
+        results={{ entries: [{ key: 'why?', text: 'Why?', votes: 2 }], total: 1 }}
+        onHide={onHide}
+      />,
+    );
+    expect(screen.getByText('2 votes')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /Why\?/ }));
+    expect(onHide).toHaveBeenCalledWith('why?');
+  });
+
   test('multiple choice sends the picked option', async () => {
     const onSubmit = vi.fn().mockResolvedValue(true);
     renderEn(

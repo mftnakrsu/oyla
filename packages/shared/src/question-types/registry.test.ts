@@ -16,8 +16,14 @@ import type { ScaleConfig } from './scale';
 import type { WordCloudResults } from './word-cloud';
 
 describe('question type registry', () => {
-  test('registers the four v0.1 types', () => {
-    expect(QUESTION_TYPE_KEYS).toEqual(['multiple-choice', 'word-cloud', 'open-ended', 'scale']);
+  test('registers every type, released ones in their original order', () => {
+    expect(QUESTION_TYPE_KEYS).toEqual([
+      'multiple-choice',
+      'word-cloud',
+      'open-ended',
+      'scale',
+      'qa',
+    ]);
   });
 
   test('each definition is registered under its own key', () => {
@@ -44,6 +50,7 @@ describe('question type registry', () => {
     expect(canModerate('open-ended')).toBe(true);
     expect(canModerate('multiple-choice')).toBe(false);
     expect(canModerate('scale')).toBe(false);
+    expect(canModerate('qa')).toBe(true);
     expect(moderationKeyOf('word-cloud', { text: 'Tea' })).toBe('tea');
     expect(moderationKeyOf('scale', { value: 3 })).toBeNull();
   });
