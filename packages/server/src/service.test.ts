@@ -599,7 +599,9 @@ describe('quiz', () => {
     service.setNickname(id, bob, 'Calm Owl');
     service.submit(id, alice, questionId, { optionId: 'a' });
     service.submit(id, bob, questionId, { optionId: 'b' });
-    const aliceEntry = service.leaderboard(id).entries.find((entry) => entry.name === 'Quick Eagle');
+    const aliceEntry = service
+      .leaderboard(id)
+      .entries.find((entry) => entry.name === 'Quick Eagle');
     service.hideNickname(id, aliceEntry?.id ?? 0);
 
     const notes = service.addQuestion(id, { type: 'open-ended' });
