@@ -81,7 +81,11 @@ export interface PresentationDto {
 export interface ResponseExportDto {
   questionId: string;
   participant: number;
+  /** The nickname this person picked for the leaderboard, unless the presenter hid it. */
+  name: string | null;
   payload: unknown;
+  /** Points the answer earned on a scored question such as a quiz; null otherwise. */
+  score: number | null;
   createdAt: number;
   /** The presenter hid this answer from the screen (moderation). */
   hidden: boolean;

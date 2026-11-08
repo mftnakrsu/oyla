@@ -642,6 +642,11 @@ export function createPresentationService({ store, events, config, now = Date.no
         const question = resolve(row);
         checks.set(row.id, question ? hiddenCheck(question) : null);
       }
+      const names = new Map(
+        store.participants
+          .list(presentationId)
+          .map((row) => [row.participantId, row.nicknameHidden ? null : row.nickname]),
+      );
       return {
         responses: rows.map((row) => {
           let participant = numbers.get(row.participantId);
@@ -652,7 +657,9 @@ export function createPresentationService({ store, events, config, now = Date.no
           return {
             questionId: row.questionId,
             participant,
+            name: names.get(row.participantId) ?? null,
             payload: row.payload,
+            score: row.score,
             createdAt: row.createdAt,
             hidden: checks.get(row.questionId)?.(row.payload) ?? false,
           };

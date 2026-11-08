@@ -593,6 +593,30 @@ describe('quiz', () => {
     expect(service.participantState(id, alice).askNickname).toBeUndefined();
   });
 
+  test('the export includes points and visible nicknames', () => {
+    const { id, questionId } = quizSession();
+    service.setNickname(id, alice, 'Quick Eagle');
+    service.setNickname(id, bob, 'Calm Owl');
+    service.submit(id, alice, questionId, { optionId: 'a' });
+    service.submit(id, bob, questionId, { optionId: 'b' });
+    const aliceEntry = service.leaderboard(id).entries.find((entry) => entry.name === 'Quick Eagle');
+    service.hideNickname(id, aliceEntry?.id ?? 0);
+
+    const notes = service.addQuestion(id, { type: 'open-ended' });
+    service.activate(id, notes.id);
+    service.submit(id, bob, notes.id, { text: 'More breaks' });
+
+    expect(
+      service
+        .exportResponses(id)
+        .responses.map(({ participant, name, score }) => ({ participant, name, score })),
+    ).toEqual([
+      { participant: 1, name: null, score: 1000 },
+      { participant: 2, name: 'Calm Owl', score: 0 },
+      { participant: 2, name: 'Calm Owl', score: null },
+    ]);
+  });
+
   test('reopening or resetting the question restarts the clock', () => {
     const { id, questionId } = quizSession(10);
     clock += 30_000;
