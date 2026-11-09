@@ -4,6 +4,7 @@ export * from './ids';
 export * from './limits';
 export * from './protocol';
 export * from './question-types/define';
+export * from './question-types/multi-scale';
 export * from './question-types/multiple-choice';
 export * from './question-types/open-ended';
 export * from './question-types/qa';

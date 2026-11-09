@@ -24,6 +24,7 @@ describe('question type registry', () => {
       'scale',
       'qa',
       'quiz',
+      'multi-scale',
     ]);
   });
 

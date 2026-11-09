@@ -10,6 +10,8 @@ export const LIMITS = {
   openEndedEntry: 280,
   maxEntries: 5,
   scaleLabel: 40,
+  statementsMin: 2,
+  statementsMax: 8,
   responsesPerQuestion: 2000,
   responsesPerPresentation: 20000,
   wordCloudTop: 100,

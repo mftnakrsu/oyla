@@ -23,6 +23,9 @@ and versions follow [Semantic Versioning](https://semver.org/).
   500, 1,000 or 2,000 points, and "Faster answers earn more" can be turned off so every right
   answer gets the full points. Existing quizzes keep 1,000 points with speed counting. Closes
   [#20].
+- **Multi-scale question type:** people rate 2 to 8 statements on the same scale in one form, and
+  the screen shows the average per statement as horizontal bars. The CSV writes an answer as
+  `Pace: 4; Examples: 5`. Closes [#12].
 
 ### Changed
 
@@ -77,5 +80,6 @@ Socket.IO; four colour themes; English and Turkish; no accounts; one Docker cont
 [#4]: https://github.com/mftnakrsu/oyla/pull/4
 [#5]: https://github.com/mftnakrsu/oyla/pull/5
 [#7]: https://github.com/mftnakrsu/oyla/issues/7
+[#12]: https://github.com/mftnakrsu/oyla/issues/12
 [#17]: https://github.com/mftnakrsu/oyla/issues/17
 [#20]: https://github.com/mftnakrsu/oyla/issues/20

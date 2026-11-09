@@ -3,7 +3,7 @@ title: Question types
 description: Multiple choice, word cloud, open question, scale, Q&A and quiz, with their settings, limits and results.
 ---
 
-Oyla has six question types. Every question has a title of up to 200 characters; the settings
+Oyla has seven question types. Every question has a title of up to 200 characters; the settings
 below depend on the type. You pick the type when you add a question and can't change it later, so
 delete the question and add a new one if you need a different type.
 
@@ -15,6 +15,7 @@ delete the question and add a new one if you need a different type.
 | [Scale](#scale) | 1 | Average and a column chart of the ratings |
 | [Q&A](#qa) | 1 to 5 questions (default 3), plus upvotes | Questions, most upvoted first |
 | [Quiz](#quiz) | 1, within the time limit | A countdown, then bars with the right answer, and a leaderboard |
+| [Multi-scale](#multi-scale) | 1 (a rating for every statement) | The average per statement as horizontal bars |
 
 ## Multiple choice
 
@@ -253,6 +254,23 @@ When it is up, the bars appear with the right option marked **Correct**, and eac
 whether it was right, its points, its total and its place. Select the trophy button or press
 <kbd>L</kbd> for the leaderboard: the top 10 with their points; people with the same points share
 a place. **Moderate names** puts a ✕ next to each name; a hidden name shows as "Anonymous".
+
+## Multi-scale
+
+People rate several statements on the same scale in one form, for example "Rate each part of
+today's workshop" with **Pace**, **Examples** and **Slides**.
+
+**Settings:** 2 to 8 **Statements**, each up to 80 characters, and the scale like a
+[scale](#scale) question: **From** 0 or 1, **To** 2 to 10 (default 1 to 5), and optional labels for
+the lowest and highest value.
+
+**Answering:** a row of numbers per statement. The answer is sent once every statement has a
+rating; each person answers once.
+
+**Results:** the average per statement as a horizontal bar along the scale, in the order of the
+statements, and how many people answered. A statement you remove after people answered disappears
+from the results; one you add shows no average until someone rates it. The CSV export writes an
+answer as `Pace: 4; Examples: 5`.
 
 ## Limits for every type
 

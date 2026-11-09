@@ -3,7 +3,7 @@ title: Roadmap
 description: What Oyla does today and the features that are open for contributions.
 ---
 
-Oyla covers the core: six question types, live results, presentation themes, presenter tools
+Oyla covers the core: seven question types, live results, presentation themes, presenter tools
 (hiding and revealing results, moderation, results on phones, CSV export, drag-and-drop ordering),
 English and Turkish, no accounts and one container. Everything below is open for contributions and marked "help wanted".
 
@@ -15,8 +15,7 @@ explains the setup.
 
 ### New question types
 
-- **Multi-statement scales.** Rate several statements in one question, with an average per
-  statement.
+- **Your idea.** Open an issue that describes the question and what the screen should show.
 
 [Adding a question type](/development/adding-a-question-type/) walks through the code.
 

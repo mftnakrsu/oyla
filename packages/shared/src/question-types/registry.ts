@@ -1,4 +1,5 @@
 import type { QuestionTypeDefinition } from './define';
+import { multiScale } from './multi-scale';
 import { multipleChoice } from './multiple-choice';
 import { openEnded } from './open-ended';
 import { qa } from './qa';
@@ -17,6 +18,7 @@ export const questionTypes = {
   scale,
   qa,
   quiz,
+  'multi-scale': multiScale,
 } as const;
 
 export type QuestionTypeKey = keyof typeof questionTypes;
