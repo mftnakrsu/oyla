@@ -1,7 +1,7 @@
 import { type FormEvent, type ReactNode, useState } from 'react';
 import { Button } from '../components/Button';
 import { useI18n } from '../i18n/I18nProvider';
-import { CloseIcon } from './icons';
+import { CheckIcon, CloseIcon } from './icons';
 
 export const inputClass =
   'w-full rounded-xl border-2 border-line bg-paper px-4 py-3 text-lg text-ink placeholder:text-muted/70 focus:border-brand focus:outline-none';
@@ -72,6 +72,35 @@ export function HideButton({ text, onHide }: { text: string; onHide(): void }) {
       className="grid size-[1.7em] shrink-0 place-items-center rounded-full bg-danger text-[0.75em] font-medium leading-none text-on-danger hover:opacity-90"
     >
       <CloseIcon className="size-[0.95em]" />
+    </button>
+  );
+}
+
+/** Moderation: marks an answer as answered, or (pressed) takes the mark off. */
+export function MarkAnsweredButton({
+  text,
+  answered,
+  onToggle,
+}: {
+  text: string;
+  answered: boolean;
+  onToggle(): void;
+}) {
+  const { t } = useI18n();
+  const short = text.length > 60 ? `${text.slice(0, 59)}…` : text;
+  const label = t(answered ? 'moderate.unanswered' : 'moderate.answered', { text: short });
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-label={label}
+      aria-pressed={answered}
+      title={label}
+      className={`grid size-[1.7em] shrink-0 place-items-center rounded-full border-2 text-[0.75em] font-medium leading-none hover:opacity-90 ${
+        answered ? 'border-brand bg-brand text-on-brand' : 'border-line bg-paper text-ink'
+      }`}
+    >
+      <CheckIcon className="size-[0.95em]" />
     </button>
   );
 }

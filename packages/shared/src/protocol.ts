@@ -119,6 +119,13 @@ export const presenterHideEntrySchema = z.object({
   key: z.string().min(1).max(LIMITS.hiddenKey),
 });
 
+export const presenterMarkAnsweredSchema = z.object({
+  questionId: entityId,
+  key: z.string().min(1).max(LIMITS.hiddenKey),
+  /** False takes the mark off again. */
+  answered: z.boolean(),
+});
+
 export const presenterShowHiddenSchema = z.object({
   questionId: entityId,
 });
@@ -162,6 +169,8 @@ export interface ClientToServerEvents {
   'presenter:reset': (payload: unknown, ack: (result: Ack) => void) => void;
   /** Hides every answer with this moderation key from the results. */
   'presenter:hide-entry': (payload: unknown, ack: (result: Ack) => void) => void;
+  /** Marks the answers with this moderation key as answered, or takes the mark off. */
+  'presenter:mark-answered': (payload: unknown, ack: (result: Ack) => void) => void;
   /** Brings back every hidden answer of a question. */
   'presenter:show-hidden': (payload: unknown, ack: (result: Ack) => void) => void;
   /** Picks the participant's leaderboard name for this presentation. */

@@ -33,6 +33,8 @@ export const questions = sqliteTable(
     resultsHidden: integer('results_hidden', { mode: 'boolean' }).notNull().default(false),
     /** Moderation keys of answers the presenter hid from the results. */
     hiddenKeys: text('hidden_keys', { mode: 'json' }).$type<string[]>().notNull().default([]),
+    /** Moderation keys of answers the presenter marked as answered (Q&A). */
+    answeredKeys: text('answered_keys', { mode: 'json' }).$type<string[]>().notNull().default([]),
     /** When the question was last made active; timed questions (quiz) count down from it. */
     openedAt: integer('opened_at'),
     createdAt: integer('created_at').notNull(),

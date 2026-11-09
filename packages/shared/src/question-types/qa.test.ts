@@ -25,12 +25,34 @@ describe('qa', () => {
     ]);
     expect(results).toEqual({
       entries: [
-        { key: 'second?', text: 'Second?', votes: 1 },
-        { key: 'third?', text: 'Third?', votes: 1 },
-        { key: 'first?', text: 'First?', votes: 0 },
+        { key: 'second?', text: 'Second?', votes: 1, answered: false },
+        { key: 'third?', text: 'Third?', votes: 1, answered: false },
+        { key: 'first?', text: 'First?', votes: 0, answered: false },
       ],
       total: 3,
     });
+  });
+
+  test('answered questions come after the open ones, each part by upvotes', () => {
+    const results = qa.aggregate(
+      config,
+      [
+        { text: 'Big?' },
+        { upvote: 'big?' },
+        { upvote: 'big?' },
+        { text: 'Small?' },
+        { text: 'Medium?' },
+        { upvote: 'medium?' },
+        { text: 'Old?' },
+      ],
+      { answeredKeys: new Set(['big?', 'old?']) },
+    );
+    expect(results.entries.map(({ key, answered }) => [key, answered])).toEqual([
+      ['medium?', false],
+      ['small?', false],
+      ['big?', true],
+      ['old?', true],
+    ]);
   });
 
   test('only questions count as answers', () => {

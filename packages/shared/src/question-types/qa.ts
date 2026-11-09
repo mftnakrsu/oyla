@@ -25,8 +25,13 @@ export interface QaEntry {
   key: string;
   text: string;
   votes: number;
+  /** The presenter marked it as answered: it moves below the open questions and takes no upvotes. */
+  answered: boolean;
 }
-/** Most upvoted first; ties keep the order the questions were asked in. */
+/**
+ * Open questions first, most upvoted first; then the answered ones, the same way. Ties keep the
+ * order the questions were asked in.
+ */
 export type QaResults = { entries: QaEntry[]; total: number };
 
 export function isQaAsk(response: QaResponse): response is QaAsk {
@@ -44,13 +49,21 @@ export const qa = defineQuestionType<QaConfig, QaResponse, QaResults>({
   defaultConfig: () => ({ maxEntries: 3 }),
   responseSchema: () => z.union([askSchema, upvoteSchema]),
   maxResponses: (config) => config.maxEntries,
-  aggregate: (_config, responses) => {
+  aggregate: (_config, responses, context) => {
+    const answered = context?.answeredKeys;
     const byKey = new Map<string, QaEntry>();
     // Questions first, so an upvote that arrived before a re-asked duplicate still counts.
     for (const response of responses) {
       if (!isQaAsk(response)) continue;
       const key = groupKey(response.text);
-      if (!byKey.has(key)) byKey.set(key, { key, text: response.text, votes: 0 });
+      if (!byKey.has(key)) {
+        byKey.set(key, {
+          key,
+          text: response.text,
+          votes: 0,
+          answered: answered?.has(key) ?? false,
+        });
+      }
     }
     for (const response of responses) {
       if (isQaAsk(response)) continue;
@@ -58,7 +71,9 @@ export const qa = defineQuestionType<QaConfig, QaResponse, QaResults>({
       if (entry) entry.votes += 1;
     }
     // Map keeps insertion order and sort is stable, so ties stay oldest first.
-    const entries = [...byKey.values()].sort((a, b) => b.votes - a.votes).slice(0, LIMITS.qaTop);
+    const entries = [...byKey.values()]
+      .sort((a, b) => Number(a.answered) - Number(b.answered) || b.votes - a.votes)
+      .slice(0, LIMITS.qaTop);
     return { entries, total: byKey.size };
   },
   describeResponse: (_config, response) =>
@@ -72,4 +87,5 @@ export const qa = defineQuestionType<QaConfig, QaResponse, QaResults>({
     return !own.some((earlier) => keyOf(earlier) === response.upvote);
   },
   sharedOnPhones: true,
+  canMarkAnswered: true,
 });

@@ -75,9 +75,9 @@ describe('Respond components', () => {
         onSubmit={onSubmit}
         results={{
           entries: [
-            { key: 'why?', text: 'Why?', votes: 2 },
-            { key: 'mine?', text: 'Mine?', votes: 0 },
-            { key: 'done?', text: 'Done?', votes: 1 },
+            { key: 'why?', text: 'Why?', votes: 2, answered: false },
+            { key: 'mine?', text: 'Mine?', votes: 0, answered: false },
+            { key: 'done?', text: 'Done?', votes: 1, answered: false },
           ],
           total: 3,
         }}
@@ -111,13 +111,55 @@ describe('Respond components', () => {
     renderEn(
       <QaResults
         config={{ maxEntries: 1 }}
-        results={{ entries: [{ key: 'why?', text: 'Why?', votes: 2 }], total: 1 }}
+        results={{ entries: [{ key: 'why?', text: 'Why?', votes: 2, answered: false }], total: 1 }}
         onHide={onHide}
       />,
     );
     expect(screen.getByText('2 votes')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: /Why\?/ }));
     expect(onHide).toHaveBeenCalledWith('why?');
+  });
+
+  test('Q&A lists answered questions under their own heading, without upvotes', () => {
+    renderEn(
+      <QaRespond
+        config={{ maxEntries: 1 }}
+        remaining={1}
+        onSubmit={vi.fn()}
+        results={{
+          entries: [
+            { key: 'open?', text: 'Open?', votes: 0, answered: false },
+            { key: 'done?', text: 'Done?', votes: 3, answered: true },
+          ],
+          total: 2,
+        }}
+      />,
+    );
+    expect(screen.getByRole('heading', { name: 'Answered' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Upvote: Open?' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Upvote: Done?' })).toBeDisabled();
+  });
+
+  test('Q&A results let the presenter mark questions as answered and back', async () => {
+    const onMarkAnswered = vi.fn();
+    renderEn(
+      <QaResults
+        config={{ maxEntries: 1 }}
+        results={{
+          entries: [
+            { key: 'why?', text: 'Why?', votes: 2, answered: false },
+            { key: 'how?', text: 'How?', votes: 1, answered: true },
+          ],
+          total: 2,
+        }}
+        onMarkAnswered={onMarkAnswered}
+      />,
+    );
+    expect(screen.getByRole('heading', { name: 'Answered' })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Mark “Why?” as answered' }));
+    expect(onMarkAnswered).toHaveBeenLastCalledWith('why?', true);
+    await userEvent.click(screen.getByRole('button', { name: 'Mark “How?” as not answered' }));
+    expect(onMarkAnswered).toHaveBeenLastCalledWith('how?', false);
   });
 
   test('multiple choice sends the picked option', async () => {

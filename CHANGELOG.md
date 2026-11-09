@@ -16,6 +16,9 @@ and versions follow [Semantic Versioning](https://semver.org/).
   leaderboard name (with a suggestion) and show right or wrong, points and place after each
   question; the presenter screen shows a countdown, then the answer, and a leaderboard
   (<kbd>L</kbd>) whose names can be moderated. Closes [#7].
+- **Q&A: mark a question as answered.** While moderating, ✓ moves a question to an "Answered"
+  list below the open ones, on the screen and on phones, and stops its upvotes. The mark can be
+  taken off again; answered questions stay in the CSV export. Closes [#17].
 
 ### Changed
 
@@ -24,6 +27,8 @@ and versions follow [Semantic Versioning](https://semver.org/).
 - Database migration `0005` adds `questions.opened_at`, `responses.score` and a `participants`
   table for leaderboard names. It runs on start. `ParticipantState` gains `mine`, and `RespondProps` gains `results` and
   `mine`, for types that use them.
+- Migration `0006` adds `questions.answered_keys`. Question types gain `canMarkAnswered`, and
+  `aggregate` gets an optional context with the answered keys. Q&A entries gain `answered`.
 
 ## 0.2.0 - 2026-11-07
 
@@ -68,3 +73,4 @@ Socket.IO; four colour themes; English and Turkish; no accounts; one Docker cont
 [#4]: https://github.com/mftnakrsu/oyla/pull/4
 [#5]: https://github.com/mftnakrsu/oyla/pull/5
 [#7]: https://github.com/mftnakrsu/oyla/issues/7
+[#17]: https://github.com/mftnakrsu/oyla/issues/17

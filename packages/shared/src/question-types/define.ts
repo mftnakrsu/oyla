@@ -1,5 +1,11 @@
 import type { z } from 'zod';
 
+/** What `aggregate` knows beyond the answers themselves. */
+export interface AggregateContext {
+  /** Moderation keys the presenter marked as answered (`canMarkAnswered` types only). */
+  answeredKeys: ReadonlySet<string>;
+}
+
 /**
  * Everything the server needs to know about a question type. The web app adds the matching
  * Editor, Respond and Results components in packages/web/src/question-types.
@@ -15,8 +21,11 @@ export interface QuestionTypeDefinition<TConfig, TResponse, TResults> {
   responseSchema(config: TConfig): z.ZodType<TResponse>;
   /** How many answers one participant may give to this question. */
   maxResponses(config: TConfig): number;
-  /** Turns stored answers (oldest first) into what the presenter view shows. Must be pure. */
-  aggregate(config: TConfig, responses: TResponse[]): TResults;
+  /**
+   * Turns stored answers (oldest first) into what the presenter view shows. Must be pure. Types
+   * with `canMarkAnswered` also get the moderation keys the presenter marked as answered.
+   */
+  aggregate(config: TConfig, responses: TResponse[], context?: AggregateContext): TResults;
   /** One answer as a person reads it, e.g. the option label. Used for the CSV export. */
   describeResponse(config: TConfig, response: TResponse): string;
   /**
@@ -42,6 +51,12 @@ export interface QuestionTypeDefinition<TConfig, TResponse, TResults> {
    * keeps the answer form open instead of a "thanks" screen.
    */
   sharedOnPhones?: boolean;
+  /**
+   * The presenter can mark an answer (by its `moderationKey`) as answered, like a Q&A question
+   * they have talked about. Responses that aren't answers (upvotes) are refused for it from then
+   * on. Needs `moderationKey`.
+   */
+  canMarkAnswered?: boolean;
   /**
    * Seconds people have to answer, counted on the server from when the presenter opened the
    * question. Later answers are refused. Once the time is up, phones get the whole config

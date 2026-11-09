@@ -3,6 +3,7 @@ import {
   presenterHideEntrySchema,
   presenterHideNicknameSchema,
   presenterJoinSchema,
+  presenterMarkAnsweredSchema,
   presenterResetSchema,
   presenterShowHiddenSchema,
   toThemeKey,
@@ -70,6 +71,15 @@ export function registerPresenterHandlers(socket: OylaSocket, context: LiveConte
       const presentationId = requirePresenter();
       const { questionId, key } = parsePayload(presenterHideEntrySchema, payload);
       service.hideEntry(presentationId, questionId, key);
+      return {};
+    }),
+  );
+
+  socket.on('presenter:mark-answered', (payload, ack) =>
+    handle(log, ack, () => {
+      const presentationId = requirePresenter();
+      const { questionId, key, answered } = parsePayload(presenterMarkAnsweredSchema, payload);
+      service.markAnswered(presentationId, questionId, key, answered);
       return {};
     }),
   );

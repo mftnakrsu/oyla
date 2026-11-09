@@ -443,6 +443,22 @@ describe('a live poll', () => {
       ok: true,
     });
     expect((await restored)[0].total).toBe(2);
+
+    // Marking as answered is for presenters, and only for types that support it (Q&A).
+    expect(
+      await emit<Ack>(phone, 'presenter:mark-answered', {
+        questionId: cloud,
+        key: 'tea',
+        answered: true,
+      }),
+    ).toEqual({ ok: false, error: { code: 'UNAUTHORIZED' } });
+    expect(
+      await emit<Ack>(presenter, 'presenter:mark-answered', {
+        questionId: cloud,
+        key: 'tea',
+        answered: true,
+      }),
+    ).toEqual({ ok: false, error: { code: 'VALIDATION_FAILED' } });
   });
 
   test('editing the active question over REST updates participants', async () => {

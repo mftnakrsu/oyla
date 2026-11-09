@@ -33,6 +33,8 @@ export interface PresenterSession {
   hideEntry(questionId: string, key: string): Promise<Ack>;
   /** Moderation: brings back every hidden answer of the question. */
   showHidden(questionId: string): Promise<Ack>;
+  /** Moderation: marks the answers with this key as answered (Q&A), or takes the mark off. */
+  markAnswered(questionId: string, key: string, answered: boolean): Promise<Ack>;
   /** Moderation: takes a nickname off the leaderboard. */
   hideNickname(id: number): Promise<Ack>;
 }
@@ -113,6 +115,7 @@ export function usePresenterSession(
         | 'presenter:reset'
         | 'presenter:hide-entry'
         | 'presenter:show-hidden'
+        | 'presenter:mark-answered'
         | 'presenter:hide-nickname',
       payload: object,
     ) =>
@@ -149,6 +152,11 @@ export function usePresenterSession(
     (questionId: string) => send('presenter:show-hidden', { questionId }),
     [send],
   );
+  const markAnswered = useCallback(
+    (questionId: string, key: string, answered: boolean) =>
+      send('presenter:mark-answered', { questionId, key, answered }),
+    [send],
+  );
 
   const hideNickname = useCallback((id: number) => send('presenter:hide-nickname', { id }), [send]);
 
@@ -167,6 +175,7 @@ export function usePresenterSession(
     reset,
     hideEntry,
     showHidden,
+    markAnswered,
     hideNickname,
   };
 }
