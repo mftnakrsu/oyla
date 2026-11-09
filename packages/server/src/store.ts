@@ -319,6 +319,7 @@ export function createStore({ db, sqlite }: DatabaseHandle) {
         questionId: string;
         participantId: string;
         payload: unknown;
+        score: number | null;
         createdAt: number;
       }[] {
         return db
@@ -326,6 +327,7 @@ export function createStore({ db, sqlite }: DatabaseHandle) {
             questionId: responses.questionId,
             participantId: responses.participantId,
             payload: responses.payload,
+            score: responses.score,
             createdAt: responses.createdAt,
           })
           .from(responses)
