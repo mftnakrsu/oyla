@@ -56,7 +56,7 @@ test('a participant votes and the presenter sees it live', async ({ page, browse
   ]);
   expect(download.suggestedFilename()).toMatch(/^oyla-e2e-retro-\d{4}-\d{2}-\d{2}\.csv$/);
   const csv = await readFile((await download.path()) ?? '', 'utf8');
-  expect(csv).toContain('1,Tea or coffee?,Multiple choice,Coffee,1,');
+  expect(csv).toContain('1,Tea or coffee?,Multiple choice,Coffee,,1,,');
   await editor.close();
 
   // Resetting gives the participant their vote back.
