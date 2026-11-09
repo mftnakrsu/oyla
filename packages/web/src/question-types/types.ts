@@ -29,6 +29,11 @@ export interface ResultsProps<K extends QuestionTypeKey> {
    * answer's moderation key (see `moderationKeyOf`). Only types with a `moderationKey` get it.
    */
   onHide?(key: string): void;
+  /**
+   * Set while the presenter moderates a type with `canMarkAnswered`: marks the answer with this
+   * moderation key as answered, or takes the mark off.
+   */
+  onMarkAnswered?(key: string, answered: boolean): void;
   /** Timed types: the time is up, so the correct answer may be shown. */
   revealed?: boolean;
 }
@@ -59,6 +64,7 @@ export interface AnyQuestionTypeUi {
     config: unknown;
     results: unknown;
     onHide?(key: string): void;
+    onMarkAnswered?(key: string, answered: boolean): void;
     revealed?: boolean;
   }>;
 }

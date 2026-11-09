@@ -217,6 +217,11 @@ take part; when you hide the results, the list disappears from the phones too.
 asked in. Up to 200 questions are shown. Moderation works as for open questions: hiding a question
 takes its upvotes with it, and asking it again doesn't bring it back.
 
+**Answered:** while moderating, select ✓ next to a question you have talked about. It moves to an
+**Answered** list below the open questions, on the screen and on phones, and takes no more upvotes.
+Select ✓ again to take the mark off. Answered questions stay in the CSV export, and resetting the
+question clears the marks.
+
 ## Quiz
 
 A timed question with one correct answer. Right and quick answers earn points, and a leaderboard

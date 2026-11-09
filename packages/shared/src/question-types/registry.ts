@@ -47,6 +47,11 @@ export function canModerate(key: QuestionTypeKey): boolean {
   return getQuestionType(key).moderationKey !== undefined;
 }
 
+/** Whether the presenter can mark answers of this type as answered (see `canMarkAnswered`). */
+export function canMarkAnswered(key: QuestionTypeKey): boolean {
+  return getQuestionType(key).canMarkAnswered === true;
+}
+
 /** The answer's moderation key, or null when the type can't be moderated. */
 export function moderationKeyOf(key: QuestionTypeKey, response: unknown): string | null {
   const type = getQuestionType(key);

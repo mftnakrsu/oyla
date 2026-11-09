@@ -1,5 +1,6 @@
 import {
   type Ack,
+  canMarkAnswered,
   canModerate,
   getQuestionType,
   isScored,
@@ -172,17 +173,22 @@ function HiddenResults({ total, onReveal }: { total: number; onReveal(): void })
 /** Above the results while moderating: what to do, how many answers are hidden, and the way out. */
 function ModerationBar({
   hidden,
+  markable,
   onShowHidden,
   onDone,
 }: {
   hidden: number;
+  /** The type can mark answers as answered, so the hint mentions it. */
+  markable: boolean;
   onShowHidden(): void;
   onDone(): void;
 }) {
   const { t, tn } = useI18n();
   return (
     <div className="mb-[1em] flex flex-wrap items-center gap-x-[1.2em] gap-y-[0.5em] rounded-xl bg-brand-soft px-[1em] py-[0.6em]">
-      <p className="mr-auto font-medium">{t('present.moderation.hint')}</p>
+      <p className="mr-auto font-medium">
+        {t(markable ? 'present.moderation.hintAnswered' : 'present.moderation.hint')}
+      </p>
       {hidden > 0 ? (
         <>
           <span aria-live="polite">{tn('present.moderation.hidden', hidden)}</span>
@@ -314,6 +320,7 @@ function ActiveQuestion({
   total,
   onReveal,
   onHide,
+  onMarkAnswered,
   left,
 }: {
   question: QuestionDto;
@@ -322,6 +329,8 @@ function ActiveQuestion({
   onReveal(): void;
   /** Set while moderating. */
   onHide?(key: string): void;
+  /** Set while moderating a type that can mark answers as answered. */
+  onMarkAnswered?(key: string, answered: boolean): void;
   /** Timed questions: milliseconds left, 0 once closed; null for untimed ones. */
   left: number | null;
 }) {
@@ -346,6 +355,7 @@ function ActiveQuestion({
                 config={question.config}
                 results={results}
                 onHide={onHide}
+                onMarkAnswered={onMarkAnswered}
                 revealed={left === 0}
               />
             </Suspense>
@@ -605,6 +615,7 @@ export function PresentPage() {
             {moderating ? (
               <ModerationBar
                 hidden={message?.hidden ?? 0}
+                markable={canMarkAnswered(active.type)}
                 onShowHidden={() => void moderate(session.showHidden(active.id))}
                 onDone={() => setModeratingId(null)}
               />
@@ -616,6 +627,11 @@ export function PresentPage() {
               onReveal={toggleHidden}
               onHide={
                 moderating ? (key) => void moderate(session.hideEntry(active.id, key)) : undefined
+              }
+              onMarkAnswered={
+                moderating && canMarkAnswered(active.type)
+                  ? (key, answered) => void moderate(session.markAnswered(active.id, key, answered))
+                  : undefined
               }
               left={left}
             />

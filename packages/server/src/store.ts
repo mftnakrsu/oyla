@@ -125,6 +125,7 @@ export function createStore({ db, sqlite }: DatabaseHandle) {
           config?: unknown;
           resultsHidden?: boolean;
           hiddenKeys?: string[];
+          answeredKeys?: string[];
           openedAt?: number | null;
         },
         now: number,

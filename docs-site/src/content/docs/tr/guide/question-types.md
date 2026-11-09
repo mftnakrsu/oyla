@@ -219,6 +219,11 @@ olsa da telefonlarda görünür; sonuçları gizlediğinizde liste telefonlardan
 En fazla 200 soru gösterilir. Moderasyon açık uçlu sorulardaki gibi çalışır: gizlenen soru oylarını
 da götürür, aynı soru yeniden sorulduğunda geri gelmez.
 
+**Cevaplandı:** moderasyon sırasında, üzerine konuştuğunuz sorunun yanındaki ✓ düğmesini seçin. Soru
+ekranda ve telefonlarda açık soruların altındaki **Cevaplananlar** listesine geçer ve artık oy
+almaz. İşareti kaldırmak için ✓ düğmesini yeniden seçin. Cevaplanan sorular CSV dosyasında kalır;
+soruyu sıfırlamak işaretleri de siler.
+
 ## Bilgi yarışması
 
 Tek doğru cevabı olan süreli soru. Doğru ve hızlı cevaplar puan kazanır; liderlik tablosu
