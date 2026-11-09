@@ -118,6 +118,8 @@ export const en = {
   'type.qa.description': 'People ask questions and upvote the ones they want answered.',
   'type.quiz.label': 'Quiz',
   'type.quiz.description': 'A timed question with a correct answer, points and a leaderboard.',
+  'type.multi-scale.label': 'Multi-scale',
+  'type.multi-scale.description': 'People rate several statements on the same scale.',
 
   'mc.options': 'Options',
   'mc.option.placeholder': 'Option {n}',
@@ -192,6 +194,11 @@ export const en = {
   'scale.respond.submit': 'Send rating',
   'scale.respond.pick': 'Pick a number',
   'scale.results.average': 'Average',
+  'multiScale.statements': 'Statements',
+  'multiScale.statement.placeholder': 'Statement {n}',
+  'multiScale.statement.add': 'Add statement',
+  'multiScale.statement.remove': 'Remove statement {n}',
+  'multiScale.respond.rate': '{statement}: {n}',
 
   'results.empty': 'Waiting for the first answer',
   'results.answers.one': '1 answer',

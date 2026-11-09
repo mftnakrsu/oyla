@@ -125,6 +125,8 @@ export const de: Record<MessageKey, string> = {
   'type.quiz.label': 'Quiz',
   'type.quiz.description':
     'Eine zeitlich begrenzte Frage mit richtiger Antwort, Punkten und Rangliste.',
+  'type.multi-scale.label': 'Mehrfachskala',
+  'type.multi-scale.description': 'Die Leute bewerten mehrere Aussagen auf derselben Skala.',
 
   'mc.options': 'Optionen',
   'mc.option.placeholder': 'Option {n}',
@@ -201,6 +203,11 @@ export const de: Record<MessageKey, string> = {
   'scale.respond.submit': 'Bewertung senden',
   'scale.respond.pick': 'Wähle eine Zahl',
   'scale.results.average': 'Durchschnitt',
+  'multiScale.statements': 'Aussagen',
+  'multiScale.statement.placeholder': 'Aussage {n}',
+  'multiScale.statement.add': 'Aussage hinzufügen',
+  'multiScale.statement.remove': 'Aussage {n} entfernen',
+  'multiScale.respond.rate': '{statement}: {n}',
 
   'results.empty': 'Warten auf die erste Antwort',
   'results.answers.one': '1 Antwort',

@@ -3,6 +3,9 @@ import userEvent from '@testing-library/user-event';
 import type { ReactElement } from 'react';
 import { describe, expect, test, vi } from 'vitest';
 import { I18nProvider } from '../i18n/I18nProvider';
+import { MultiScaleEditor } from './multi-scale/Editor';
+import { MultiScaleRespond } from './multi-scale/Respond';
+import { MultiScaleResults } from './multi-scale/Results';
 import { MultipleChoiceRespond } from './multiple-choice/Respond';
 import { MultipleChoiceResults } from './multiple-choice/Results';
 import { OpenEndedRespond } from './open-ended/Respond';
@@ -336,5 +339,60 @@ describe('Moderation', () => {
     expect(screen.getByRole('list', { name: 'Answers' })).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Hide “İzmir”' }));
     expect(onHide).toHaveBeenCalledWith('izmir');
+  });
+});
+
+describe('multi-scale components', () => {
+  const config = {
+    min: 1 as const,
+    max: 5,
+    minLabel: 'Poor',
+    maxLabel: 'Great',
+    statements: [
+      { id: 'pace', label: 'Pace' },
+      { id: 'slides', label: '' },
+    ],
+  };
+
+  test('sending needs a rating for every statement', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(true);
+    renderEn(<MultiScaleRespond config={config} remaining={1} onSubmit={onSubmit} />);
+    const send = screen.getByRole('button', { name: 'Send rating' });
+    await userEvent.click(screen.getByLabelText('Pace: 4'));
+    expect(send).toBeDisabled();
+    // An unnamed statement gets a numbered label.
+    await userEvent.click(screen.getByLabelText('Statement 2: 5'));
+    await userEvent.click(send);
+    expect(onSubmit).toHaveBeenCalledWith({ ratings: { pace: 4, slides: 5 } });
+  });
+
+  test('results show the average per statement', () => {
+    renderEn(
+      <MultiScaleResults
+        config={config}
+        results={{
+          statements: [
+            { id: 'pace', average: 4.5, count: 2 },
+            { id: 'slides', average: null, count: 0 },
+          ],
+          total: 2,
+        }}
+      />,
+    );
+    expect(screen.getByText('4.5')).toBeInTheDocument();
+    expect(screen.getByText('–')).toBeInTheDocument();
+    expect(screen.getByText('2 answers')).toBeInTheDocument();
+  });
+
+  test('the editor adds statements and keeps at least two', async () => {
+    const onChange = vi.fn();
+    renderEn(<MultiScaleEditor config={config} onChange={onChange} />);
+    expect(screen.getByRole('button', { name: 'Remove statement 1' })).toBeDisabled();
+    await userEvent.click(screen.getByRole('button', { name: 'Add statement' }));
+    expect(onChange.mock.lastCall?.[0].statements).toHaveLength(3);
+    await userEvent.selectOptions(screen.getByLabelText('To'), '7');
+    expect(onChange).toHaveBeenLastCalledWith(
+      expect.objectContaining({ max: 7, statements: config.statements }),
+    );
   });
 });

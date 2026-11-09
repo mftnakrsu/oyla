@@ -1,6 +1,15 @@
 import type { QuestionTypeKey } from '@oyla/shared';
 import { lazy } from 'react';
-import { BarsIcon, CloudIcon, NoteIcon, QaIcon, QuizIcon, ScaleIcon } from './icons';
+import {
+  BarsIcon,
+  CloudIcon,
+  MultiScaleIcon,
+  NoteIcon,
+  QaIcon,
+  QuizIcon,
+  ScaleIcon,
+} from './icons';
+import { MultiScaleRespond } from './multi-scale/Respond';
 import { MultipleChoiceRespond } from './multiple-choice/Respond';
 import { OpenEndedRespond } from './open-ended/Respond';
 import { QaRespond } from './qa/Respond';
@@ -69,6 +78,18 @@ export const questionTypeUis: { [K in QuestionTypeKey]: QuestionTypeUi<K> } = {
     Editor: lazy(() => import('./quiz/Editor').then((m) => ({ default: m.QuizEditor }))),
     Respond: QuizRespond,
     Results: lazy(() => import('./quiz/Results').then((m) => ({ default: m.QuizResults }))),
+  },
+  'multi-scale': {
+    labelKey: 'type.multi-scale.label',
+    descriptionKey: 'type.multi-scale.description',
+    Icon: MultiScaleIcon,
+    Editor: lazy(() =>
+      import('./multi-scale/Editor').then((m) => ({ default: m.MultiScaleEditor })),
+    ),
+    Respond: MultiScaleRespond,
+    Results: lazy(() =>
+      import('./multi-scale/Results').then((m) => ({ default: m.MultiScaleResults })),
+    ),
   },
 };
 

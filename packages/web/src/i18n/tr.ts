@@ -118,6 +118,8 @@ export const tr: Record<MessageKey, string> = {
   'type.qa.description': 'Katılımcılar soru sorar, cevaplanmasını istediklerini oylar.',
   'type.quiz.label': 'Bilgi yarışması',
   'type.quiz.description': 'Doğru cevabı olan süreli soru; puanlar ve liderlik tablosu.',
+  'type.multi-scale.label': 'Çoklu ölçek',
+  'type.multi-scale.description': 'Katılımcılar birkaç ifadeyi aynı ölçekte puanlar.',
 
   'mc.options': 'Seçenekler',
   'mc.option.placeholder': '{n}. seçenek',
@@ -194,6 +196,11 @@ export const tr: Record<MessageKey, string> = {
   'scale.respond.submit': 'Puanı gönder',
   'scale.respond.pick': 'Bir sayı seçin',
   'scale.results.average': 'Ortalama',
+  'multiScale.statements': 'İfadeler',
+  'multiScale.statement.placeholder': 'İfade {n}',
+  'multiScale.statement.add': 'İfade ekle',
+  'multiScale.statement.remove': '{n}. ifadeyi kaldır',
+  'multiScale.respond.rate': '{statement}: {n}',
 
   'results.empty': 'İlk cevap bekleniyor',
   'results.answers.one': '1 cevap',

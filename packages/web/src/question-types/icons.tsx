@@ -39,6 +39,15 @@ export function ScaleIcon({ className = '' }: { className?: string }) {
   );
 }
 
+/** Horizontal bars of different lengths: several statements, one average each. */
+export function MultiScaleIcon({ className = '' }: { className?: string }) {
+  return (
+    <svg aria-hidden="true" {...base} className={className} strokeLinecap="round">
+      <path d="M4 6h13M4 12h8M4 18h15" strokeWidth="3" />
+    </svg>
+  );
+}
+
 export function QuizIcon({ className = '' }: { className?: string }) {
   return (
     <svg
