@@ -3,7 +3,7 @@ title: Soru tipleri
 description: Çoktan seçmeli, kelime bulutu, açık uçlu soru, ölçek, soru-cevap ve bilgi yarışması; ayarları, sınırları ve sonuçlarıyla.
 ---
 
-Oyla'da altı soru tipi var. Her sorunun en fazla 200 karakterlik bir başlığı olur; diğer ayarlar
+Oyla'da yedi soru tipi var. Her sorunun en fazla 200 karakterlik bir başlığı olur; diğer ayarlar
 tipe göre değişir. Tipi soruyu eklerken seçersiniz ve sonradan değiştiremezsiniz. Başka bir tipe
 ihtiyacınız olursa soruyu silip yenisini ekleyin.
 
@@ -15,6 +15,7 @@ ihtiyacınız olursa soruyu silip yenisini ekleyin.
 | [Ölçek](#ölçek) | 1 | Ortalama ve puanların sütun grafiği |
 | [Soru-Cevap](#soru-cevap) | 1-5 soru (varsayılan 3), artı oylar | En çok oy alan başta, sorular |
 | [Bilgi yarışması](#bilgi-yarışması) | Süre içinde 1 | Geri sayım, sonra doğru cevaplı çubuklar ve liderlik tablosu |
+| [Çoklu ölçek](#çoklu-ölçek) | 1 (her ifadeye bir puan) | İfade başına ortalama, yatay çubuklarla |
 
 ## Çoktan seçmeli
 
@@ -255,6 +256,23 @@ saniyede) arasında puan alır. İki ayar bunu soru başına değiştirir:
 bilmediğini, puanını, toplamını ve sırasını gösterir. Liderlik tablosu için kupa düğmesini seçin ya
 da <kbd>L</kbd> tuşuna basın: puanlarıyla ilk 10 kişi; eşit puanlılar aynı sırayı paylaşır.
 **İsimleri denetle** her ismin yanına bir ✕ koyar; gizlenen isim "İsimsiz" olarak görünür.
+
+## Çoklu ölçek
+
+Katılımcılar birkaç ifadeyi tek formda aynı ölçekte puanlar; örneğin **Tempo**, **Örnekler** ve
+**Slaytlar** ifadeleriyle "Bugünkü atölyenin her bölümünü puanlayın".
+
+**Ayarlar:** 2 ile 8 arasında **İfade**, her biri en fazla 80 karakter, ve [ölçek](#ölçek)
+sorusundaki gibi bir ölçek: **En düşük** 0 ya da 1, **En yüksek** 2 ile 10 arası (varsayılan 1-5), en
+düşük ve en yüksek değer için isteğe bağlı etiketler.
+
+**Cevap vermek:** her ifade için bir sıra sayı. Cevap, her ifadeye puan verildiğinde gönderilir;
+herkes bir kez cevap verir.
+
+**Sonuçlar:** ifade başına ortalama, ölçek boyunca yatay bir çubukla, ifadelerin sırasıyla; ayrıca
+kaç kişinin cevap verdiği. Cevaplardan sonra kaldırdığınız ifade sonuçlardan çıkar; eklediğiniz
+ifade, biri puanlayana kadar ortalama göstermez. CSV dosyasına bir cevap `Tempo: 4; Örnekler: 5`
+olarak yazılır.
 
 ## Bütün tipler için sınırlar
 
