@@ -8,13 +8,14 @@ import {
   useState,
 } from 'react';
 import { readJson, writeJson } from '../lib/storage';
+import { de } from './de';
 import { en, type MessageKey } from './en';
 import { tr } from './tr';
 
-export const LANGUAGES = { en: 'English', tr: 'Türkçe' } as const;
+export const LANGUAGES = { en: 'English', tr: 'Türkçe', de: 'Deutsch' } as const;
 export type Language = keyof typeof LANGUAGES;
 
-const dictionaries: Record<Language, Record<MessageKey, string>> = { en, tr };
+const dictionaries: Record<Language, Record<MessageKey, string>> = { en, tr, de };
 const STORAGE_KEY = 'oyla:language';
 
 type Vars = Record<string, string | number>;
@@ -33,10 +34,16 @@ export interface I18n {
 
 export function detectLanguage(): Language {
   const stored = readJson<unknown>(STORAGE_KEY, null);
-  if (stored === 'en' || stored === 'tr') return stored;
+  if (typeof stored === 'string' && Object.hasOwn(LANGUAGES, stored)) {
+    return stored as Language;
+  }
   const preferred =
     typeof navigator === 'undefined' ? [] : (navigator.languages ?? [navigator.language]);
-  return preferred.some((tag) => tag?.toLowerCase().startsWith('tr')) ? 'tr' : 'en';
+  for (const tag of preferred) {
+    const code = tag?.toLowerCase().split('-')[0];
+    if (code && Object.hasOwn(LANGUAGES, code)) return code as Language;
+  }
+  return 'en';
 }
 
 export function interpolate(template: string, vars: Vars = {}): string {

@@ -1,20 +1,27 @@
 import { describe, expect, test } from 'vitest';
+import { de } from './de';
 import { en } from './en';
 import { createTranslator, detectLanguage, interpolate } from './I18nProvider';
 import { tr } from './tr';
 
+const dictionaries = { tr, de };
+
 describe('dictionaries', () => {
-  test('Turkish has every English key and no empty strings', () => {
-    expect(Object.keys(tr).sort()).toEqual(Object.keys(en).sort());
-    for (const [key, value] of Object.entries(tr)) {
-      expect(value.trim(), key).not.toBe('');
+  test('translations have every English key and no empty strings', () => {
+    for (const [code, dictionary] of Object.entries(dictionaries)) {
+      expect(Object.keys(dictionary).sort(), code).toEqual(Object.keys(en).sort());
+      for (const [key, value] of Object.entries(dictionary)) {
+        expect(value.trim(), `${code}.${key}`).not.toBe('');
+      }
     }
   });
 
   test('placeholders match between languages', () => {
     const names = (text: string) => [...text.matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort();
-    for (const key of Object.keys(en) as (keyof typeof en)[]) {
-      expect(names(tr[key]), key).toEqual(names(en[key]));
+    for (const [code, dictionary] of Object.entries(dictionaries)) {
+      for (const key of Object.keys(en) as (keyof typeof en)[]) {
+        expect(names(dictionary[key]), `${code}.${key}`).toEqual(names(en[key]));
+      }
     }
   });
 
@@ -55,5 +62,7 @@ describe('detectLanguage', () => {
   test('prefers a stored choice', () => {
     localStorage.setItem('oyla:language', JSON.stringify('tr'));
     expect(detectLanguage()).toBe('tr');
+    localStorage.setItem('oyla:language', JSON.stringify('de'));
+    expect(detectLanguage()).toBe('de');
   });
 });
