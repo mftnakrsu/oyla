@@ -241,9 +241,14 @@ sonuçları sıfırlamak süreyi yeniden başlatır. Tek dokunuş cevaplar; herk
 Süreyi sunucu tutar: süreden (yavaş ağlar için bir saniye payla) sonra gelen cevaplar reddedilir ve
 doğru cevap süre dolmadan telefonlara hiç gitmez.
 
-**Puanlar:** yanlış cevap ya da cevapsızlık 0 alır. Doğru cevap, sunucunun soruyu açtığı andan
-cevabın geldiği ana kadar geçen süreye göre 1.000 (hemen) ile 500 (son saniyede) arasında puan
-alır.
+**Puanlar:** yanlış cevap ya da cevapsızlık 0 alır. Varsayılan olarak doğru cevap, sunucunun
+soruyu açtığı andan cevabın geldiği ana kadar geçen süreye göre 1.000 (hemen) ile 500 (son
+saniyede) arasında puan alır. İki ayar bunu soru başına değiştirir:
+
+- **Doğru cevabın puanı:** puansız (alıştırma sorusu), 500, 1.000 (varsayılan) ya da 2.000; örneğin
+  zor bir sorunun iki kat sayılması için.
+- **Hızlı cevap daha çok puan alır:** varsayılan olarak açık. Kapatırsanız her doğru cevap, ne kadar
+  sürerse sürsün, puanın tamamını alır; sınıf ortamına uygundur.
 
 **Sonuçlar:** süre işlerken ekranda geri sayım ve cevap veren kişi sayısı görünür. Süre dolunca
 çubuklar doğru seçenek **Doğru** diye işaretlenmiş olarak açılır; her telefon doğru bilip

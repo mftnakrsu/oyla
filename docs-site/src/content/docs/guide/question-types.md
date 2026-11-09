@@ -239,9 +239,14 @@ coming back to it or resetting it starts it again. One tap answers; each person 
 The server keeps the time: answers that arrive after it (plus one second for slow networks) are
 refused, and phones never receive the correct answer before the time is up.
 
-**Points:** a wrong answer or none gets 0. A right one gets between 1,000 (straight away) and 500
-(at the last second), measured from when the server opened the question to when the answer
-arrived.
+**Points:** a wrong answer or none gets 0. By default a right one gets between 1,000 (straight
+away) and 500 (at the last second), measured from when the server opened the question to when the
+answer arrived. Two settings change this per question:
+
+- **Points for a right answer:** none (a practice question), 500, 1,000 (default) or 2,000, for
+  example to make a harder question count double.
+- **Faster answers earn more:** on by default. Turn it off and every right answer gets the full
+  points, however long it took, which suits a classroom.
 
 **Results:** while the time runs, the screen shows the countdown and how many people answered.
 When it is up, the bars appear with the right option marked **Correct**, and each phone shows
