@@ -47,7 +47,7 @@ computer or server as one Docker container, and your presentations and answers s
 - **Download the results** as a CSV file that opens in any spreadsheet app.
 - **No accounts:** creating a presentation gives you a private admin link. Optionally, the server
   owner can require a password to create presentations.
-- **English and Turkish** interface, light and dark mode.
+- **English, Turkish and German** interface, light and dark mode.
 - **Small and self-contained:** one Node.js process, one SQLite file, no external services.
 - **Easy to extend:** a question type is one shared definition plus three React components.
 
@@ -162,7 +162,7 @@ Sunumlarınız ve cevaplar sizin makinenizde kalır.
   gönderilse de gizli kalır.
 - **Sonuçları indirin:** Bütün cevaplar, her tablo uygulamasında açılan bir CSV dosyası olarak.
 - **Hesap gerekmez:** Sunumu oluşturduğunuzda size özel bir yönetici linki verilir.
-- **Arayüz** Türkçe ve İngilizce, açık ve koyu modla kullanılabilir.
+- **Arayüz** Türkçe, İngilizce ve Almanca, açık ve koyu modla kullanılabilir.
 - **Kurulumu kolay:** Tek bir Docker konteyneri ve tek bir SQLite dosyası yeterli.
 
 Hızlı başlangıç:
