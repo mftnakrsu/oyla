@@ -19,6 +19,10 @@ and versions follow [Semantic Versioning](https://semver.org/).
 - **Q&A: mark a question as answered.** While moderating, ✓ moves a question to an "Answered"
   list below the open ones, on the screen and on phones, and stops its upvotes. The mark can be
   taken off again; answered questions stay in the CSV export. Closes [#17].
+- **Quiz: points per question and a speed switch.** A question can be worth nothing (practice),
+  500, 1,000 or 2,000 points, and "Faster answers earn more" can be turned off so every right
+  answer gets the full points. Existing quizzes keep 1,000 points with speed counting. Closes
+  [#20].
 
 ### Changed
 
@@ -74,3 +78,4 @@ Socket.IO; four colour themes; English and Turkish; no accounts; one Docker cont
 [#5]: https://github.com/mftnakrsu/oyla/pull/5
 [#7]: https://github.com/mftnakrsu/oyla/issues/7
 [#17]: https://github.com/mftnakrsu/oyla/issues/17
+[#20]: https://github.com/mftnakrsu/oyla/issues/20
