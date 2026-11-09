@@ -137,6 +137,14 @@ for help, such as quizzes, audience Q&A and scaling to several servers.
 
 Found a security problem? Please report it privately, see [SECURITY.md](SECURITY.md).
 
+## Contributors
+
+Thanks to everyone who has helped build Oyla:
+
+<a href="https://github.com/mftnakrsu/oyla/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=mftnakrsu/oyla" alt="Oyla contributors" />
+</a>
+
 ## License
 
 [MIT](LICENSE)
