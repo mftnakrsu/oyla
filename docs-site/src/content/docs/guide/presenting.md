@@ -269,7 +269,9 @@ question, with these columns:
 | Question | The question as you typed it |
 | Question type | Multiple choice, Word cloud, Open question or Scale |
 | Answer | The chosen option, the text or the rating |
+| Points | The points a quiz answer earned; empty for other question types |
 | Participant | A number per person: 1 for whoever answered first, 2 for the next one, and so on. The same number marks the same phone across questions |
+| Name | The quiz leaderboard name the person picked; empty if they picked none or you hid it |
 | Time (UTC) | When the answer arrived, for example `2026-11-06T09:30:01.000Z` |
 | Hidden | `yes` when you took the answer off the screen while moderating |
 
