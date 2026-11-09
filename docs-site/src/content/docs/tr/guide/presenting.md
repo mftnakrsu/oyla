@@ -269,7 +269,9 @@ satırdır, satırlar soruya göre sıralanır ve şu sütunlar bulunur:
 | Soru | Sorunun sizin yazdığınız hâli |
 | Soru tipi | Çoktan seçmeli, Kelime bulutu, Açık uçlu soru ya da Ölçek |
 | Cevap | Seçilen seçenek, yazılan metin ya da verilen puan |
+| Puan | Bilgi yarışması cevabının kazandığı puan; diğer soru tiplerinde boş |
 | Katılımcı | Her kişiye bir numara: ilk cevap veren 1, sonraki 2 ve böyle devam eder. Aynı numara, sorular boyunca aynı telefonu gösterir |
+| İsim | Kişinin sıralama tablosu için seçtiği isim; isim seçmediyse ya da siz gizlediyseniz boş |
 | Zaman (UTC) | Cevabın geldiği an, örneğin `2026-11-06T09:30:01.000Z` |
 | Gizlendi | Denetim sırasında cevabı ekrandan kaldırdıysanız `evet` |
 
