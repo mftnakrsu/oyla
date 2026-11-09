@@ -8,6 +8,8 @@ const config = {
   ],
   correctOptionId: 'a',
   seconds: 20,
+  points: 1000,
+  speedCounts: true,
 };
 
 describe('quiz', () => {
@@ -24,7 +26,12 @@ describe('quiz', () => {
   });
 
   test('phones never get the correct answer through the public config', () => {
-    expect(quiz.toPublicConfig?.(config)).toEqual({ options: config.options, seconds: 20 });
+    expect(quiz.toPublicConfig?.(config)).toEqual({
+      options: config.options,
+      seconds: 20,
+      points: 1000,
+      speedCounts: true,
+    });
   });
 
   test('right and fast scores most, right and slow half, wrong nothing', () => {
@@ -35,6 +42,30 @@ describe('quiz', () => {
     expect(quizPoints(false, 0, 20)).toBe(0);
     expect(quiz.score?.(config, { optionId: 'a' }, 0)).toBe(1000);
     expect(quiz.score?.(config, { optionId: 'b' }, 0)).toBe(0);
+  });
+
+  test('quizzes saved before points and speed existed still parse, with the old scoring', () => {
+    const { points: _points, speedCounts: _speed, ...old } = config;
+    expect(quiz.configSchema.parse(old)).toMatchObject({ points: 1000, speedCounts: true });
+  });
+
+  test('points stay in range', () => {
+    expect(quiz.configSchema.safeParse({ ...config, points: 0 }).success).toBe(true);
+    expect(quiz.configSchema.safeParse({ ...config, points: 2000 }).success).toBe(true);
+    expect(quiz.configSchema.safeParse({ ...config, points: 2001 }).success).toBe(false);
+    expect(quiz.configSchema.safeParse({ ...config, points: -1 }).success).toBe(false);
+    expect(quiz.configSchema.safeParse({ ...config, points: 1.5 }).success).toBe(false);
+  });
+
+  test('a question can be worth more, nothing, or the same however fast', () => {
+    const double = { ...config, points: 2000 };
+    expect(quiz.score?.(double, { optionId: 'a' }, 0)).toBe(2000);
+    expect(quiz.score?.(double, { optionId: 'a' }, 20_000)).toBe(1000);
+    expect(quiz.score?.({ ...config, points: 0 }, { optionId: 'a' }, 0)).toBe(0);
+    const flat = { ...config, speedCounts: false };
+    expect(quiz.score?.(flat, { optionId: 'a' }, 0)).toBe(1000);
+    expect(quiz.score?.(flat, { optionId: 'a' }, 19_000)).toBe(1000);
+    expect(quiz.score?.(flat, { optionId: 'b' }, 0)).toBe(0);
   });
 
   test('counts answers per option like multiple choice', () => {

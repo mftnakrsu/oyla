@@ -28,6 +28,8 @@ const quizConfig = {
   ],
   correctOptionId: 'a',
   seconds: 20,
+  points: 1000,
+  speedCounts: true,
 };
 
 describe('quiz components', () => {
@@ -62,6 +64,19 @@ describe('quiz components', () => {
     expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ correctOptionId: 'b' }));
     await userEvent.click(screen.getByLabelText('Option 3 is the right answer'));
     expect(onChange).toHaveBeenLastCalledWith(expect.objectContaining({ correctOptionId: 'c' }));
+  });
+
+  test('the editor sets the points and whether speed counts, also for older quizzes', async () => {
+    const onChange = vi.fn();
+    const { points: _points, speedCounts: _speed, ...older } = quizConfig;
+    renderEn(<QuizEditor config={older as typeof quizConfig} onChange={onChange} />);
+    expect(screen.getByLabelText('Points for a right answer')).toHaveValue('1000');
+    await userEvent.selectOptions(screen.getByLabelText('Points for a right answer'), '2000');
+    expect(onChange).toHaveBeenLastCalledWith(expect.objectContaining({ points: 2000 }));
+    const speed = screen.getByRole('checkbox', { name: /Faster answers earn more/ });
+    expect(speed).toBeChecked();
+    await userEvent.click(speed);
+    expect(onChange).toHaveBeenLastCalledWith(expect.objectContaining({ speedCounts: false }));
   });
 });
 

@@ -161,6 +161,12 @@ export const de: Record<MessageKey, string> = {
   'quiz.correct': 'Richtig',
   'quiz.seconds.label': 'Zeit zum Antworten',
   'quiz.seconds.value': '{count} Sekunden',
+  'quiz.worth.label': 'Punkte für eine richtige Antwort',
+  'quiz.worth.value': '{points} Punkte',
+  'quiz.worth.none': 'Keine (Übung)',
+  'quiz.speed.label': 'Schnellere Antworten bringen mehr',
+  'quiz.speed.hint':
+    'Aus: Jede richtige Antwort bekommt alle Punkte, egal wie lange sie gedauert hat.',
   'quiz.respond.pick': 'Wähle deine Antwort',
   'quiz.secondsLeft': '{count}s',
   'quiz.timeLeft': 'Verbleibende Zeit',

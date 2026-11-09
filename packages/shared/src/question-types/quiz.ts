@@ -20,6 +20,10 @@ const configSchema = z
       }),
     correctOptionId: z.string().min(1).max(32),
     seconds: z.number().int().min(LIMITS.quizSecondsMin).max(LIMITS.quizSecondsMax),
+    /** What a right answer is worth; 0 makes it a practice question. Older quizzes have none. */
+    points: z.number().int().min(0).max(LIMITS.quizPointsMax).default(LIMITS.quizPoints),
+    /** Faster right answers earn more (down to half the points at the last second). */
+    speedCounts: z.boolean().default(true),
   })
   .refine((config) => config.options.some((o) => o.id === config.correctOptionId), {
     message: 'The correct answer must be one of the options',
@@ -33,15 +37,23 @@ export type QuizResponse = { optionId: string };
 export type QuizResults = { counts: Record<string, number>; total: number };
 
 export const QUIZ_SECONDS = [10, 20, 30, 60] as const;
+export const QUIZ_POINTS = [0, 500, 1000, 2000] as const;
 
 /**
- * Points for one answer: nothing for a wrong one; a right one gets between half and all of
- * LIMITS.quizPoints, falling linearly with the time it took.
+ * Points for one answer: nothing for a wrong one. A right one gets `points`, or, when speed
+ * counts, between half and all of them, falling linearly with the time it took.
  */
-export function quizPoints(correct: boolean, elapsedMs: number, seconds: number): number {
+export function quizPoints(
+  correct: boolean,
+  elapsedMs: number,
+  seconds: number,
+  points: number = LIMITS.quizPoints,
+  speedCounts = true,
+): number {
   if (!correct) return 0;
+  if (!speedCounts) return points;
   const share = Math.min(1, Math.max(0, elapsedMs / (seconds * 1000)));
-  return Math.round(LIMITS.quizPoints * (1 - share / 2));
+  return Math.round(points * (1 - share / 2));
 }
 
 export const quiz = defineQuestionType<QuizConfig, QuizResponse, QuizResults>({
@@ -52,7 +64,13 @@ export const quiz = defineQuestionType<QuizConfig, QuizResponse, QuizResults>({
       { id: randomId(8), label: '' },
       { id: randomId(8), label: '' },
     ];
-    return { options, correctOptionId: options[0]?.id ?? '', seconds: 20 };
+    return {
+      options,
+      correctOptionId: options[0]?.id ?? '',
+      seconds: 20,
+      points: LIMITS.quizPoints,
+      speedCounts: true,
+    };
   },
   responseSchema: (config) =>
     z.object({
@@ -79,5 +97,11 @@ export const quiz = defineQuestionType<QuizConfig, QuizResponse, QuizResults>({
   toPublicConfig: ({ correctOptionId: _hidden, ...rest }) => rest,
   timeLimit: (config) => config.seconds,
   score: (config, { optionId }, elapsedMs) =>
-    quizPoints(optionId === config.correctOptionId, elapsedMs, config.seconds),
+    quizPoints(
+      optionId === config.correctOptionId,
+      elapsedMs,
+      config.seconds,
+      config.points,
+      config.speedCounts,
+    ),
 });

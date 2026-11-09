@@ -1,4 +1,4 @@
-import { LIMITS, QUIZ_SECONDS, randomId } from '@oyla/shared';
+import { LIMITS, QUIZ_POINTS, QUIZ_SECONDS, randomId } from '@oyla/shared';
 import { useId } from 'react';
 import { Button } from '../../components/Button';
 import { useI18n } from '../../i18n/I18nProvider';
@@ -11,6 +11,9 @@ export function QuizEditor({ config, onChange }: EditorProps<'quiz'>) {
   const { t } = useI18n();
   const id = useId();
   const { options, correctOptionId, seconds } = config;
+  // Quizzes saved before these settings existed don't have them yet.
+  const points = config.points ?? LIMITS.quizPoints;
+  const speedCounts = config.speedCounts ?? true;
   const setLabel = (optionId: string, label: string) =>
     onChange({
       ...config,
@@ -25,6 +28,9 @@ export function QuizEditor({ config, onChange }: EditorProps<'quiz'>) {
   const timeChoices = QUIZ_SECONDS.includes(seconds as (typeof QUIZ_SECONDS)[number])
     ? QUIZ_SECONDS
     : [...QUIZ_SECONDS, seconds].sort((a, b) => a - b);
+  const pointChoices = QUIZ_POINTS.includes(points as (typeof QUIZ_POINTS)[number])
+    ? QUIZ_POINTS
+    : [...QUIZ_POINTS, points].sort((a, b) => a - b);
 
   return (
     <div className="flex flex-col gap-6">
@@ -100,6 +106,36 @@ export function QuizEditor({ config, onChange }: EditorProps<'quiz'>) {
           ))}
         </select>
       </div>
+      <div className="flex items-center gap-3">
+        <label htmlFor={`${id}-points`} className="font-medium">
+          {t('quiz.worth.label')}
+        </label>
+        <select
+          id={`${id}-points`}
+          value={points}
+          onChange={(event) => onChange({ ...config, points: Number(event.target.value) })}
+          className="min-h-11 rounded-xl border-2 border-line bg-paper px-3 text-lg"
+        >
+          {pointChoices.map((n) => (
+            <option key={n} value={n}>
+              {n === 0 ? t('quiz.worth.none') : t('quiz.worth.value', { points: n })}
+            </option>
+          ))}
+        </select>
+      </div>
+      <label className="flex items-start gap-3">
+        <input
+          type="checkbox"
+          className="mt-1 size-5 accent-brand"
+          checked={speedCounts}
+          disabled={points === 0}
+          onChange={(event) => onChange({ ...config, speedCounts: event.target.checked })}
+        />
+        <span className="flex flex-col">
+          <span className="font-medium">{t('quiz.speed.label')}</span>
+          <span className="text-sm text-muted">{t('quiz.speed.hint')}</span>
+        </span>
+      </label>
     </div>
   );
 }
