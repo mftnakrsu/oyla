@@ -44,21 +44,27 @@ const responses: ResponseExportDto[] = [
   {
     questionId: 'notes',
     participant: 1,
+    name: null,
     payload: { text: '=HYPERLINK("x")' },
+    score: null,
     createdAt: at,
     hidden: true,
   },
   {
     questionId: 'mc',
     participant: 1,
+    name: null,
     payload: { optionId: 'b' },
+    score: null,
     createdAt: at + 1000,
     hidden: false,
   },
   {
     questionId: 'mc',
     participant: 2,
+    name: null,
     payload: { optionId: 'gone' },
+    score: null,
     createdAt: at + 2000,
     hidden: false,
   },
@@ -89,17 +95,67 @@ describe('resultsCsv', () => {
   test('one row per answer, grouped by question, with readable answers', () => {
     const csv = resultsCsv(presentation, responses, createTranslator('en').t);
     expect(csv.split('\r\n')).toEqual([
-      '\uFEFF#,Question,Question type,Answer,Participant,Time (UTC),Hidden',
-      '1,Tea or coffee?,Multiple choice,"Coffee, black",1,2026-11-06T09:30:01.000Z,',
-      '1,Tea or coffee?,Multiple choice,,2,2026-11-06T09:30:02.000Z,',
-      `2,Untitled question,Open question,"'=HYPERLINK(""x"")",1,2026-11-06T09:30:00.000Z,yes`,
+      '\uFEFF#,Question,Question type,Answer,Points,Participant,Name,Time (UTC),Hidden',
+      '1,Tea or coffee?,Multiple choice,"Coffee, black",,1,,2026-11-06T09:30:01.000Z,',
+      '1,Tea or coffee?,Multiple choice,,,2,,2026-11-06T09:30:02.000Z,',
+      `2,Untitled question,Open question,"'=HYPERLINK(""x"")",,1,,2026-11-06T09:30:00.000Z,yes`,
       '',
+    ]);
+  });
+
+  test('quiz rows carry points and leaderboard names', () => {
+    const quizPresentation: PresentationDto = {
+      ...presentation,
+      questions: [
+        ...presentation.questions,
+        {
+          id: 'quiz',
+          type: 'quiz',
+          title: 'Capital?',
+          config: {
+            options: [
+              { id: 'a', label: 'Ankara' },
+              { id: 'b', label: 'İstanbul' },
+            ],
+            correctOptionId: 'a',
+            seconds: 20,
+          },
+          position: 2,
+          responseCount: 2,
+          resultsHidden: false,
+        },
+      ],
+    };
+    const scored: ResponseExportDto[] = [
+      {
+        questionId: 'quiz',
+        participant: 1,
+        name: 'Quick Eagle',
+        payload: { optionId: 'a' },
+        score: 1000,
+        createdAt: at,
+        hidden: false,
+      },
+      {
+        questionId: 'quiz',
+        participant: 2,
+        name: null,
+        payload: { optionId: 'b' },
+        score: 0,
+        createdAt: at + 1000,
+        hidden: false,
+      },
+    ];
+    const csv = resultsCsv(quizPresentation, scored, createTranslator('en').t);
+    expect(csv.split('\r\n').slice(1, 3)).toEqual([
+      '3,Capital?,Quiz,Ankara,1000,1,Quick Eagle,2026-11-06T09:30:00.000Z,',
+      '3,Capital?,Quiz,İstanbul,0,2,,2026-11-06T09:30:01.000Z,',
     ]);
   });
 
   test('headers follow the interface language', () => {
     const csv = resultsCsv(presentation, [], createTranslator('tr').t);
-    expect(csv).toBe('\uFEFF#,Soru,Soru tipi,Cevap,Katılımcı,Zaman (UTC),Gizlendi\r\n');
+    expect(csv).toBe('\uFEFF#,Soru,Soru tipi,Cevap,Puan,Katılımcı,İsim,Zaman (UTC),Gizlendi\r\n');
   });
 });
 

@@ -178,19 +178,21 @@ describe('responses', () => {
     addPresentation('p2', '222222');
     addQuestion('other', 'p2');
     store.responses.insert('q2', 'aaaaaaaaaaaaaaaa', { text: 'one' }, 1000);
-    store.responses.insert('q1', 'bbbbbbbbbbbbbbbb', { text: 'two' }, 1001);
+    store.responses.insert('q1', 'bbbbbbbbbbbbbbbb', { text: 'two' }, 1001, 750);
     store.responses.insert('other', 'aaaaaaaaaaaaaaaa', { text: 'elsewhere' }, 1002);
     expect(store.responses.listForPresentation('p1')).toEqual([
       {
         questionId: 'q2',
         participantId: 'aaaaaaaaaaaaaaaa',
         payload: { text: 'one' },
+        score: null,
         createdAt: 1000,
       },
       {
         questionId: 'q1',
         participantId: 'bbbbbbbbbbbbbbbb',
         payload: { text: 'two' },
+        score: 750,
         createdAt: 1001,
       },
     ]);
