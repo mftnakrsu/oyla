@@ -428,7 +428,7 @@ describe('audience Q&A', () => {
     const message = service.results(id, questionId);
     expect(message.total).toBe(1);
     expect(message.results).toEqual({
-      entries: [{ key: 'why tuesdays?', text: 'Why Tuesdays?', votes: 1 }],
+      entries: [{ key: 'why tuesdays?', text: 'Why Tuesdays?', votes: 1, answered: false }],
       total: 1,
     });
   });
@@ -459,6 +459,57 @@ describe('audience Q&A', () => {
     service.updateQuestion(id, questionId, { resultsHidden: true });
     expect(service.participantState(id, bob).results).toBeNull();
     expect(service.resultsAudience(id, questionId)).toBeNull();
+  });
+
+  test('an answered question moves below the open ones and takes no more upvotes', () => {
+    const { id, questionId } = qaSession();
+    const carol = 'carol-participant-01';
+    service.submit(id, alice, questionId, { text: 'Popular?' });
+    service.submit(id, bob, questionId, { upvote: 'popular?' });
+    service.submit(id, bob, questionId, { text: 'Quiet?' });
+    service.markAnswered(id, questionId, 'popular?', true);
+    // Marking twice changes nothing.
+    service.markAnswered(id, questionId, 'popular?', true);
+    expect(service.results(id, questionId).results).toEqual({
+      entries: [
+        { key: 'quiet?', text: 'Quiet?', votes: 0, answered: false },
+        { key: 'popular?', text: 'Popular?', votes: 1, answered: true },
+      ],
+      total: 2,
+    });
+    expectAppError(
+      () => service.submit(id, carol, questionId, { upvote: 'popular?' }),
+      'ENTRY_ANSWERED',
+      409,
+    );
+    // Asking it again is still a question, and the answer stays in the export.
+    service.submit(id, carol, questionId, { text: 'POPULAR?' });
+    expect(service.exportResponses(id).responses).toHaveLength(4);
+
+    service.markAnswered(id, questionId, 'popular?', false);
+    expect(service.submit(id, 'dave-participant-001', questionId, { upvote: 'popular?' })).toEqual({
+      remaining: 2,
+    });
+    expect(service.results(id, questionId).results).toMatchObject({
+      entries: [{ key: 'popular?', votes: 2, answered: false }, { key: 'quiet?' }],
+    });
+  });
+
+  test('resetting the question clears what was answered', () => {
+    const { id, questionId } = qaSession();
+    service.submit(id, alice, questionId, { text: 'Done?' });
+    service.markAnswered(id, questionId, 'done?', true);
+    service.resetResults(id, questionId);
+    service.submit(id, alice, questionId, { text: 'Done?' });
+    expect(service.results(id, questionId).results).toMatchObject({
+      entries: [{ key: 'done?', answered: false }],
+    });
+  });
+
+  test('only Q&A questions can be marked as answered', () => {
+    const { id } = qaSession();
+    const cloud = service.addQuestion(id, { type: 'word-cloud' });
+    expectAppError(() => service.markAnswered(id, cloud.id, 'tea', true), 'VALIDATION_FAILED', 400);
   });
 });
 

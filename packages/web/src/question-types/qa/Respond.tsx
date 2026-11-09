@@ -66,33 +66,44 @@ export function QaRespond({ remaining, onSubmit, results, mine = [] }: RespondPr
           <p className="text-muted">{t('qa.respond.empty')}</p>
         ) : (
           <ul className="flex flex-col gap-2">
-            {results.entries.map((entry) => {
+            {results.entries.map((entry, index) => {
               const own = asked.has(entry.key);
               const done = upvoted.has(entry.key);
+              // Answered questions come last; the first one starts their own heading.
+              const firstAnswered = entry.answered && !results.entries[index - 1]?.answered;
               return (
                 <li
                   key={entry.key}
-                  className="flex items-center gap-3 rounded-xl border-2 border-line bg-paper px-3 py-2"
+                  className={`flex flex-col gap-2 ${firstAnswered ? 'mt-2' : ''}`}
                 >
-                  <span className="min-w-0 flex-1 break-words">
-                    {entry.text}
-                    {own ? (
-                      <span className="ml-2 text-sm text-muted">{t('qa.respond.yours')}</span>
-                    ) : null}
-                  </span>
-                  <button
-                    type="button"
-                    disabled={own || done || pending !== null}
-                    aria-pressed={done}
-                    aria-label={t('qa.respond.upvote', { text: entry.text })}
-                    onClick={() => void upvote(entry.key)}
-                    className={`flex min-h-11 min-w-14 shrink-0 items-center justify-center gap-1 rounded-lg border-2 px-2 font-medium ${
-                      done ? 'border-brand bg-brand text-on-brand' : 'border-line'
-                    } disabled:cursor-default ${own ? 'opacity-50' : ''}`}
+                  {firstAnswered ? (
+                    <h3 className="font-semibold text-muted">{t('qa.respond.answered')}</h3>
+                  ) : null}
+                  <div
+                    className={`flex items-center gap-3 rounded-xl border-2 border-line px-3 py-2 ${
+                      entry.answered ? 'bg-paper/60 text-muted' : 'bg-paper'
+                    }`}
                   >
-                    <UpvoteIcon className="size-5" />
-                    <span>{entry.votes}</span>
-                  </button>
+                    <span className="min-w-0 flex-1 break-words">
+                      {entry.text}
+                      {own ? (
+                        <span className="ml-2 text-sm text-muted">{t('qa.respond.yours')}</span>
+                      ) : null}
+                    </span>
+                    <button
+                      type="button"
+                      disabled={own || done || entry.answered || pending !== null}
+                      aria-pressed={done}
+                      aria-label={t('qa.respond.upvote', { text: entry.text })}
+                      onClick={() => void upvote(entry.key)}
+                      className={`flex min-h-11 min-w-14 shrink-0 items-center justify-center gap-1 rounded-lg border-2 px-2 font-medium ${
+                        done ? 'border-brand bg-brand text-on-brand' : 'border-line'
+                      } disabled:cursor-default ${own || entry.answered ? 'opacity-50' : ''}`}
+                    >
+                      <UpvoteIcon className="size-5" />
+                      <span>{entry.votes}</span>
+                    </button>
+                  </div>
                 </li>
               );
             })}

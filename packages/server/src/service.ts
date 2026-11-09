@@ -245,17 +245,25 @@ export function createPresentationService({ store, events, config, now = Date.no
     const total = answersIn(question, shown);
     return {
       questionId,
-      results: question ? question.type.aggregate(question.config, shown) : null,
+      results: question
+        ? question.type.aggregate(question.config, shown, {
+            answeredKeys: new Set(keysOf(question.row.answeredKeys)),
+          })
+        : null,
       total,
       hidden: answersIn(question, payloads) - total,
     };
   }
 
-  /** The stored hidden keys; anything malformed counts as none. */
-  function hiddenKeysOf(row: QuestionRow): string[] {
-    return Array.isArray(row.hiddenKeys)
-      ? row.hiddenKeys.filter((key): key is string => typeof key === 'string')
+  /** Stored moderation keys (hidden or answered); anything malformed counts as none. */
+  function keysOf(stored: unknown): string[] {
+    return Array.isArray(stored)
+      ? stored.filter((key): key is string => typeof key === 'string')
       : [];
+  }
+
+  function hiddenKeysOf(row: QuestionRow): string[] {
+    return keysOf(row.hiddenKeys);
   }
 
   /**
@@ -382,6 +390,7 @@ export function createPresentationService({ store, events, config, now = Date.no
         config: body.config === undefined ? type.defaultConfig() : parseConfig(type, body.config),
         resultsHidden: false,
         hiddenKeys: [],
+        answeredKeys: [],
         openedAt: null,
         createdAt: time,
         updatedAt: time,
@@ -460,13 +469,14 @@ export function createPresentationService({ store, events, config, now = Date.no
       const time = now();
       store.transaction(() => {
         store.responses.deleteForQuestion(questionId);
-        // Starting over: nothing is left to hide, and an open timed question gets its time back.
+        // Starting over: nothing is left to hide or answered, and an open timed question gets
+        // its time back.
         store.questions.update(
           presentationId,
           questionId,
           presentation.activeQuestionId === questionId
-            ? { hiddenKeys: [], openedAt: time }
-            : { hiddenKeys: [] },
+            ? { hiddenKeys: [], answeredKeys: [], openedAt: time }
+            : { hiddenKeys: [], answeredKeys: [] },
           time,
         );
       });
@@ -589,6 +599,15 @@ export function createPresentationService({ store, events, config, now = Date.no
           if (type.allows && !type.allows(parsed.data, own)) {
             throw new AppError('VALIDATION_FAILED', 400, 'This answer is not allowed');
           }
+          // An answered Q&A question stops collecting upvotes; asking it again is still fine.
+          if (
+            type.canMarkAnswered &&
+            type.moderationKey &&
+            !isAnswer(question, parsed.data) &&
+            keysOf(question.row.answeredKeys).includes(type.moderationKey(parsed.data))
+          ) {
+            throw new AppError('ENTRY_ANSWERED', 409, 'This question was already answered');
+          }
           used = answersIn(question, own);
         } else {
           used = store.responses.countForParticipant(questionId, participantId);
@@ -701,6 +720,29 @@ export function createPresentationService({ store, events, config, now = Date.no
       }
       const time = now();
       store.questions.update(presentationId, questionId, { hiddenKeys: [...keys, key] }, time);
+      store.presentations.touch(presentationId, time);
+      events.emit('results-changed', presentationId, questionId);
+    },
+
+    /** Moderation: marks the answers with this key as answered (Q&A), or takes the mark off. */
+    markAnswered(presentationId: string, questionId: string, key: string, answered: boolean): void {
+      requirePresentation(presentationId);
+      const question = resolve(requireQuestion(presentationId, questionId));
+      if (!question?.type.canMarkAnswered) {
+        throw new AppError('VALIDATION_FAILED', 400, 'Answers to this question cannot be marked');
+      }
+      const keys = keysOf(question.row.answeredKeys);
+      if (keys.includes(key) === answered) return;
+      if (answered && keys.length >= LIMITS.hiddenEntries) {
+        throw new AppError('VALIDATION_FAILED', 400, 'Too many answered questions');
+      }
+      const time = now();
+      store.questions.update(
+        presentationId,
+        questionId,
+        { answeredKeys: answered ? [...keys, key] : keys.filter((other) => other !== key) },
+        time,
+      );
       store.presentations.touch(presentationId, time);
       events.emit('results-changed', presentationId, questionId);
     },
